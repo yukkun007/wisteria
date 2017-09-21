@@ -1,0 +1,89 @@
+{
+  "name": "wisteria",
+  "scripts": {
+  },
+  "env": {
+    "BUILDPACK_URL": {
+      "required": true
+    },
+    "DATABASE_URL": {
+      "required": true
+    },
+    "DISABLE_COLLECTSTATIC": {
+      "required": true
+    },
+    "DJANGO_SECRET_KEY": {
+      "required": true
+    },
+    "GMAIL_AUTH_STORAGE": {
+      "required": true
+    },
+    "GMAIL_CLIENT_SECRET": {
+      "required": true
+    },
+    "GMAIL_SEND_ADDRESS1": {
+      "required": true
+    },
+    "GMAIL_SEND_ADDRESS2": {
+      "required": true
+    },
+    "LD_LIBRARY_PATH": {
+      "required": true
+    },
+    "LINE_CHANNEL_ACCESS_TOKEN": {
+      "required": true
+    },
+    "LINE_CHANNEL_SECRET": {
+      "required": true
+    },
+    "LINE_SEND_GROUP_ID": {
+      "required": true
+    },
+    "LINE_SEND_ID": {
+      "required": true
+    },
+    "NEW_RELIC_LICENSE_KEY": {
+      "required": true
+    },
+    "NEW_RELIC_LOG": {
+      "required": true
+    },
+    "PATH": {
+      "required": true
+    },
+    "TZ": {
+      "required": true
+    },
+    "USER_TEST": {
+      "required": true
+    },
+    "USER1": {
+      "required": true
+    },
+    "USER2": {
+      "required": true
+    },
+    "USER3": {
+      "required": true
+    },
+    "USER4": {
+      "required": true
+    },
+    "YOUTUBE_CLIENT_SECRET": {
+      "required": true
+    },
+    "YOUTUBE_OAUTH_JSON": {
+      "required": true
+    }
+  },
+  "formation": {
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-multi.git"
+    }
+  ]
+}
