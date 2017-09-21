@@ -29,7 +29,7 @@ class KBot(object):
     def get_kbot_command_menu(self):
         buttons_template = ButtonsTemplate(
             title   = 'kbotコマンドメニュー',
-            text    = '直接メッセージを入れても反応します。',
+            text    = '直接メッセージを入れても反応します!',
             actions = [
                 #URITemplateAction(
                     # label='図書館のサイトへ',
