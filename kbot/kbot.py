@@ -57,7 +57,7 @@ class KBot(object):
         return buttons_template
 
     def is_rental_check_command(self, text):
-        for key in ['図書館', '本']:
+        for key in ['図書館', '借り']:
             if key in text:
                 return True
         return False
@@ -77,6 +77,11 @@ class KBot(object):
         for key in ['文字', 'moji']:
             if key in text:
                 return True
+        return False
+
+    def is_search_book_command(self, text):
+        if '本？' in text:
+            return True
         return False
 
     def get_xdays(self, text):

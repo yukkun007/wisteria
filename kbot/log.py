@@ -12,6 +12,6 @@ class Log(object):
     def logging_exception(e):
         Log.info('type:' + str(type(e)))
         Log.info('args:' + str(e.args))
-        Log.info('message:' + e.message)
+        # Log.info('message:' + e.message)
         Log.info('e:' + str(e))
 

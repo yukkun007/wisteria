@@ -18,6 +18,10 @@ from kbot.library.filter import Filter
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
+from kbot.book.calil import Calil
+from kbot.book.amazon import Amazon
+from kbot.book.book import Book
+from kbot.book.rakuten_books import RakutenBooks
 
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -33,20 +37,23 @@ from linebot.models import ButtonsTemplate,\
 KBOT_TEMPLATE_DIR = settings.PROJECT_ROOT + '/templates/kbot/'
 
 # グローバル変数
-KBOT         = KBot(settings.PROJECT_ROOT)
-line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
-parser       = WebhookParser(os.environ['LINE_CHANNEL_SECRET'])
-line         = Line(line_bot_api)
-gmail        = GMail(settings.PROJECT_ROOT)
-youtube      = YouTube(settings.PROJECT_ROOT)
-users        = [User(os.environ['USER1']),
+KBOT          = KBot(settings.PROJECT_ROOT)
+line_bot_api  = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
+parser        = WebhookParser(os.environ['LINE_CHANNEL_SECRET'])
+line          = Line(line_bot_api)
+gmail         = GMail(settings.PROJECT_ROOT)
+youtube       = YouTube(settings.PROJECT_ROOT)
+users         = [User(os.environ['USER1']),
                 User(os.environ['USER2']),
                 User(os.environ['USER3']),
                 User(os.environ['USER4'])]
-gmail_tos    = [os.environ['GMAIL_SEND_ADDRESS1'],
+gmail_tos     = [os.environ['GMAIL_SEND_ADDRESS1'],
                 os.environ['GMAIL_SEND_ADDRESS2']]
-line_tos = [os.environ['LINE_SEND_GROUP_ID']]
+line_tos      = [os.environ['LINE_SEND_GROUP_ID']]
 # line_tos = [os.environ['LINE_SEND_ID']]
+calil         = Calil()
+amazon        = Amazon()
+rakuten_books = RakutenBooks()
 
 
 def youtube_omoide(request):
@@ -76,6 +83,8 @@ def youtube_omoide(request):
 def library_test(request):
     if request.method == 'GET':
         Log.info('GET! library_test')
+
+        __search_book_by_isbn('', 'isbn:9784794214782')
 
         xdays = 2
         library = Library(KBOT_TEMPLATE_DIR, users)
@@ -130,7 +139,10 @@ def callback(request):
                     if isinstance(event.source, SourceGroup):
                         Log.info('groupId' + event.source.group_id)
 
-                    if KBOT.is_rental_check_command(text):
+                    if KBOT.is_search_book_command(text):
+                        __search_book(event, text)
+
+                    elif KBOT.is_rental_check_command(text):
                         __check_rental(event)
 
                     elif KBOT.is_expire_check_command(text):
@@ -149,6 +161,8 @@ def callback(request):
 
                 elif isinstance(event, PostbackEvent):
                     data = event.postback.data
+                    if data.startswith('isbn:'):
+                        __search_book_by_isbn(event, data)
                     # if data == 'check_rental':
                     #     __check_rental(event)
                     # elif data == 'check_expired':
@@ -160,13 +174,13 @@ def callback(request):
                     #     __show_reply_string(event)
 
         except InvalidSignatureError as e:
-            logging_exception(e)
+            Log.logging_exception(e)
             return HttpResponseForbidden()
         except LineBotApiError as e:
-            logging_exception(e)
+            Log.logging_exception(e)
             return HttpResponseBadRequest()
         except Exception as e:
-            logging_exception(e)
+            Log.logging_exception(e)
 
         return HttpResponse('done! callback')
     else:
@@ -198,6 +212,30 @@ def __show_reply_string(event):
     message = KBOT.get_reply_string()
     line.my_reply_text_message(message, event)
 
+def __search_book(event, text):
+    book_name = text[2:]
+
+    rakuten        = RakutenBooks()
+    query          = {}
+    query['title'] = book_name
+    books          = rakuten.search_books(query)
+
+    if len(books) == 0:
+        line.my_reply_text_message('見つかりませんでした。。', event)
+    else:
+        message = Book.get_books_select_line_carousel_mseeage(books)
+        line.my_reply_template_message(message, event)
+
+def __search_book_by_isbn(event, text):
+    isbn = text[5:]
+    # calilで検索
+    book = calil.get_book(isbn)
+    # amazonで検索
+    # book.merge(amazon.get_book(isbn))
+    book.merge(rakuten_books.get_book(isbn))
+    # メッセージ作成
+    message = Book.get_book_info_line_text_message(settings.PROJECT_ROOT, book)
+    line.my_reply_text_message(message, event)
 
 # @csrf_exempt
 # def sample(request):
@@ -233,13 +271,13 @@ def __show_reply_string(event):
 #                         line.my_reply_message(data, event)
 #
 #         except InvalidSignatureError as e:
-#             logging_exception(e)
+#             Log.logging_exception(e)
 #             return HttpResponseForbidden()
 #         except LineBotApiError as e:
-#             logging_exception(e)
+#             Log.logging_exception(e)
 #             return HttpResponseBadRequest()
 #         except Exception as e:
-#             logging_exception(e)
+#             Log.logging_exception(e)
 #
 #         return HttpResponse()
 #     else:
