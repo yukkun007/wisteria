@@ -57,7 +57,7 @@ class KBot(object):
         return buttons_template
 
     def is_rental_check_command(self, text):
-        for key in ['図書館', '本']:
+        for key in ['図書館', '借り']:
             if key in text:
                 return True
         return False
@@ -79,6 +79,11 @@ class KBot(object):
                 return True
         return False
 
+    def is_search_book_command(self, text):
+        if '本？' in text:
+            return True
+        return False
+
     def get_xdays(self, text):
         default = 2
         num_str = text.replace('日', '')
@@ -92,7 +97,7 @@ class KBot(object):
 次の言葉に反応します。
 
 *借りてる本
-　→図書館/本
+　→図書館/借り
 *期限切れ
 　→期限切れ/延滞
 *期限まで後少し
