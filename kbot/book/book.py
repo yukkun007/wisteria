@@ -77,7 +77,7 @@ class Book(object):
             text = text[:60]
             column = CarouselColumn(
                 thumbnail_image_url = gyazo_url,
-                title               = book.title,
+                title               = book.title[:40],
                 text                = text,
                 actions             = [
                     PostbackTemplateAction(

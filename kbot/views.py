@@ -84,8 +84,6 @@ def library_test(request):
     if request.method == 'GET':
         Log.info('GET! library_test')
 
-        __search_book_by_isbn('', 'isbn:9784794214782')
-
         xdays = 2
         library = Library(KBOT_TEMPLATE_DIR, users)
         library.fetch_status()
