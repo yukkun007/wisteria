@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
+import os
 import json
 from jinja2 import Template, Environment, FileSystemLoader
 from linebot.models import ButtonsTemplate, CarouselTemplate, CarouselColumn
@@ -56,8 +57,10 @@ class Book(object):
     def get_book_info_line_text_message(root_dir, book):
         env = Environment(loader=FileSystemLoader(root_dir))
 
+        book_id = book.reserveurl.split('=')[-1]
+
         template  = env.get_template('templates/kbot/book/book_info.tpl')
-        data      = {'book': book }
+        data      = {'book': book, 'book_id': book_id, 'my_server_name': os.environ['MY_SERVER_NAME'] }
         message   = template.render(data)
 
         return message

@@ -6,6 +6,7 @@ import os
 from django.conf import settings
 from django.http import HttpResponse,\
                         HttpResponseBadRequest,\
+                        HttpResponseRedirect,\
                         HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 
@@ -15,6 +16,8 @@ from kbot.library.library import Library
 from kbot.library.message import Message
 from kbot.library.user import User
 from kbot.library.filter import Filter
+from kbot.library.yoyaku_book import YoyakuBook
+from kbot.library.user_status import UserStatus
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
@@ -50,6 +53,8 @@ users         = [User(os.environ['USER1']),
 gmail_tos     = [os.environ['GMAIL_SEND_ADDRESS1'],
                 os.environ['GMAIL_SEND_ADDRESS2']]
 line_tos      = [os.environ['LINE_SEND_GROUP_ID']]
+if settings.DEBUG == True:
+    line_tos = [os.environ['LINE_SEND_GROUP_ID_DEBUG']]
 # line_tos = [os.environ['LINE_SEND_ID']]
 calil         = Calil()
 amazon        = Amazon()
@@ -73,7 +78,7 @@ def youtube_omoide(request):
                     uri   = 'https://www.youtube.com/watch?v=' + movie.video_id)
             ]
         )
-        line.my_push_template_message(buttons_template, line_tos)
+        line.my_push_template_message(buttons_template, movie.title, line_tos)
 
         return HttpResponse('done! youtube_omoide')
     else:
@@ -94,6 +99,36 @@ def library_test(request):
         # line.my_push_text_message(short_message, line_tos)
 
         return HttpResponse('done! library_test')
+
+
+def library_reserve(request):
+    if request.method == 'GET':
+        Log.info('GET! library_reserve')
+
+        book_id = request.GET.get('book_id')
+        if book_id != None:
+            user_num = '1'
+            library  = Library(KBOT_TEMPLATE_DIR, users)
+            url      = library.yoyaku(user_num, book_id)
+
+            template = YoyakuBook.make_finish_reserve_message_template(user_num)
+            line.my_push_template_message(template, '予約完了', line_tos)
+
+            return HttpResponseRedirect(url)
+        else:
+            line.my_push_text_message('予約失敗。。', line_tos)
+
+        return HttpResponse('done! library_reserve')
+
+
+def library_check_reserve(request):
+    if request.method == 'GET':
+        Log.info('GET! library_check_reserve')
+
+        user_nums = '1,2,3,4'
+        __check_reserved_books(None, user_nums)
+
+        return HttpResponse('done! library_check_reserve')
 
 
 def library_check(request):
@@ -140,6 +175,10 @@ def callback(request):
                     if KBOT.is_search_book_command(text):
                         __search_book(event, text)
 
+                    elif KBOT.is_check_reserve_command(text):
+                        user_nums = '1,2,3,4'
+                        __check_reserved_books(event, user_nums)
+
                     elif KBOT.is_rental_check_command(text):
                         __check_rental(event)
 
@@ -161,10 +200,11 @@ def callback(request):
                     data = event.postback.data
                     if data.startswith('isbn:'):
                         __search_book_by_isbn(event, data)
+                    elif data.startswith('check_reserve:'):
+                        user_nums = data[14:]
+                        __check_reserved_books(event, user_nums)
                     # if data == 'check_rental':
                     #     __check_rental(event)
-                    # elif data == 'check_expired':
-                    #     __check_expired(event)
                     # elif data == 'check_expire':
                     #     xdays = 2
                     #     __check_expire(event, xdays)
@@ -209,6 +249,16 @@ def __check_expired(event):
 def __show_reply_string(event):
     message = KBOT.get_reply_string()
     line.my_reply_text_message(message, event)
+
+def __check_reserved_books(event, user_nums):
+    library     = Library(KBOT_TEMPLATE_DIR, users)
+    user_status = library.check_reserved_books(user_nums)
+    message     = UserStatus.make_user_reserved_books_message(KBOT_TEMPLATE_DIR, user_status)
+    if event != None:
+        line.my_reply_text_message(message, event)
+    else:
+        if UserStatus.prepared_reserved_book(user_status):
+            line.my_push_text_message(message, line_tos)
 
 def __search_book(event, text):
     book_name = text[2:]

@@ -4,12 +4,46 @@
 from bs4 import BeautifulSoup
 from kbot.library.rental_book import RentalBook
 from kbot.library.rental_books import RentalBooks
+from kbot.library.yoyaku_book import YoyakuBook
 from kbot.log import Log
 
 class HtmlParser(object):
 
     def __init__(self, html):
         self.html = html
+
+    def get_yoyaku_books(self):
+        books = []
+        soup  = BeautifulSoup(self.html, "html.parser")
+
+        table = soup.select("form[name='FormRSV'] > table[border]")
+        if len(table) > 0:
+            trs = table[0].find_all("tr")
+            for tr in trs:
+                tds = tr.find_all(["td", "th"])
+                no           = tds[0].string.strip()
+                if no.isnumeric() is False:
+                    continue
+
+                status       = tds[1].get_text().strip()
+                order        = tds[2].get_text().strip()
+                title        = tds[3].a.get_text().strip()
+                kind         = tds[4].get_text().strip()
+                yoyaku_date  = tds[6].get_text().strip()
+                torioki_date = tds[7].get_text().strip()
+
+                book = YoyakuBook(
+                    status,
+                    order,
+                    title,
+                    kind,
+                    yoyaku_date,
+                    torioki_date)
+
+                Log.info('--------------- ' + no)
+                books.append(book)
+
+        return books
 
     def get_rental_books(self):
         soup  = BeautifulSoup(self.html, "html.parser")
@@ -24,8 +58,8 @@ class HtmlParser(object):
             first_cell = tds[0].get_text().strip()
             last_cell  = tds[-1].get_text().strip()
 
-            #print('first:{}'.format(first_cell))
-            #print('last:{}'.format(last_cell))
+            #Log.info('first:{}'.format(first_cell))
+            #Log.info('last:{}'.format(last_cell))
 
             if first_cell.isnumeric() is False:
                 continue

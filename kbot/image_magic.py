@@ -11,6 +11,5 @@ class ImageMagic(object):
 
     def convert(self, path):
         cmd = "convert {0} -background none -gravity center -extent 302x200 {0}".format(path)
-        print(cmd)
         os.system(cmd);
 

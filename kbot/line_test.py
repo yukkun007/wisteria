@@ -35,6 +35,6 @@ class TestLine:
                     uri   = 'https://www.youtube.com/')
             ]
         )
-        line.my_push_template_message(buttons_template, [os.environ['LINE_SEND_ID']])
+        line.my_push_template_message(buttons_template, 'test', [os.environ['LINE_SEND_ID']])
         pass
 

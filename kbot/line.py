@@ -19,9 +19,9 @@ class Line(object):
                 TextSendMessage(text=message)
             )
 
-    def my_push_template_message(self, template, tos):
+    def my_push_template_message(self, template, alt_text, tos):
         template_message = TemplateSendMessage(
-            alt_text='alt text',
+            alt_text=alt_text,
             template=template)
         for to in tos:
             self.line_bot_api.push_message(

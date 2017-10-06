@@ -1,5 +1,5 @@
-{%- if all_books_count <= 0 -%}
-対象の本は1冊もありませんでした。
+􀁡予約状況􀁡
 
-{% endif -%}
+{% if is_prepared %}􀁠準備できた本あり􀁠{% endif %}
+{{ sub_message }}
 [図書館のページ]: https://www.lib.nerima.tokyo.jp/opw/OPW/OPWLOGINTIME.CSP?HPFLG=1&NEXT=OPWUSERINFO&DB=LIB
