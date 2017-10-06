@@ -22,5 +22,5 @@ class TestBook(object):
         rakuten        = RakutenBooks()
         books          = rakuten.search_books(query)
         message        = Book.get_books_select_line_carousel_mseeage(books)
-        line.my_push_template_message(message, line_tos)
+        line.my_push_template_message(message, 'title:カンブリア', line_tos)
 

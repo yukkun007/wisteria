@@ -20,5 +20,5 @@ class TestCalil(object):
         isbn    = '9784532280208'
         book    = calil.get_book(isbn)
         message = Book.get_book_info_text_message(book)
-        line.my_push_template_message(message, line_tos)
+        line.my_push_template_message(message, '書籍情報', line_tos)
 

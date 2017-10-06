@@ -1,5 +1,13 @@
 {%- if books_len > 0 -%}
-{{ user.name }}(ID:{{ user.id }})は{{ books_len }}冊借りています。
+
+───────────
+􀂏{{ user.name }}({{ user.id }})
+　　　貸出：{{ books_len }}冊
+───────────
 {% else -%}
-{{ user.name }}(ID:{{ user.id }})の借りてる本はありません。
+
+───────────
+􀂏{{ user.name }}({{ user.id }})
+　　　貸出：0冊
+───────────
 {% endif -%}

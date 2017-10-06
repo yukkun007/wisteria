@@ -20,10 +20,10 @@ class KBot(object):
     def __load_dotenv(self):
         dotenv_path = os.path.join(self.root_dir, '.env')
         if os.path.exists(dotenv_path):
-            print('>>>>>>>>>>>>>> find .env : {0}'.format(dotenv_path))
+            Log.info('>>>>>>>>>>>>>> find .env : {0}'.format(dotenv_path))
             load_dotenv(dotenv_path)
         else:
-            print('>>>>>>>>>>>>>> not find .env : {0}'.format(dotenv_path))
+            Log.info('>>>>>>>>>>>>>> not find .env : {0}'.format(dotenv_path))
 
 
     def get_kbot_command_menu(self):
@@ -55,6 +55,12 @@ class KBot(object):
             ]
         )
         return buttons_template
+
+    def is_check_reserve_command(self, text):
+        for key in ['予約？', 'よやく？']:
+            if key in text:
+                return True
+        return False
 
     def is_rental_check_command(self, text):
         for key in ['図書館', '借り']:
@@ -93,15 +99,25 @@ class KBot(object):
             return default
 
     def get_reply_string(self):
-        message = '''
-次の言葉に反応します。
+        message = '''次の言葉に反応します。
 
-*借りてる本
-　→図書館/借り
-*期限切れ
-　→期限切れ/延滞
-*期限まで後少し
-　→2日/5日
+──────
+図書館
+──────
+■貸出状況ﾁｪｯｸ
+　◎図書館
+■期限切れの本ﾁｪｯｸ
+　◎延滞
+■期限間近の本ﾁｪｯｸ
+　◎2日 (X日)
+■予約状況ﾁｪｯｸ
+　◎予約？
+
+──────
+本
+──────
+■ﾀｲﾄﾙで本を探す
+　◎本？坊っちゃん
         '''
         return message
 
