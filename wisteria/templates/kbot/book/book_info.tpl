@@ -3,6 +3,7 @@
 ━━━━━━━━━━━
 ■著：{{ book.author }}
 ■価格：￥{{ book.price }}
+■発売日：{{ book.sales_date }}
 ■ISBN：{{ book.isbn }}
 
 {{ book.caption }}

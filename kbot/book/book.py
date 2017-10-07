@@ -21,6 +21,7 @@ class Book(object):
         self.price          = json.get('itemPrice',     '')
         self.url            = json.get('itemUrl',       '')
         self.image_url      = json.get('largeImageUrl', '')
+        self.sales_date     = json.get('salesDate',     '')
         self.reserveurl     = json.get('reserveurl',    '')
         self.libkey         = json.get('libkey',        '')
         self.reserveurl_add = ''
@@ -38,6 +39,7 @@ class Book(object):
         self.price      = self.price if book.price == '' else book.price
         self.url        = self.url if book.url == '' else book.url
         self.image_url  = self.image_url if book.image_url == '' else book.image_url
+        self.sales_date = self.sales_date if book.sales_date == '' else book.sales_date
         self.reserveurl = self.reserveurl if book.reserveurl == '' else book.reserveurl
         self.libkey     = self.libkey if book.libkey == '' else book.libkey
 
@@ -46,9 +48,10 @@ class Book(object):
         Log.info('isbn : ' + self.isbn)
         Log.info('author : ' + self.author)
         Log.info('caption : ' + self.caption)
+        Log.info('price : ' + str(self.price))
         Log.info('url : ' + self.url)
         Log.info('image_url : ' + self.image_url)
-        Log.info('price : ' + str(self.price))
+        Log.info('sales_date : ' + self.sales_date)
         Log.info('reserveurl : ' + self.reserveurl)
         Log.info('libkey : ' + str(self.libkey))
         Log.info('reserveurl_add : ' + self.reserveurl_add)
@@ -76,7 +79,9 @@ class Book(object):
             gyazo       = Gyazo()
             gyazo_url   = gyazo.upload(path)
 
-            text = '著:' + book.author + '\n￥' + str(book.price) + '\nISBN:' + book.isbn
+            text = '著:' + book.author +\
+                   '\n￥' + str(book.price) +\
+                   '\n発売日:' + book.sales_date
             text = text[:60]
             column = CarouselColumn(
                 thumbnail_image_url = gyazo_url,
