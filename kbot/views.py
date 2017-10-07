@@ -173,7 +173,8 @@ def callback(request):
                         Log.info('groupId' + event.source.group_id)
 
                     if KBOT.is_search_book_command(text):
-                        __search_book(event, text)
+                        query = KBOT.get_search_book_query(text)
+                        __search_book(event, query)
 
                     elif KBOT.is_check_reserve_command(text):
                         user_nums = '1,2,3,4'
@@ -260,12 +261,8 @@ def __check_reserved_books(event, user_nums):
         if UserStatus.prepared_reserved_book(user_status):
             line.my_push_text_message(message, line_tos)
 
-def __search_book(event, text):
-    book_name = text[2:]
-
+def __search_book(event, query):
     rakuten        = RakutenBooks()
-    query          = {}
-    query['title'] = book_name
     books          = rakuten.search_books(query)
 
     if len(books) == 0:

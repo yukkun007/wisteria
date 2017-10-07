@@ -59,9 +59,9 @@ class Message(object):
         if books.filter.type == Filter.FILTER_NONE:
             template = Message.TEMPLATE_RENTAL
         elif books.filter.type == Filter.FILTER_EXPIRED:
-            template = Message.TEMPLATE_RENTAL
+            template = Message.TEMPLATE_EXPIRED
         elif books.filter.type == Filter.FILTER_EXPIRE:
-            template = Message.TEMPLATE_RENTAL
+            template = Message.TEMPLATE_EXPIRE
         return template
 
     def __get_date_keyed_books_dict(self, books):
