@@ -88,7 +88,19 @@ class KBot(object):
     def is_search_book_command(self, text):
         if '本？' in text:
             return True
+        elif '著？' in text:
+            return True
         return False
+
+    def get_search_book_query(self, text):
+        query          = {}
+        if '本？' in text:
+            book_name = text[2:]
+            query['title'] = book_name
+        elif '著？' in text:
+            author = text[2:]
+            query['author'] = author
+        return query
 
     def get_xdays(self, text):
         default = 2
@@ -118,6 +130,8 @@ class KBot(object):
 ──────
 ■ﾀｲﾄﾙで本を探す
 　◎本？坊っちゃん
+■著者名で本を探す
+　◎著？夏目漱石
         '''
         return message
 
