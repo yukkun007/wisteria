@@ -50,6 +50,8 @@ class HtmlPages(object):
         return self.driver.current_url
 
     def __login(self, login_url, user):
+        Log.info('login..... : user.name={0}, url={1}'.format(user.name, login_url))
+
         self.driver.get(login_url)
 
         # ログインボタン押下

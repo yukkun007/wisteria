@@ -52,6 +52,7 @@ class HtmlParser(object):
         table = soup.select("form[name='FormLEND'] > table[border]")
         if len(table) > 0:
             trs = table[0].find_all("tr")
+            Log.info('number of tr tag:{0}'.format(len(trs)))
             for tr in trs:
                 tds = tr.find_all(["td", "th"])
                 no  = tds[0].string.strip()
@@ -76,6 +77,10 @@ class HtmlParser(object):
 
                 Log.info(rental_book.to_string())
                 rental_books.append(rental_book)
+        else:
+            Log.info('table not found.')
+
+        Log.info('number of rental_books:{0}'.format(rental_books.length()))
 
         return rental_books
 
