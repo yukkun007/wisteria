@@ -24,7 +24,17 @@ class RentalBook(object):
 
     def get_expire_text_from_today(self):
         today = date.today()
-        text = " (あと{0}日)".format((self.expire_date - today).days)
+        remain_days = (self.expire_date - today).days
+
+        if remain_days == 1:
+            text = ' (明日ﾏﾃﾞ)'
+        elif remain_days == 0:
+            text = ' (今日ﾏﾃﾞ)'
+        elif remain_days < 0:
+            text = " (延滞)"
+        else:
+            text = " (あと{0}日)".format(remain_days)
+
         return text
 
     def to_string(self):

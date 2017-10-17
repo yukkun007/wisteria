@@ -25,6 +25,8 @@ class RakutenBooks(object):
             book = Book(item['Item'])
             break
 
+        book.log()
+
         return book
 
     def search_books(self, query):

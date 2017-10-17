@@ -57,6 +57,7 @@ class Calil(object):
         # ２回目移行のレスポンスはJSONP固定になるため
         json_string = response.text[9:-2]
         json_dict   = json.loads(json_string)
+        Log.info(json_dict)
 
         return json_dict
 

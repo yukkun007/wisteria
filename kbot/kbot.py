@@ -41,13 +41,13 @@ class KBot(object):
                     data  = 'check_rental',
                     text  = '図書館'),
                 PostbackTemplateAction(
-                    label = '期限切れ本をﾁｪｯｸ',
+                    label = '延滞本をﾁｪｯｸ',
                     data  = 'check_expired',
-                    text  = '期限切れ'),
+                    text  = '延滞'),
                 PostbackTemplateAction(
-                    label = 'X日で期限切れの本をﾁｪｯｸ',
+                    label = 'X日で延滞の本をﾁｪｯｸ',
                     data  = 'check_expire',
-                    text  = '2日'),
+                    text  = '2日で延滞'),
                 PostbackTemplateAction(
                     label = '反応する文字を見る',
                     data  = 'show_reply_string',
@@ -57,30 +57,31 @@ class KBot(object):
         return buttons_template
 
     def is_check_reserve_command(self, text):
-        for key in ['予約？', 'よやく？']:
+        for key in ['予約？']:
             if key in text:
                 return True
         return False
 
     def is_rental_check_command(self, text):
-        for key in ['図書館', '借り']:
+        for key in ['図書館']:
             if key in text:
                 return True
         return False
 
     def is_expired_check_command(self, text):
-        for key in ['期限切れ', '延滞']:
+        for key in ['延滞']:
             if key in text:
                 return True
         return False
 
     def is_expire_check_command(self, text):
-        if '日' in text:
-            return True
+        for key in ['日で延滞']:
+            if key in text:
+                return True
         return False
 
     def is_reply_string_show_command(self, text):
-        for key in ['文字', 'moji']:
+        for key in ['文字']:
             if key in text:
                 return True
         return False
@@ -104,7 +105,9 @@ class KBot(object):
 
     def get_xdays(self, text):
         default = 2
-        num_str = text.replace('日', '')
+        index = text.find('日で延滞')
+        num_str = text[index-1:index+4]
+        num_str = num_str.replace('日で延滞', '')
         try:
             return int(num_str)
         except ValueError:
@@ -121,7 +124,7 @@ class KBot(object):
 ■期限切れの本ﾁｪｯｸ
 　◎延滞
 ■期限間近の本ﾁｪｯｸ
-　◎2日 (X日)
+　◎2日で延滞 (X日で延滞)
 ■予約状況ﾁｪｯｸ
 　◎予約？
 
