@@ -14,11 +14,11 @@ class TestCalil(object):
         KBOT         = KBot('wisteria')
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
         line         = Line(line_bot_api)
-        line_tos     = [os.environ['LINE_SEND_GROUP_ID']]
+        line_tos     = [os.environ['LINE_SEND_GROUP_ID_DEBUG']]
 
         calil   = Calil()
         isbn    = '9784532280208'
         book    = calil.get_book(isbn)
-        message = Book.get_book_info_text_message(book)
-        line.my_push_template_message(message, '書籍情報', line_tos)
+        message = Book.get_book_info_line_text_message(book)
+        line.my_push_text_message(message, line_tos)
 

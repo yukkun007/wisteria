@@ -11,7 +11,7 @@
 ───────────
 􀁌図書館
 ───────────
-予約: https://{{ my_server_name }}/kbot/library/reserve?book_id={{ book_id }}
+予約: https://{{ my_server_name }}/kbot/library/reserve?book_id={{ book.id }}
 
 {% for key, value in book.libkey.items() -%}
 {% if value == '貸出可' -%}

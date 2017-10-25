@@ -6,40 +6,57 @@ import json
 import requests
 from kbot.book.book import Book
 
-class RakutenBooks(object):
+class BookSearchQuery(object):
+    def __init__(self):
+        self.query = {}
+
+    def set(self, key, value):
+        self.query[key] = value
+
+    def dict(self):
+        return self.query
+
+
+class RakutenBooksService(object):
 
     RAKUTEN_BASE_URL = 'https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404'
-    RAKUTEN_APP_ID   = os.environ['RAKUTEN_APP_ID']
 
     def __init__(self):
         pass
 
-    def get_book(self, isbn):
-        query                  = {}
-        query['isbn']          = isbn
-        query['applicationId'] = RakutenBooks.RAKUTEN_APP_ID
-        query['sort']          = 'sales'
-        res = requests.get(RakutenBooks.RAKUTEN_BASE_URL, params=query).json()
+    def get_one_book(self, query):
+        json_data = __request(query)
 
-        for item in res['Items']:
-            book = Book(item['Item'])
-            break
+        book = Book(json_data['Items']['Item']) # TODO:nullチェック
+        # for item in res['Items']:
+        #     book = Book(item['Item'])
+        #     break
 
         book.log()
 
         return book
 
     def search_books(self, query):
-        query['applicationId'] = RakutenBooks.RAKUTEN_APP_ID
-        query['sort']          = 'sales'
-        res = requests.get(RakutenBooks.RAKUTEN_BASE_URL, params=query).json()
+        json_data = RakutenBooksService.__request(query)
 
-        result = []
-        for item in res['Items']:
+        books = []
+        for item in json_data['Items']:
             book = Book(item['Item'])
-            result.append(book)
-            if len(result) >=5:
+            books.append(book)
+            if len(books) >=5:
                 break
 
-        return result
+        return books
+
+    @classmethod
+    def __request(cls, query):
+        response = requests.get(RakutenBooksService.RAKUTEN_BASE_URL, params=RakutenBooksService.__convert_query(query))
+        json_data = response.json() # TODO:nullチェック
+        return json_data
+
+    @classmethod
+    def __convert_query(cls, query):
+        query.set('applicationId', os.environ['RAKUTEN_APP_ID'])
+        query.set('sort', 'sales')
+        return query.dict()
 

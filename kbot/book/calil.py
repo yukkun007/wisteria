@@ -11,7 +11,6 @@ from kbot.book.book import Book
 class Calil(object):
 
     CALIL_BASE_URL = 'http://api.calil.jp/check'
-    CALIL_APP_KEY  = os.environ['CALIL_APP_KEY']
 
     def __init__(self):
         pass
@@ -19,7 +18,7 @@ class Calil(object):
     def get_book(self, isbn):
         query             = {}
         query['isbn']     = isbn
-        query['appkey']   = Calil.CALIL_APP_KEY
+        query['appkey']   = os.environ['CALIL_APP_KEY']
         query['systemid'] = 'Tokyo_Nerima,Special_Jil'
         query['format']   = 'json'
         query['callback'] = 'no'
@@ -50,7 +49,7 @@ class Calil(object):
         return book
 
     def __re_query(self, query):
-        query['appkey']  = Calil.CALIL_APP_KEY
+        query['appkey']  = os.environ['CALIL_APP_KEY']
         query['format']  = 'json'
         response = requests.get(Calil.CALIL_BASE_URL, params=query)
 

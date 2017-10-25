@@ -24,7 +24,7 @@ from kbot.google.youtube import YouTube
 from kbot.book.calil import Calil
 from kbot.book.amazon import Amazon
 from kbot.book.book import Book
-from kbot.book.rakuten_books import RakutenBooks
+from kbot.book.rakuten_books import RakutenBooksService
 
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -44,7 +44,7 @@ KBOT          = KBot(settings.PROJECT_ROOT)
 line_bot_api  = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
 parser        = WebhookParser(os.environ['LINE_CHANNEL_SECRET'])
 line          = Line(line_bot_api)
-gmail         = GMail(settings.PROJECT_ROOT)
+gmail         = GMail()
 youtube       = YouTube(settings.PROJECT_ROOT)
 users         = [User(os.environ['USER1']),
                 User(os.environ['USER2']),
@@ -58,7 +58,7 @@ if settings.DEBUG == True:
 # line_tos = [os.environ['LINE_SEND_ID']]
 calil         = Calil()
 amazon        = Amazon()
-rakuten_books = RakutenBooks()
+rakuten_books = RakutenBooksService()
 
 
 def youtube_omoide(request):
@@ -262,7 +262,7 @@ def __check_reserved_books(event, user_nums):
             line.my_push_text_message(message, line_tos)
 
 def __search_book(event, query):
-    rakuten        = RakutenBooks()
+    rakuten        = RakutenBooksService()
     books          = rakuten.search_books(query)
 
     if len(books) == 0:
@@ -277,9 +277,11 @@ def __search_book_by_isbn(event, text):
     book = calil.get_book(isbn)
     # amazonで検索
     # book.merge(amazon.get_book(isbn))
-    book.merge(rakuten_books.get_book(isbn))
+    query = BookSearchQuery()
+    query.set('isbn', isbn)
+    book.merge(rakuten_books.get_one_book(query))
     # メッセージ作成
-    message = Book.get_book_info_line_text_message(settings.PROJECT_ROOT, book)
+    message = Book.get_book_info_line_text_message(book)
     line.my_reply_text_message(message, event)
 
 # @csrf_exempt

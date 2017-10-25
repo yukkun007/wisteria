@@ -9,7 +9,7 @@ class TestGMail:
 
     def test_gmail(self):
         kbot = KBot('wisteria')
-        gmail = GMail("wisteria")
+        gmail = GMail()
         gmail.send_message_multi(
             [os.environ['GMAIL_SEND_ADDRESS1']],
             'this is test.',

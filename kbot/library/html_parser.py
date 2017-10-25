@@ -50,35 +50,37 @@ class HtmlParser(object):
         soup  = BeautifulSoup(self.html, "html.parser")
 
         table = soup.select("form[name='FormLEND'] > table[border]")
-        if len(table) > 0:
-            trs = table[0].find_all("tr")
-            Log.info('number of tr tag:{0}'.format(len(trs)))
-            for tr in trs:
-                tds = tr.find_all(["td", "th"])
-                no  = tds[0].string.strip()
-                if no.isnumeric() is False:
-                    continue
 
-                # タイトル
-                title                     = tds[2].get_text().strip()
-                # 返却期限日
-                expire_date               = tds[7].get_text().strip()
-                # 貸出更新
-                can_extend_period         = self.__can_extend_period(tds[1].get_text().strip())
-                # 更新ボタンの名前
-                extend_period_button_name = 'L(' + no + ')'
-
-                rental_book = RentalBook(
-                    title,
-                    expire_date,
-                    can_extend_period,
-                    extend_period_button_name
-                )
-
-                Log.info(rental_book.to_string())
-                rental_books.append(rental_book)
-        else:
+        if len(table) <= 0:
             Log.info('table not found.')
+            return rental_books
+
+        trs = table[0].find_all("tr")
+        Log.info('number of tr tag:{0}'.format(len(trs)))
+        for tr in trs:
+            tds = tr.find_all(["td", "th"])
+            no  = tds[0].string.strip()
+            if no.isnumeric() is False:
+                continue
+
+            # タイトル
+            title                     = tds[2].get_text().strip()
+            # 返却期限日
+            expire_date               = tds[7].get_text().strip()
+            # 貸出更新
+            can_extend_period         = self.__can_extend_period(tds[1].get_text().strip())
+            # 更新ボタンの名前
+            extend_period_button_name = 'L(' + no + ')'
+
+            rental_book = RentalBook(
+                title,
+                expire_date,
+                can_extend_period,
+                extend_period_button_name
+            )
+
+            Log.info(rental_book.to_string())
+            rental_books.append(rental_book)
 
         Log.info('number of rental_books:{0}'.format(rental_books.length()))
 

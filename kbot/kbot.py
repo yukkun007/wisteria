@@ -94,13 +94,13 @@ class KBot(object):
         return False
 
     def get_search_book_query(self, text):
-        query          = {}
+        query          = BookSearchQuery()
         if '本？' in text:
             book_name = text[2:]
-            query['title'] = book_name
+            query.set('title', book_name)
         elif '著？' in text:
             author = text[2:]
-            query['author'] = author
+            query.set('author', author)
         return query
 
     def get_xdays(self, text):

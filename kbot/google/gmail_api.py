@@ -28,6 +28,8 @@ response_setting = {
 
 
 
+# https://qiita.com/woody-kawagoe/items/4de3f2f0902784d34ca0
+# https://github.com/TM-KNYM/How2UseGmailApiByPython/blob/master/gmailapi.py
 class GmailApi():
     def reconnect(self):
         '''サーバーにアクセスして認証をもう一度行う
@@ -143,21 +145,17 @@ class GmailApi():
         except errors.HttpError as error:
             reconnect()
 
-    def __init__(self, auth_info, root_dir):
-        self.auth_info = auth_info
-        self.root_dir = root_dir
-        self.service = GmailServiceFactory().createService(self.auth_info, root_dir)
+    def __init__(self, auth_info, storage_path):
+        self.auth_info    = auth_info
+        self.storage_path = storage_path
+        self.service      = GmailServiceFactory().createService(self.auth_info, self.storage_path)
 
 
 class GmailServiceFactory():
 
-    def createService(self, auth_info, root_dir):
-        STORAGE = Storage('gmail.auth.storage')
+    def createService(self, auth_info, storage_path):
+        STORAGE = Storage(storage_path)
         credent = STORAGE.get()
-
-        if credent is None or credent.invalid:
-            STORAGE = Storage(root_dir)
-            credent = STORAGE.get()
 
         if credent is None or credent.invalid:
                 info = auth_info['installed']

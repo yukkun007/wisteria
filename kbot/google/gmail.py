@@ -6,8 +6,7 @@ import json
 from kbot.google.gmail_api import GmailApi
 
 class GMail(object):
-    def __init__(self, root_dir):
-        self.root_dir     = root_dir
+    def __init__(self):
         self.storage_path = '/tmp/st_test.txt'
         self.secret_path = '/tmp/sc_test.txt'
 

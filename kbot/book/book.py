@@ -7,6 +7,7 @@ from jinja2 import Template, Environment, FileSystemLoader
 from linebot.models import ButtonsTemplate, CarouselTemplate, CarouselColumn
 from linebot.models import URITemplateAction, PostbackTemplateAction
 from kbot.log import Log
+from kbot.message import Message
 from kbot.image import Image
 from kbot.gyazo import Gyazo
 from kbot.image_magic import ImageMagic
@@ -26,6 +27,7 @@ class Book(object):
         self.libkey         = json.get('libkey',        '')
         self.reserveurl_add = ''
         self.libkey_add     = ''
+        self.id             = self.reserveurl.split('=')[-1]
 
     def add_reserve_info(self, json):
         self.reserveurl_add = json.get('reserveurl')
@@ -42,6 +44,7 @@ class Book(object):
         self.sales_date = self.sales_date if book.sales_date == '' else book.sales_date
         self.reserveurl = self.reserveurl if book.reserveurl == '' else book.reserveurl
         self.libkey     = self.libkey if book.libkey == '' else book.libkey
+        self.id         = self.reserveurl.split('=')[-1]
 
     def log(self):
         Log.info('title : ' + self.title)
@@ -57,15 +60,9 @@ class Book(object):
         Log.info('reserveurl_add : ' + self.reserveurl_add)
         Log.info('libkey_add : ' + str(self.libkey_add))
 
-    def get_book_info_line_text_message(root_dir, book):
-        env = Environment(loader=FileSystemLoader(root_dir))
-
-        book_id = book.reserveurl.split('=')[-1]
-
-        template  = env.get_template('templates/kbot/book/book_info.tpl')
-        data      = {'book': book, 'book_id': book_id, 'my_server_name': os.environ['MY_SERVER_NAME'] }
-        message   = template.render(data)
-
+    def get_book_info_line_text_message(book):
+        data      = {'book': book, 'my_server_name': os.environ['MY_SERVER_NAME'] }
+        message = Message.create('kbot/book/book_info.tpl', data)
         return message
 
     def get_books_select_line_carousel_mseeage(books):
