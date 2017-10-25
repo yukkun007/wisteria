@@ -53,14 +53,24 @@ class HtmlPages(object):
         Log.info('login..... : user.name={0}, url={1}'.format(user.name, login_url))
 
         self.driver.get(login_url)
-
-        # ログインボタン押下
-        uid      = self.driver.find_element_by_name('usercardno')
-        password = self.driver.find_element_by_name('userpasswd')
-        uid.send_keys(user.id)
-        password.send_keys(user.password)
-        self.driver.find_element_by_name('Login').click()
         # 待機
         WebDriverWait(self.driver, 10).until(ec.presence_of_all_elements_located)
+
+        # ログインボタン押下
+        # uid      = self.driver.find_element_by_name('usercardno')
+        # password = self.driver.find_element_by_name('userpasswd')
+        uid      = WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.NAME, "usercardno")))
+        password = WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.NAME, "userpasswd")))
+        uid.send_keys(user.id)
+        password.send_keys(user.password)
+
+        # self.driver.find_element_by_name('Login').click()
+        button = WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.NAME, "Login")))
+        button.click()
+
+        # 待機
+        WebDriverWait(self.driver, 10).until(ec.presence_of_all_elements_located)
+        # ロードされたかを確認
+        form = WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.NAME, "FormLEND")))
         # driver.save_screenshot("login.png")
 
