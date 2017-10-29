@@ -5,7 +5,7 @@ from jinja2 import Template, Environment, FileSystemLoader
 
 class Message(object):
 
-    TEMPLATE_ROOT_DIR = 'wisteria/templates'
+    TEMPLATE_ROOT_DIR = 'wisteria/templates/kbot'
 
     def __init__(self):
         pass

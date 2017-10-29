@@ -9,7 +9,45 @@ from linebot.models import ButtonsTemplate,\
                            PostbackTemplateAction,\
                            URITemplateAction
 
-class YoyakuBook(object):
+class ReservedBooks(object):
+    def __init__(self, source):
+        if source == None:
+            self.books  = []
+        else:
+            self.books = source
+
+    def append(self, book):
+        self.books.append(book)
+
+    def length(self):
+        return len(self.books)
+
+    def list(self):
+        return self.books
+
+    def get_text_message(self, user):
+        return self.get_message(user, format='text')
+
+    def get_html_message(self, user):
+        return self.get_message(user, format='html')
+
+    def get_message(self, user, format='text'):
+        message = ''
+        if self.length() > 0:
+            data      = {'user':           user,
+                         'reserved_books': self.books,
+                         'is_prepared':    self.prepared_reserved_book() }
+            message += Message.create(os.path.join(format, 'reserved_books.tpl'), data)
+
+        return message
+
+    def prepared_reserved_book(self):
+        for book in self.books:
+            if book.status == 'ご用意できました':
+                return True
+        return False
+
+class ReservedBook(object):
 
     def __init__(self, status, order, title, kind, yoyaku_date, torioki_date):
         self.status       = status
@@ -29,7 +67,7 @@ class YoyakuBook(object):
         if len(user_status.reserved_books) > 0:
             env = Environment(loader=FileSystemLoader(root_dir))
 
-            is_prepared = YoyakuBook.prepared_reserved_book(user_status.reserved_books)
+            is_prepared = ReservedBook.prepared_reserved_book(user_status.reserved_books)
             template  = env.get_template('book/reserved_books.tpl')
             data      = {'user': user_status.user,
                          'reserved_books': user_status.reserved_books,
@@ -51,9 +89,4 @@ class YoyakuBook(object):
         )
         return buttons_template
 
-    def prepared_reserved_book(reserved_books):
-        for book in reserved_books:
-            if book.status == 'ご用意できました':
-                return True
-        return False
 

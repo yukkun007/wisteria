@@ -13,11 +13,9 @@ from django.views.decorators.csrf import csrf_exempt
 from kbot.kbot import KBot
 from kbot.line import Line
 from kbot.library.library import Library
-from kbot.library.message import Message
 from kbot.library.user import User
-from kbot.library.filter import Filter
-from kbot.library.yoyaku_book import YoyakuBook
-from kbot.library.user_status import UserStatus
+from kbot.library.rental_books import FilterSetting, ExpireFilterSetting, ExpiredFilterSetting
+from kbot.library.yoyaku_book import ReservedBook
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
@@ -58,8 +56,6 @@ if settings.DEBUG == True:
 # line_tos = [os.environ['LINE_SEND_ID']]
 calil         = Calil()
 amazon        = Amazon()
-rakuten_books = RakutenBooksService()
-
 
 def youtube_omoide(request):
     if request.method == 'GET':
@@ -78,7 +74,7 @@ def youtube_omoide(request):
                     uri   = 'https://www.youtube.com/watch?v=' + movie.video_id)
             ]
         )
-        line.my_push_template_message(buttons_template, movie.title, line_tos)
+        line.my_push_message(buttons_template, line_tos)
 
         return HttpResponse('done! youtube_omoide')
     else:
@@ -90,13 +86,12 @@ def library_test(request):
         Log.info('GET! library_test')
 
         xdays = 2
-        library = Library(KBOT_TEMPLATE_DIR, users)
-        library.fetch_status()
-        library.do_filter(Filter(type=Filter.FILTER_NONE, xdays=xdays))
-        # library.do_filter(Filter(type=Filter.FILTER_EXPIRE, xdays=xdays))
-        # library.do_filter(Filter(type=Filter.FILTER_EXPIRED, xdays=xdays))
-        short_message = library.get_message(type=Message.TYPE_SHORT)
-        # line.my_push_text_message(short_message, line_tos)
+        library = Library(users)
+        filter_setting = FilterSetting()
+        # filter_setting = ExpireFilterSetting(xdays)
+        # filter_setting = ExpiredFilterSetting()
+        library.fetch_rental_books(filter_setting)
+        library.get_text_message(filter_setting)
 
         return HttpResponse('done! library_test')
 
@@ -108,15 +103,15 @@ def library_reserve(request):
         book_id = request.GET.get('book_id')
         if book_id != None:
             user_num = '1'
-            library  = Library(KBOT_TEMPLATE_DIR, users)
+            library  = Library(users)
             url      = library.yoyaku(user_num, book_id)
 
-            template = YoyakuBook.make_finish_reserve_message_template(user_num)
-            line.my_push_template_message(template, '予約完了', line_tos)
+            template = ReservedBook.make_finish_reserve_message_template(user_num)
+            line.my_push_message(template, line_tos)
 
             return HttpResponseRedirect(url)
         else:
-            line.my_push_text_message('予約失敗。。', line_tos)
+            line.my_push_message('予約失敗。。', line_tos)
 
         return HttpResponse('done! library_reserve')
 
@@ -136,17 +131,15 @@ def library_check(request):
         Log.info('GET! library_check')
 
         xdays = 2
-        library = Library(KBOT_TEMPLATE_DIR, users)
-        library.fetch_status()
-        library.do_filter(Filter(type=Filter.FILTER_EXPIRE, xdays=xdays))
+        library = Library(users)
+        filter_setting = ExpireFilterSetting(xdays)
+        library.fetch_rental_books(filter_setting)
         if library.is_target_exist():
-            short_message = library.get_message(type=Message.TYPE_SHORT)
-            line.my_push_text_message(short_message, line_tos)
-            long_message  = library.get_message(type=Message.TYPE_LONG)
+            line.my_push_message(library.get_text_message(), line_tos)
             gmail.send_message_multi(
                 gmail_tos,
                 '図書館の本返却お願いします！',
-                long_message)
+                library.get_html_message(filter_setting))
 
         return HttpResponse('done! library_check')
 
@@ -195,7 +188,7 @@ def callback(request):
 
                     else:
                         template = KBOT.get_kbot_command_menu()
-                        line.my_reply_template_message(template, event)
+                        line.my_reply_message(template, event)
 
                 elif isinstance(event, PostbackEvent):
                     data = event.postback.data
@@ -227,49 +220,41 @@ def callback(request):
 
 
 def __check_rental(event):
-    library = Library(KBOT_TEMPLATE_DIR, users)
-    library.fetch_status()
-    library.do_filter(Filter(type=Filter.FILTER_NONE))
-    short_message = library.get_message(type=Message.TYPE_SHORT)
-    line.my_reply_text_message(short_message, event)
+    library = Library(users)
+    filter_setting = FilterSetting()
+    library.fetch_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(filter_setting), event)
 
 def __check_expire(event, xdays):
-    library = Library(KBOT_TEMPLATE_DIR, users)
-    library.fetch_status()
-    library.do_filter(Filter(type=Filter.FILTER_EXPIRE, xdays=xdays))
-    short_message = library.get_message(type=Message.TYPE_SHORT)
-    line.my_reply_text_message(short_message, event)
+    library = Library(users)
+    filter_setting = ExpireFilterSetting(xdays))
+    library.fetch_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(filter_setting), event)
 
 def __check_expired(event):
-    library = Library(KBOT_TEMPLATE_DIR, users)
-    library.fetch_status()
-    library.do_filter(Filter(type=Filter.FILTER_EXPIRED))
-    short_message = library.get_message(type=Message.TYPE_SHORT)
-    line.my_reply_text_message(short_message, event)
+    library = Library(users)
+    filter_setting = ExpiredFilterSetting())
+    library.fetch_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(filter_setting), event)
 
 def __show_reply_string(event):
     message = KBOT.get_reply_string()
-    line.my_reply_text_message(message, event)
+    line.my_reply_message(message, event)
 
 def __check_reserved_books(event, user_nums):
-    library     = Library(KBOT_TEMPLATE_DIR, users)
+    library     = Library(users)
     user_status = library.check_reserved_books(user_nums)
-    message     = UserStatus.make_user_reserved_books_message(KBOT_TEMPLATE_DIR, user_status)
+    message     = library.get_text_reserved_books_message()
     if event != None:
-        line.my_reply_text_message(message, event)
+        line.my_reply_message(message, event)
     else:
-        if UserStatus.prepared_reserved_book(user_status):
-            line.my_push_text_message(message, line_tos)
+        if library.prepared_reserved_book(user_status):
+            line.my_push_message(message, line_tos)
 
 def __search_book(event, query):
-    rakuten        = RakutenBooksService()
-    books          = rakuten.search_books(query)
-
-    if len(books) == 0:
-        line.my_reply_text_message('見つかりませんでした。。', event)
-    else:
-        message = Book.get_books_select_line_carousel_mseeage(books)
-        line.my_reply_template_message(message, event)
+    books   = RakutenBooksService.search_books(query)
+    message = Book.get_books_select_line_carousel_mseeage(books.slice(0, 5))
+    line.my_reply_message(message, event)
 
 def __search_book_by_isbn(event, text):
     isbn = text[5:]
@@ -279,10 +264,10 @@ def __search_book_by_isbn(event, text):
     # book.merge(amazon.get_book(isbn))
     query = BookSearchQuery()
     query.set('isbn', isbn)
-    book.merge(rakuten_books.get_one_book(query))
+    book.merge(RakutenBooksService.get_one_book(query))
     # メッセージ作成
-    message = Book.get_book_info_line_text_message(book)
-    line.my_reply_text_message(message, event)
+    message = book.get_text_info_message()
+    line.my_reply_message(message, event)
 
 # @csrf_exempt
 # def sample(request):
@@ -302,10 +287,10 @@ def __search_book_by_isbn(event, text):
 #
 #                     if text == 'confirm':
 #                         template = line.get_confirm_template_sample()
-#                         line.my_reply_template_message(template, event)
+#                         line.my_reply_message(template, event)
 #                     elif text == 'buttons':
 #                         template = line.get_buttons_template_sample()
-#                         line.my_reply_template_message(template, event)
+#                         line.my_reply_message(template, event)
 #                     else:
 #                         pass
 #

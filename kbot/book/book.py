@@ -29,6 +29,8 @@ class Book(object):
         self.libkey_add     = ''
         self.id             = self.reserveurl.split('=')[-1]
 
+        self.log()
+
     def add_reserve_info(self, json):
         self.reserveurl_add = json.get('reserveurl')
         self.libkey_add     = json.get('libkey')
@@ -60,12 +62,16 @@ class Book(object):
         Log.info('reserveurl_add : ' + self.reserveurl_add)
         Log.info('libkey_add : ' + str(self.libkey_add))
 
-    def get_book_info_line_text_message(book):
-        data      = {'book': book, 'my_server_name': os.environ['MY_SERVER_NAME'] }
-        message = Message.create('kbot/book/book_info.tpl', data)
+    def get_text_info_message(self):
+        data      = {'book': self, 'my_server_name': os.environ['MY_SERVER_NAME'] }
+        message = Message.create('text/book_info.tpl', data)
         return message
 
     def get_books_select_line_carousel_mseeage(books):
+
+        if books.length() == 0:
+            return '見つかりませんでした。。'
+
         columns = []
         for book in books:
 
@@ -92,7 +98,5 @@ class Book(object):
             )
             columns.append(column)
 
-        carousel_template = CarouselTemplate(columns=columns)
-
-        return carousel_template
+        return CarouselTemplate(columns=columns)
 

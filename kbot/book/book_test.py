@@ -19,8 +19,7 @@ class TestBook(object):
 
         query = BookSearchQuery()
         query.set('title', 'カンブリア')
-        rakuten        = RakutenBooksService()
-        books          = rakuten.search_books(query)
-        message        = Book.get_books_select_line_carousel_mseeage(books)
-        line.my_push_template_message(message, 'title:カンブリア', line_tos)
+        books   = RakutenBooksService.search_books(query)
+        message = Book.get_books_select_line_carousel_mseeage(books.slice(0, 5))
+        line.my_push_message(message, line_tos)
 

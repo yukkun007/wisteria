@@ -19,6 +19,6 @@ class TestCalil(object):
         calil   = Calil()
         isbn    = '9784532280208'
         book    = calil.get_book(isbn)
-        message = Book.get_book_info_line_text_message(book)
-        line.my_push_text_message(message, line_tos)
+        message = book.get_text_info_message()
+        line.my_push_message(message, line_tos)
 
