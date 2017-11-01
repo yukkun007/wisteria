@@ -4,11 +4,11 @@
 import os.path
 from kbot.google.gmail_api import GmailApi
 
+
 class GMail(object):
     def __init__(self):
         self.storage_path = '/tmp/st_test.txt'
         self.secret_path = '/tmp/sc_test.txt'
-
 
     def send_message(self, to, subject, message):
         st = open(self.storage_path, 'w')
@@ -21,7 +21,7 @@ class GMail(object):
         # sc.write(secret)
         # sc.close()
         # secret_file = open(self.secret_path)
-        auth_info   = '' #json.load(secret_file)
+        auth_info = ''  # json.load(secret_file)
 
         # 初回実行時は認証が求められます
         api = GmailApi(auth_info, self.storage_path)
@@ -33,4 +33,3 @@ class GMail(object):
     def send_message_multi(self, tos, subject, message):
         for to in tos:
             self.send_message(to, subject, message)
-

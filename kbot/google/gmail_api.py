@@ -21,7 +21,6 @@ response_setting = {
 }
 
 
-
 # https://qiita.com/woody-kawagoe/items/4de3f2f0902784d34ca0
 # https://github.com/TM-KNYM/How2UseGmailApiByPython/blob/master/gmailapi.py
 class GmailApi():
@@ -43,10 +42,13 @@ class GmailApi():
             Returns: None
         """
         try:
-                message = (self.service.users().messages().send(userId=user, body=message).execute())
-                return message
+            message = (
+                self.service.users().messages().send(
+                    userId=user,
+                    body=message).execute())
+            return message
         except errors.HttpError as error:
-                print('An error occurred:s' % error)
+            print('An error occurred:s' % error)
 
     def getMailList(self, user, qu):
         ''' メールの情報をリストで取得します
@@ -123,7 +125,8 @@ class GmailApi():
     def expMailContents(self, user, i, key):
         try:
             content = self.getMailContent(user, i)
-            return ([header for header in content["payload"]["headers"] if header["name"] == key])[0]["value"]
+            return ([header for header in content["payload"]
+                     ["headers"] if header["name"] == key])[0]["value"]
         except errors.HttpError as error:
             reconnect()
 
@@ -140,9 +143,10 @@ class GmailApi():
             reconnect()
 
     def __init__(self, auth_info, storage_path):
-        self.auth_info    = auth_info
+        self.auth_info = auth_info
         self.storage_path = storage_path
-        self.service      = GmailServiceFactory().createService(self.auth_info, self.storage_path)
+        self.service = GmailServiceFactory().createService(
+            self.auth_info, self.storage_path)
 
 
 class GmailServiceFactory():
@@ -152,14 +156,18 @@ class GmailServiceFactory():
         credent = STORAGE.get()
 
         if credent is None or credent.invalid:
-                info = auth_info['installed']
-                flow = OAuth2WebServerFlow(info["client_id"], info["client_secret"], response_setting["scope"], info["redirect_uris"][0])
-                auth_url = flow.step1_get_authorize_url()
-                # ブラウザを開いて認証する
-                webbrowser.open(auth_url)
-                code = input("input code : ")
-                credent = flow.step2_exchange(code)
-                STORAGE.put(credent)
+            info = auth_info['installed']
+            flow = OAuth2WebServerFlow(
+                info["client_id"],
+                info["client_secret"],
+                response_setting["scope"],
+                info["redirect_uris"][0])
+            auth_url = flow.step1_get_authorize_url()
+            # ブラウザを開いて認証する
+            webbrowser.open(auth_url)
+            code = input("input code : ")
+            credent = flow.step2_exchange(code)
+            STORAGE.put(credent)
         http = httplib2.Http()
         http = credent.authorize(http)
 

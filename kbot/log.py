@@ -3,6 +3,7 @@
 
 import logging
 
+
 class Log(object):
 
     def info(message):
@@ -14,4 +15,3 @@ class Log(object):
         Log.info('args:' + str(e.args))
         # Log.info('message:' + e.message)
         Log.info('e:' + str(e))
-

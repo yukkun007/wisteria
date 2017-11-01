@@ -3,16 +3,17 @@
 
 from jinja2 import Environment, FileSystemLoader
 from linebot.models import ButtonsTemplate,\
-                           ConfirmTemplate,\
-                           MessageTemplateAction,\
-                           PostbackEvent,\
-                           PostbackTemplateAction,\
-                           URITemplateAction
+    ConfirmTemplate,\
+    MessageTemplateAction,\
+    PostbackEvent,\
+    PostbackTemplateAction,\
+    URITemplateAction
+
 
 class ReservedBooks(object):
     def __init__(self, source):
-        if source == None:
-            self.books  = []
+        if source is None:
+            self.books = []
         else:
             self.books = source
 
@@ -34,10 +35,11 @@ class ReservedBooks(object):
     def get_message(self, user, format='text'):
         message = ''
         if self.length() > 0:
-            data      = {'user':           user,
-                         'reserved_books': self.books,
-                         'is_prepared':    self.prepared_reserved_book() }
-            message += Message.create(os.path.join(format, 'reserved_books.tpl'), data)
+            data = {'user': user,
+                    'reserved_books': self.books,
+                    'is_prepared': self.prepared_reserved_book()}
+            message += Message.create(os.path.join(format,
+                                                   'reserved_books.tpl'), data)
 
         return message
 
@@ -47,16 +49,17 @@ class ReservedBooks(object):
                 return True
         return False
 
+
 class ReservedBook(object):
 
     def __init__(self, status, order, title, kind, yoyaku_date, torioki_date):
-        self.status       = status
-        self.order        = order
-        self.title        = title
-        self.kind         = kind
-        self.yoyaku_date  = yoyaku_date
+        self.status = status
+        self.order = order
+        self.title = title
+        self.kind = kind
+        self.yoyaku_date = yoyaku_date
         self.torioki_date = torioki_date
-        self.is_prepared  = status == 'ご用意できました'
+        self.is_prepared = status == 'ご用意できました'
 
     def is_prepared(self):
         return self.is_prepared
@@ -67,12 +70,13 @@ class ReservedBook(object):
         if len(user_status.reserved_books) > 0:
             env = Environment(loader=FileSystemLoader(root_dir))
 
-            is_prepared = ReservedBook.prepared_reserved_book(user_status.reserved_books)
-            template  = env.get_template('book/reserved_books.tpl')
-            data      = {'user': user_status.user,
-                         'reserved_books': user_status.reserved_books,
-                         'is_prepared': is_prepared }
-            message   = template.render(data)
+            is_prepared = ReservedBook.prepared_reserved_book(
+                user_status.reserved_books)
+            template = env.get_template('book/reserved_books.tpl')
+            data = {'user': user_status.user,
+                    'reserved_books': user_status.reserved_books,
+                    'is_prepared': is_prepared}
+            message = template.render(data)
 
         return message
 
@@ -88,5 +92,3 @@ class ReservedBook(object):
             ]
         )
         return buttons_template
-
-

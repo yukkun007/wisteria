@@ -9,6 +9,8 @@ from kbot.book.book import Book
 from kbot.image import Image
 from kbot.gyazo import Gyazo
 from kbot.image_magic import ImageMagic
+
+
 class Books(object):
 
     def __init__(self, source):
@@ -25,7 +27,8 @@ class Books(object):
             self.books.append(Book(item.get('Item')))
 
     def __raise_exception(self, source):
-        message = 'new [' + str(type(self)) + '] illegal source: ' + str(type(source))
+        message = 'new [' + str(type(self)) + \
+            '] illegal source: ' + str(type(source))
         print(message)
         raise RuntimeError(message)
 
@@ -46,25 +49,25 @@ class Books(object):
         columns = []
         for book in self.books:
 
-            image       = Image()
-            path        = image.download(book.image_url)
+            image = Image()
+            path = image.download(book.image_url)
             image_magic = ImageMagic()
             image_magic.convert(path)
-            gyazo       = Gyazo()
-            gyazo_url   = gyazo.upload(path)
+            gyazo = Gyazo()
+            gyazo_url = gyazo.upload(path)
 
             text = '著:' + book.author +\
                    '\n￥' + str(book.price) +\
                    '\n発売日:' + book.sales_date
             text = text[:60]
             column = CarouselColumn(
-                thumbnail_image_url = gyazo_url,
-                title               = book.title[:40],
-                text                = text,
-                actions             = [
+                thumbnail_image_url=gyazo_url,
+                title=book.title[:40],
+                text=text,
+                actions=[
                     PostbackTemplateAction(
-                        label = '借りる / 買う',
-                        data  = 'isbn:' + book.isbn)
+                        label='借りる / 買う',
+                        data='isbn:' + book.isbn)
                 ]
             )
             columns.append(column)
@@ -91,7 +94,7 @@ class RakutenBooksService(object):
     @classmethod
     def get_one_book(cls, query):
         json_data = RakutenBooksService.__request(query)
-        books     = Books(json_data)
+        books = Books(json_data)
         if books.length() <= 0:
             return Book()
         return books.get(0)
@@ -103,7 +106,9 @@ class RakutenBooksService(object):
 
     @classmethod
     def __request(cls, query):
-        response = requests.get(RakutenBooksService.RAKUTEN_BASE_URL, params=RakutenBooksService.__adjust_query(query))
+        response = requests.get(
+            RakutenBooksService.RAKUTEN_BASE_URL,
+            params=RakutenBooksService.__adjust_query(query))
         json_data = response.json()  # TODO:nullチェック
         return json_data
 

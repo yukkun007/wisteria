@@ -8,6 +8,7 @@ from kbot.library.html_page import HtmlPage
 from kbot.library.html_parser import HtmlParser
 from kbot.library.library import Library
 
+
 class TestHtmlParser:
 
     def test_get_rental_books(self):
@@ -17,4 +18,3 @@ class TestHtmlParser:
         html = page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
 
         HtmlParser.get_rental_books(html)
-

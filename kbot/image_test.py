@@ -6,6 +6,7 @@ from kbot.gyazo import Gyazo
 from kbot.image_magic import ImageMagic
 from kbot.kbot import KBot
 
+
 class TestImage(object):
 
     def test_image(self):
@@ -20,4 +21,3 @@ class TestImage(object):
 
         gyazo = Gyazo()
         gyazo.upload(path)
-

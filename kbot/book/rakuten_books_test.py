@@ -9,6 +9,7 @@ from kbot.kbot import KBot
 from kbot.book.rakuten_books import RakutenBooksService, BookSearchQuery, Books
 from kbot.book.book import Book
 
+
 class TestBooks:
 
     @pytest.fixture()
@@ -35,7 +36,7 @@ class TestBooks:
         assert books.length() == 0
 
     def test_new_from_list(self):
-        books = Books(['',''])
+        books = Books(['', ''])
         assert isinstance(books, Books)
         assert books.length() == 2
 
@@ -83,7 +84,8 @@ class TestRakutenBooksService:
                     {"Item": {"title": "hogehoge"}}]
             }
         '''
-        RakutenBooksService._RakutenBooksService__request.return_value = json.loads(json_str)
+        RakutenBooksService._RakutenBooksService__request.return_value = json.loads(
+            json_str)
         query = BookSearchQuery()
         book = RakutenBooksService.get_one_book(query)
         assert RakutenBooksService._RakutenBooksService__request.called
@@ -106,6 +108,6 @@ class TestRakutenBooksService:
     def test_adjust_query(self):
         query = BookSearchQuery()
         RakutenBooksService._RakutenBooksService__adjust_query(query)
-        assert query.dict().get('applicationId') == os.environ['RAKUTEN_APP_ID']
+        assert query.dict().get(
+            'applicationId') == os.environ['RAKUTEN_APP_ID']
         assert query.dict().get('sort') == 'sales'
-

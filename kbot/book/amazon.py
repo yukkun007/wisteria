@@ -3,6 +3,7 @@
 
 from kbot.book.book import Book
 
+
 class Amazon(object):
 
     def __init__(self):
@@ -12,4 +13,3 @@ class Amazon(object):
         json = {}
         book = Book(json)
         return book
-

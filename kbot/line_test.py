@@ -8,7 +8,7 @@ from kbot.line import Line
 
 from linebot import LineBotApi
 from linebot.models import ButtonsTemplate,\
-                           URITemplateAction
+    URITemplateAction
 
 
 class TestLine:
@@ -17,22 +17,21 @@ class TestLine:
         KBot('wisteria')
 
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
-        line         = Line(line_bot_api)
+        line = Line(line_bot_api)
         line.my_push_message('これはテストです。', [os.environ['LINE_SEND_ID']])
 
     def test_2(self):
         KBot('wisteria')
 
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
-        line         = Line(line_bot_api)
+        line = Line(line_bot_api)
         buttons_template = ButtonsTemplate(
             title='test',
             text='this is test.',
             actions=[
                 URITemplateAction(
-                    label = 'YouTubeへ',
-                    uri   = 'https://www.youtube.com/')
+                    label='YouTubeへ',
+                    uri='https://www.youtube.com/')
             ]
         )
         line.my_push_message(buttons_template, [os.environ['LINE_SEND_ID']])
-

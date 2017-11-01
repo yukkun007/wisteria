@@ -8,6 +8,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.by import By
 from kbot.log import Log
 
+
 class HtmlPage(object):
 
     @classmethod
@@ -27,18 +28,27 @@ class HtmlPage(object):
         WebDriverWait(driver, 10).until(ec.presence_of_all_elements_located)
         # driver.save_screenshot("login.png")
         # element = driver.find_element_by_id('library')
-        element = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.ID, "library")))
+        element = WebDriverWait(
+            driver, 10).until(
+            ec.presence_of_element_located(
+                (By.ID, "library")))
         select = Select(element)
         select.select_by_index(10)
         # driver.save_screenshot("select.png")
         # time.sleep(5)
         # submit = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "InForm")))
-        submit = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "reg")))
+        submit = WebDriverWait(
+            driver, 10).until(
+            ec.presence_of_element_located(
+                (By.NAME, "reg")))
         submit.click()
         # time.sleep(5)
         WebDriverWait(driver, 10).until(ec.presence_of_all_elements_located)
         # driver.save_screenshot("button.png")
-        submit = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "chkRb")))
+        submit = WebDriverWait(
+            driver, 10).until(
+            ec.presence_of_element_located(
+                (By.NAME, "chkRb")))
         submit.click()
         # time.sleep(5)
         # driver.save_screenshot("finish.png")
@@ -61,7 +71,9 @@ class HtmlPage(object):
 
     @classmethod
     def __login(cls, login_url, user, driver):
-        Log.info('login..... : user.name={0}, url={1}'.format(user.name, login_url))
+        Log.info(
+            'login..... : user.name={0}, url={1}'.format(
+                user.name, login_url))
 
         driver.get(login_url)
         # 待機
@@ -70,18 +82,29 @@ class HtmlPage(object):
         # ログインボタン押下
         # uid      = driver.find_element_by_name('usercardno')
         # password = driver.find_element_by_name('userpasswd')
-        uid      = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "usercardno")))
-        password = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "userpasswd")))
+        uid = WebDriverWait(
+            driver, 10).until(
+            ec.presence_of_element_located(
+                (By.NAME, "usercardno")))
+        password = WebDriverWait(
+            driver, 10).until(
+            ec.presence_of_element_located(
+                (By.NAME, "userpasswd")))
         uid.send_keys(user.id)
         password.send_keys(user.password)
 
         # driver.find_element_by_name('Login').click()
-        button = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "Login")))
+        button = WebDriverWait(
+            driver, 10).until(
+            ec.presence_of_element_located(
+                (By.NAME, "Login")))
         button.click()
 
         # 待機
         WebDriverWait(driver, 10).until(ec.presence_of_all_elements_located)
         # ロードされたかを確認
-        WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "FormLEND")))
+        WebDriverWait(
+            driver, 10).until(
+            ec.presence_of_element_located(
+                (By.NAME, "FormLEND")))
         # driver.save_screenshot("login.png")
-

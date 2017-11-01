@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 class Movie(object):
     def __init__(self, title, video_id, url, published_at):
         self.title = title
@@ -15,4 +16,3 @@ class Movie(object):
             self.url,
             self.published_at)
         return string
-

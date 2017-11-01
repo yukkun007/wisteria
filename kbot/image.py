@@ -4,6 +4,7 @@
 import os
 import requests
 
+
 class Image(object):
 
     def __init__(self):
@@ -11,7 +12,7 @@ class Image(object):
 
     def download(self, url):
         file_path = self.__make_file_path(url)
-        image     = self.__download_image(url)
+        image = self.__download_image(url)
         self.__save_image(file_path, image)
         return file_path
 
@@ -36,4 +37,3 @@ class Image(object):
     def __save_image(self, file_path, image):
         with open(file_path, "wb") as fout:
             fout.write(image)
-

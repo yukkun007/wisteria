@@ -5,6 +5,7 @@ import os
 from kbot.kbot import KBot
 from kbot.google.gmail import GMail
 
+
 class TestGMail:
 
     def test_gmail(self):
@@ -14,4 +15,3 @@ class TestGMail:
             [os.environ['GMAIL_SEND_ADDRESS1']],
             'this is test.',
             'test')
-

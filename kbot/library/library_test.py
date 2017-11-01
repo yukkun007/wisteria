@@ -8,6 +8,7 @@ from kbot.library.user import User
 from kbot.library.library import Library
 from kbot.library.rental_book import FilterSetting, ExpireFilterSetting, ExpiredFilterSetting
 
+
 class TestLibrary:
 
     @pytest.fixture()
@@ -32,4 +33,3 @@ class TestLibrary:
         instance1.fetch_status(ExpireFilterSetting(xdays))
         short_message = instance1.get_text_message(ExpireFilterSetting(xdays))
         print(short_message)
-
