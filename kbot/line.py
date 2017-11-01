@@ -21,7 +21,7 @@ class Line(object):
         if self.__is_text_message(input_parameter):
             return TextSendMessage(text=input_parameter)
         else:
-            return TemplateSendMessage(alt_text='', template=template)
+            return TemplateSendMessage(alt_text='.....', template=input_parameter)
 
     def my_push_message(self, input_parameter, tos):
         for to in tos:

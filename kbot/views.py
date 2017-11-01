@@ -22,7 +22,7 @@ from kbot.google.youtube import YouTube
 from kbot.book.calil import Calil
 from kbot.book.amazon import Amazon
 from kbot.book.book import Book
-from kbot.book.rakuten_books import RakutenBooksService
+from kbot.book.rakuten_books import RakutenBooksService, BookSearchQuery
 
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -57,6 +57,7 @@ if settings.DEBUG == True:
 calil         = Calil()
 amazon        = Amazon()
 
+
 def youtube_omoide(request):
     if request.method == 'GET':
         Log.info('GET! youtube_omoide')
@@ -85,9 +86,9 @@ def library_test(request):
     if request.method == 'GET':
         Log.info('GET! library_test')
 
-        xdays = 2
         library = Library(users)
         filter_setting = FilterSetting()
+        # xdays = 2
         # filter_setting = ExpireFilterSetting(xdays)
         # filter_setting = ExpiredFilterSetting()
         library.fetch_rental_books(filter_setting)
@@ -227,13 +228,13 @@ def __check_rental(event):
 
 def __check_expire(event, xdays):
     library = Library(users)
-    filter_setting = ExpireFilterSetting(xdays))
+    filter_setting = ExpireFilterSetting(xdays)
     library.fetch_rental_books(filter_setting)
     line.my_reply_message(library.get_text_message(filter_setting), event)
 
 def __check_expired(event):
     library = Library(users)
-    filter_setting = ExpiredFilterSetting())
+    filter_setting = ExpiredFilterSetting()
     library.fetch_rental_books(filter_setting)
     line.my_reply_message(library.get_text_message(filter_setting), event)
 
@@ -253,7 +254,7 @@ def __check_reserved_books(event, user_nums):
 
 def __search_book(event, query):
     books   = RakutenBooksService.search_books(query)
-    message = Book.get_books_select_line_carousel_mseeage(books.slice(0, 5))
+    message = books.slice(0, 5).get_books_select_line_carousel_mseeage()
     line.my_reply_message(message, event)
 
 def __search_book_by_isbn(event, text):

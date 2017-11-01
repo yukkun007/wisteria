@@ -11,6 +11,7 @@ from linebot.models import ButtonsTemplate,\
                            PostbackTemplateAction,\
                            URITemplateAction
 
+
 class KBot(object):
 
     def __init__(self, root_dir):

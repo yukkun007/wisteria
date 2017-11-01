@@ -3,9 +3,6 @@
 
 import os
 import json
-from jinja2 import Template, Environment, FileSystemLoader
-from linebot.models import ButtonsTemplate, CarouselTemplate, CarouselColumn
-from linebot.models import URITemplateAction, PostbackTemplateAction
 from kbot.log import Log
 from kbot.message import Message
 from kbot.image import Image
@@ -67,36 +64,4 @@ class Book(object):
         message = Message.create('text/book_info.tpl', data)
         return message
 
-    def get_books_select_line_carousel_mseeage(books):
-
-        if books.length() == 0:
-            return '見つかりませんでした。。'
-
-        columns = []
-        for book in books:
-
-            image       = Image()
-            path        = image.download(book.image_url)
-            image_magic = ImageMagic()
-            image_magic.convert(path)
-            gyazo       = Gyazo()
-            gyazo_url   = gyazo.upload(path)
-
-            text = '著:' + book.author +\
-                   '\n￥' + str(book.price) +\
-                   '\n発売日:' + book.sales_date
-            text = text[:60]
-            column = CarouselColumn(
-                thumbnail_image_url = gyazo_url,
-                title               = book.title[:40],
-                text                = text,
-                actions             = [
-                    PostbackTemplateAction(
-                        label = '借りる / 買う',
-                        data  = 'isbn:' + book.isbn)
-                ]
-            )
-            columns.append(column)
-
-        return CarouselTemplate(columns=columns)
 
