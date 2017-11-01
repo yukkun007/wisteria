@@ -18,14 +18,12 @@ class KBot(object):
         self.root_dir = root_dir
         self.__load_dotenv()
 
-
     def __load_dotenv(self):
         dotenv_path = os.path.join(self.root_dir, '.env')
         if os.path.exists(dotenv_path):
             Log.info('>>>>>>>>>>>>>> find .env : {0}'.format(dotenv_path))
             load_dotenv(dotenv_path)
         else:
-            
             Log.info('>>>>>>>>>>>>>> not find .env : {0}'.format(dotenv_path))
 
     def get_kbot_command_menu(self):
