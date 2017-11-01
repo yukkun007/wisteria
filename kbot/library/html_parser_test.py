@@ -11,10 +11,10 @@ from kbot.library.library import Library
 class TestHtmlParser:
 
     def test_get_rental_books(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
         page = HtmlPage()
         user = User(os.environ['USER1'])
         html = page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
 
-        rental_books = HtmlParser.get_rental_books(html)
+        HtmlParser.get_rental_books(html)
 

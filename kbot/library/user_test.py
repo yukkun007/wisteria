@@ -9,7 +9,7 @@ from kbot.library.user import User
 class TestUser:
 
     def test_user(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
 
         data_json = os.environ['USER_TEST']
         user = User(data_json)

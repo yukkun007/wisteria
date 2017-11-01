@@ -7,7 +7,7 @@ from kbot.google.youtube import YouTube
 class TestYouTube:
 
     def test_youtube(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
         youtube = YouTube('wisteria')
-        movie   = youtube.get_youtube_movie()
+        youtube.get_youtube_movie()
 

@@ -11,7 +11,7 @@ class TestBook(object):
 
 
     def test_search_book(self):
-        KBOT         = KBot('wisteria')
+        KBot('wisteria')
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
         line         = Line(line_bot_api)
         line_tos     = [os.environ['LINE_SEND_GROUP_ID_DEBUG']]

@@ -14,14 +14,14 @@ from linebot.models import ButtonsTemplate,\
 class TestLine:
 
     def test_1(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
 
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
         line         = Line(line_bot_api)
         line.my_push_message('これはテストです。', [os.environ['LINE_SEND_ID']])
 
     def test_2(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
 
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
         line         = Line(line_bot_api)

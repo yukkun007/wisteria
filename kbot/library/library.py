@@ -37,7 +37,7 @@ class Library(object):
                 user = self.users[user_num]
 
                 Log.info(user.name)
-                reserved_book = self.__get_reserved_books(user)
+                reserved_books = self.__get_reserved_books(user)
                 user.set_reserved_books(reserved_books)
                 self.all_reserved_books_count += user.reserved_books_count
 

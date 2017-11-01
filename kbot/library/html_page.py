@@ -82,6 +82,6 @@ class HtmlPage(object):
         # 待機
         WebDriverWait(driver, 10).until(ec.presence_of_all_elements_located)
         # ロードされたかを確認
-        form = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "FormLEND")))
+        WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.NAME, "FormLEND")))
         # driver.save_screenshot("login.png")
 

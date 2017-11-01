@@ -10,8 +10,8 @@ from kbot.library.library import Library
 class TestHtmlPages:
 
     def test_fetch_html(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
         page = HtmlPage()
         user = User(os.environ['USER1'])
-        html = page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
+        page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
 

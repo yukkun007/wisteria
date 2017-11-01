@@ -23,7 +23,7 @@ class TestBooks:
         return books
 
     def setup(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
 
     def test_new(self, books1):
         assert isinstance(books1, Books)
@@ -46,7 +46,7 @@ class TestBooks:
 
     def test_new_from_illegal_source(self):
         with pytest.raises(RuntimeError):
-            books = Books('hoge')
+            Books('hoge')
 
     def test_slice(self, books1):
         books = books1.slice(0, 0)
@@ -73,7 +73,7 @@ class TestBookSearchQuery:
 class TestRakutenBooksService:
 
     def setup(self):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
 
     def test_get_one_book(self):
         RakutenBooksService._RakutenBooksService__request = MagicMock()

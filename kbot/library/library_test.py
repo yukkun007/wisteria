@@ -12,7 +12,7 @@ class TestLibrary:
 
     @pytest.fixture()
     def instance1(request):
-        kbot = KBot('wisteria')
+        KBot('wisteria')
         users = [User(os.environ['USER1'])]
         library = Library(users)
         return library
