@@ -5,7 +5,6 @@ import os
 from linebot import LineBotApi
 from kbot.kbot import KBot
 from kbot.book.rakuten_books import RakutenBooksService, BookSearchQuery
-from kbot.book.book import Book
 from kbot.line import Line
 
 class TestBook(object):

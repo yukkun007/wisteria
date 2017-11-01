@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
 from apiclient.discovery import build
 import webbrowser
 from apiclient.discovery import build
@@ -10,13 +9,8 @@ from oauth2client.file import Storage
 # from oauth2client.tools import run
 import httplib2
 
-from multiprocessing import Process, Value
 
 import base64
-from email.mime.audio import MIMEAudio
-from email.mime.base import MIMEBase
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 auth_url = "https://accounts.google.com/o/oauth2/auth?"

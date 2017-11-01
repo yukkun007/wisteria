@@ -2,12 +2,8 @@
 # from __future__ import unicode_literals
 
 import os
-import json
 from kbot.log import Log
 from kbot.message import Message
-from kbot.image import Image
-from kbot.gyazo import Gyazo
-from kbot.image_magic import ImageMagic
 
 class Book(object):
 

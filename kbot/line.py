@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os
-from kbot.library.library import Library
 from linebot.models import TemplateSendMessage,\
                            TextSendMessage,\
                            VideoSendMessage

@@ -4,7 +4,6 @@
 import os
 from linebot import LineBotApi
 from kbot.kbot import KBot
-from kbot.book.book import Book
 from kbot.book.calil import Calil
 from kbot.line import Line
 

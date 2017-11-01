@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 from linebot.models import ButtonsTemplate,\
                            ConfirmTemplate,\
                            MessageTemplateAction,\

@@ -19,7 +19,6 @@ class TestLine:
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
         line         = Line(line_bot_api)
         line.my_push_message('これはテストです。', [os.environ['LINE_SEND_ID']])
-        pass
 
     def test_2(self):
         kbot = KBot('wisteria')
@@ -36,5 +35,4 @@ class TestLine:
             ]
         )
         line.my_push_message(buttons_template, [os.environ['LINE_SEND_ID']])
-        pass
 

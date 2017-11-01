@@ -6,8 +6,8 @@ import os
 from django.conf import settings
 from django.http import HttpResponse,\
                         HttpResponseBadRequest,\
-                        HttpResponseRedirect,\
-                        HttpResponseForbidden
+    HttpResponseRedirect,\
+    HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 
 from kbot.kbot import KBot
@@ -21,7 +21,6 @@ from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
 from kbot.book.calil import Calil
 from kbot.book.amazon import Amazon
-from kbot.book.book import Book
 from kbot.book.rakuten_books import RakutenBooksService, BookSearchQuery
 
 from linebot import LineBotApi, WebhookParser

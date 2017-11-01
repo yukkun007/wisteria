@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-import json
 from kbot.google.gmail_api import GmailApi
 
 class GMail(object):

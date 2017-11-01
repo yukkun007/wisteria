@@ -2,7 +2,6 @@
 # from __future__ import unicode_literals
 
 import os
-import json
 import requests
 from linebot.models import CarouselTemplate, CarouselColumn
 from linebot.models import PostbackTemplateAction

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date, timedelta
-from kbot.library.rental_book import RentalBook, RentalBooks, FilterSetting, ExpireFilterSetting, ExpiredFilterSetting
+from kbot.library.rental_book import ExpireFilterSetting, ExpiredFilterSetting, RentalBook, RentalBooks
 
 class TestRentalBooks:
 
