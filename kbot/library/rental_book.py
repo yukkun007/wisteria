@@ -11,9 +11,9 @@ from kbot.log import Log
 
 class FilterSetting(object):
 
-    FILTER_NONE = "none"
-    FILTER_EXPIRED = "expired"
-    FILTER_EXPIRE = "expire"
+    FILTER_NONE = 'none'
+    FILTER_EXPIRED = 'expired'
+    FILTER_EXPIRE = 'expire'
 
     def __init__(self):
         self.type = FilterSetting.FILTER_NONE
@@ -34,10 +34,10 @@ class ExpireFilterSetting(FilterSetting):
 
 class RentalBooks(object):
 
-    TEMPLATE_RENTAL = "rental.tpl"
-    TEMPLATE_EXPIRED = "expired.tpl"
-    TEMPLATE_EXPIRE = "expire.tpl"
-    TEMPLATE_BOOK_LIST = "book_list.tpl"
+    TEMPLATE_RENTAL = 'rental.tpl'
+    TEMPLATE_EXPIRED = 'expired.tpl'
+    TEMPLATE_EXPIRE = 'expire.tpl'
+    TEMPLATE_BOOK_LIST = 'book_list.tpl'
 
     def __init__(self, source):
         if source is None:
@@ -145,13 +145,13 @@ class RentalBook(object):
         elif remain_days == 0:
             text = ' (今日ﾏﾃﾞ)'
         elif remain_days < 0:
-            text = " (延滞)"
+            text = ' (延滞)'
         else:
-            text = " (あと{0}日)".format(remain_days)
+            text = ' (あと{0}日)'.format(remain_days)
 
         return text
 
     def to_string(self):
-        string = "name:{0} expire_date:{1} expire_date(text):{2} can_extend_period:{3} extend_period_button_name:{4}".format(
+        string = 'name:{0} expire_date:{1} expire_date(text):{2} can_extend_period:{3} extend_period_button_name:{4}'.format(
             self.name, self.expire_date, self.expire_date_text, self.can_extend_period, self.extend_period_button_name)
         return string

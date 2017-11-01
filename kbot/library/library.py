@@ -10,11 +10,11 @@ from kbot.log import Log
 
 class Library(object):
 
-    LIBRALY_HOME_URL = "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWUSERCONF.CSP"
-    LIBRALY_BOOK_URL = "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWBOOK.CSP?DB=LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB"
+    LIBRALY_HOME_URL = 'https://www.lib.nerima.tokyo.jp/opw/OPW/OPWUSERCONF.CSP'
+    LIBRALY_BOOK_URL = 'https://www.lib.nerima.tokyo.jp/opw/OPW/OPWBOOK.CSP?DB=LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB'
 
-    TEMPLATE_HEADER = "header.tpl"
-    TEMPLATE_FOOTER = "footer.tpl"
+    TEMPLATE_HEADER = 'header.tpl'
+    TEMPLATE_FOOTER = 'footer.tpl'
     TEMPLATE_USER_RESERVED_BOOKS = 'user_reserved_books.tpl'
 
     def __init__(self, users):

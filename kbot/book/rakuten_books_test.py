@@ -94,7 +94,7 @@ class TestRakutenBooksService:
     @patch('kbot.book.rakuten_books.requests')
     def test_request(self, mock_requests):
         mock_response = MagicMock()
-        mock_response.json.return_value = ["test"]
+        mock_response.json.return_value = ['test']
         mock_requests.get.return_value = mock_response
         # mock_requests.get()
         query = BookSearchQuery()
@@ -103,7 +103,7 @@ class TestRakutenBooksService:
         print('----------' + str(mock_requests.get.called))
         assert mock_requests.get.called
         assert mock_response.json.called
-        assert json_data == ["test"]
+        assert json_data == ['test']
 
     def test_adjust_query(self):
         query = BookSearchQuery()

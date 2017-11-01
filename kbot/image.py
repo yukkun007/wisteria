@@ -19,12 +19,12 @@ class Image(object):
     def __download_image(self, url, timeout=10):
         response = requests.get(url, allow_redirects=False, timeout=timeout)
         if response.status_code != 200:
-            e = Exception("HTTP status: " + response.status_code)
+            e = Exception('HTTP status: ' + response.status_code)
             raise e
 
-        content_type = response.headers["content-type"]
+        content_type = response.headers['content-type']
         if 'image' not in content_type:
-            e = Exception("Content-Type: " + content_type)
+            e = Exception('Content-Type: ' + content_type)
             raise e
 
         return response.content
@@ -35,5 +35,5 @@ class Image(object):
         return file_path
 
     def __save_image(self, file_path, image):
-        with open(file_path, "wb") as fout:
+        with open(file_path, 'wb') as fout:
             fout.write(image)

@@ -11,7 +11,7 @@ class HtmlParser(object):
 
     @classmethod
     def get_rental_books(cls, html):
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(html, 'html.parser')
 
         table = HtmlParser.__get_table(soup, 'FormLEND')
         if table is None:
@@ -28,7 +28,7 @@ class HtmlParser(object):
 
     @classmethod
     def get_reserved_books(cls, html):
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(html, 'html.parser')
 
         table = HtmlParser.__get_table(soup, 'FormRSV')
         if table is None:
@@ -57,11 +57,11 @@ class HtmlParser(object):
 
     @classmethod
     def __get_target_tds_list(cls, table):
-        trs = table[0].find_all("tr")
+        trs = table[0].find_all('tr')
 
         target_tds_list = []
         for tr in trs:
-            tds = tr.find_all(["td", "th"])
+            tds = tr.find_all(['td', 'th'])
             no = tds[0].string.strip()
             if no.isnumeric() is False:
                 continue

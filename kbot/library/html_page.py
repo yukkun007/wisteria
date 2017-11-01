@@ -31,7 +31,7 @@ class HtmlPage(object):
         element = WebDriverWait(
             driver, 10).until(
             ec.presence_of_element_located(
-                (By.ID, "library")))
+                (By.ID, 'library')))
         select = Select(element)
         select.select_by_index(10)
         # driver.save_screenshot("select.png")
@@ -40,7 +40,7 @@ class HtmlPage(object):
         submit = WebDriverWait(
             driver, 10).until(
             ec.presence_of_element_located(
-                (By.NAME, "reg")))
+                (By.NAME, 'reg')))
         submit.click()
         # time.sleep(5)
         WebDriverWait(driver, 10).until(ec.presence_of_all_elements_located)
@@ -48,7 +48,7 @@ class HtmlPage(object):
         submit = WebDriverWait(
             driver, 10).until(
             ec.presence_of_element_located(
-                (By.NAME, "chkRb")))
+                (By.NAME, 'chkRb')))
         submit.click()
         # time.sleep(5)
         # driver.save_screenshot("finish.png")
@@ -85,11 +85,11 @@ class HtmlPage(object):
         uid = WebDriverWait(
             driver, 10).until(
             ec.presence_of_element_located(
-                (By.NAME, "usercardno")))
+                (By.NAME, 'usercardno')))
         password = WebDriverWait(
             driver, 10).until(
             ec.presence_of_element_located(
-                (By.NAME, "userpasswd")))
+                (By.NAME, 'userpasswd')))
         uid.send_keys(user.id)
         password.send_keys(user.password)
 
@@ -97,7 +97,7 @@ class HtmlPage(object):
         button = WebDriverWait(
             driver, 10).until(
             ec.presence_of_element_located(
-                (By.NAME, "Login")))
+                (By.NAME, 'Login')))
         button.click()
 
         # 待機
@@ -106,5 +106,5 @@ class HtmlPage(object):
         WebDriverWait(
             driver, 10).until(
             ec.presence_of_element_located(
-                (By.NAME, "FormLEND")))
+                (By.NAME, 'FormLEND')))
         # driver.save_screenshot("login.png")
