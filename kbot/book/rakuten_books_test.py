@@ -45,6 +45,7 @@ class TestBooks:
         assert isinstance(books, Books)
         assert books.length() == 0
 
+
     def test_new_from_illegal_source(self):
         with pytest.raises(RuntimeError):
             Books('hoge')
@@ -96,11 +97,8 @@ class TestRakutenBooksService:
         mock_response = MagicMock()
         mock_response.json.return_value = ['test']
         mock_requests.get.return_value = mock_response
-        # mock_requests.get()
         query = BookSearchQuery()
         json_data = RakutenBooksService._RakutenBooksService__request(query)
-        print('=============')
-        print('----------' + str(mock_requests.get.called))
         assert mock_requests.get.called
         assert mock_response.json.called
         assert json_data == ['test']
