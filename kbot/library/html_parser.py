@@ -32,9 +32,9 @@ class HtmlParser(object):
 
         table = HtmlParser.__get_table(soup, 'FormRSV')
         if table is None:
-            return ReservedBooks()
+            return ReservedBooks([])
 
-        reserved_books = ReservedBooks()
+        reserved_books = ReservedBooks([])
         tds_list = HtmlParser.__get_target_tds_list(table)
         for tds in tds_list:
             reserved_books.append(HtmlParser.__get_reserved_book(tds))

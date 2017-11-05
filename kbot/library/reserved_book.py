@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
+import os
 from jinja2 import Environment, FileSystemLoader
 from linebot.models import ButtonsTemplate,\
-    ConfirmTemplate,\
-    MessageTemplateAction,\
-    PostbackEvent,\
-    PostbackTemplateAction,\
-    URITemplateAction
+    PostbackTemplateAction
+from kbot.message import Message
 
 
 class ReservedBooks(object):
