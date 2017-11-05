@@ -2,44 +2,118 @@
 # from __future__ import unicode_literals
 
 import os
-import json
 import requests
+from linebot.models import CarouselTemplate, CarouselColumn
+from linebot.models import PostbackTemplateAction
 from kbot.book.book import Book
+from kbot.image import Image
+from kbot.gyazo import Gyazo
+from kbot.image_magic import ImageMagic
 
-class RakutenBooks(object):
 
-    RAKUTEN_BASE_URL = 'https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404'
-    RAKUTEN_APP_ID   = os.environ['RAKUTEN_APP_ID']
+class Books(object):
+
+    def __init__(self, source):
+        self.books = []
+        if isinstance(source, dict):
+            self.__set_books_from_dict(source)
+        elif isinstance(source, list):
+            self.books = source
+        else:
+            self.__raise_exception(source)
+
+    def __set_books_from_dict(self, source_dict):
+        for item in source_dict.get('Items'):
+            self.books.append(Book(item.get('Item')))
+
+    def __raise_exception(self, source):
+        message = 'new [' + str(type(self)) + \
+            '] illegal source: ' + str(type(source))
+        print(message)
+        raise RuntimeError(message)
+
+    def length(self):
+        return len(self.books)
+
+    def slice(self, start, end):
+        return Books(self.books[start:end])
+
+    def get(self, index):
+        return self.books[index]
+
+    def get_books_select_line_carousel_mseeage(self):
+
+        if self.length() == 0:
+            return '見つかりませんでした。。'
+
+        columns = []
+        for book in self.books:
+
+            image = Image()
+            path = image.download(book.image_url)
+            image_magic = ImageMagic()
+            image_magic.convert(path)
+            gyazo = Gyazo()
+            gyazo_url = gyazo.upload(path)
+
+            text = '著:' + book.author +\
+                   '\n￥' + str(book.price) +\
+                   '\n発売日:' + book.sales_date
+            text = text[:60]
+            column = CarouselColumn(
+                thumbnail_image_url=gyazo_url,
+                title=book.title[:40],
+                text=text,
+                actions=[
+                    PostbackTemplateAction(
+                        label='借りる / 買う',
+                        data='isbn:' + book.isbn)
+                ]
+            )
+            columns.append(column)
+
+        return CarouselTemplate(columns=columns)
+
+
+class BookSearchQuery(object):
 
     def __init__(self):
-        pass
+        self.query = {}
 
-    def get_book(self, isbn):
-        query                  = {}
-        query['isbn']          = isbn
-        query['applicationId'] = RakutenBooks.RAKUTEN_APP_ID
-        query['sort']          = 'sales'
-        res = requests.get(RakutenBooks.RAKUTEN_BASE_URL, params=query).json()
+    def set(self, key, value):
+        self.query[key] = value
 
-        for item in res['Items']:
-            book = Book(item['Item'])
-            break
+    def dict(self):
+        return self.query
 
-        book.log()
 
-        return book
+class RakutenBooksService(object):
 
-    def search_books(self, query):
-        query['applicationId'] = RakutenBooks.RAKUTEN_APP_ID
-        query['sort']          = 'sales'
-        res = requests.get(RakutenBooks.RAKUTEN_BASE_URL, params=query).json()
+    RAKUTEN_BASE_URL = 'https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404'
 
-        result = []
-        for item in res['Items']:
-            book = Book(item['Item'])
-            result.append(book)
-            if len(result) >=5:
-                break
+    @classmethod
+    def get_one_book(cls, query):
+        json_data = RakutenBooksService.__request(query)
+        books = Books(json_data)
+        if books.length() <= 0:
+            return Book()
+        return books.get(0)
 
-        return result
+    @classmethod
+    def search_books(cls, query):
+        json_data = RakutenBooksService.__request(query)
+        return Books(json_data)
 
+    @classmethod
+    def __request(cls, query):
+        response = requests.get(
+            RakutenBooksService.RAKUTEN_BASE_URL,
+            params=RakutenBooksService.__adjust_query(query))
+        json_data = response.json()  # TODO:nullチェック
+        return json_data
+
+    @classmethod
+    def __adjust_query(cls, query):
+        query.set('applicationId', os.environ['RAKUTEN_APP_ID'])
+        query.set('sort', 'sales')
+        return query.dict()

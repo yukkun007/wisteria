@@ -4,12 +4,13 @@
 import os
 from dotenv import load_dotenv
 from kbot.log import Log
+from kbot.book.rakuten_books import BookSearchQuery
 from linebot.models import ButtonsTemplate,\
-                           ConfirmTemplate,\
-                           MessageTemplateAction,\
-                           PostbackEvent,\
-                           PostbackTemplateAction,\
-                           URITemplateAction
+    ConfirmTemplate,\
+    MessageTemplateAction,\
+    PostbackTemplateAction,\
+    URITemplateAction
+
 
 class KBot(object):
 
@@ -25,33 +26,32 @@ class KBot(object):
         else:
             Log.info('>>>>>>>>>>>>>> not find .env : {0}'.format(dotenv_path))
 
-
     def get_kbot_command_menu(self):
         buttons_template = ButtonsTemplate(
-            title   = 'kbotコマンドメニュー',
-            text    = '直接メッセージを入れても反応します!',
-            actions = [
-                #URITemplateAction(
-                    # label='図書館のサイトへ',
-                    # uri='https://www.lib.nerima.tokyo.jp/opw/\
-                    #                 OPW/OPWLOGINTIME.CSP?HPFLG=1&NEXT=OPWUSER\
-                    #                 INFO&DB=LIB'),
+            title='kbotコマンドメニュー',
+            text='直接メッセージを入れても反応します!',
+            actions=[
+                # URITemplateAction(
+                # label='図書館のサイトへ',
+                # uri='https://www.lib.nerima.tokyo.jp/opw/\
+                #                 OPW/OPWLOGINTIME.CSP?HPFLG=1&NEXT=OPWUSER\
+                #                 INFO&DB=LIB'),
                 PostbackTemplateAction(
-                    label = '借りてる本をﾁｪｯｸ',
-                    data  = 'check_rental',
-                    text  = '図書館'),
+                    label='借りてる本をﾁｪｯｸ',
+                    data='check_rental',
+                    text='図書館'),
                 PostbackTemplateAction(
-                    label = '延滞本をﾁｪｯｸ',
-                    data  = 'check_expired',
-                    text  = '延滞'),
+                    label='延滞本をﾁｪｯｸ',
+                    data='check_expired',
+                    text='延滞'),
                 PostbackTemplateAction(
-                    label = 'X日で延滞の本をﾁｪｯｸ',
-                    data  = 'check_expire',
-                    text  = '2日で延滞'),
+                    label='X日で延滞の本をﾁｪｯｸ',
+                    data='check_expire',
+                    text='2日で延滞'),
                 PostbackTemplateAction(
-                    label = '反応する文字を見る',
-                    data  = 'show_reply_string',
-                    text  = '文字')
+                    label='反応する文字を見る',
+                    data='show_reply_string',
+                    text='文字')
             ]
         )
         return buttons_template
@@ -94,19 +94,19 @@ class KBot(object):
         return False
 
     def get_search_book_query(self, text):
-        query          = {}
+        query = BookSearchQuery()
         if '本？' in text:
             book_name = text[2:]
-            query['title'] = book_name
+            query.set('title', book_name)
         elif '著？' in text:
             author = text[2:]
-            query['author'] = author
+            query.set('author', author)
         return query
 
     def get_xdays(self, text):
         default = 2
         index = text.find('日で延滞')
-        num_str = text[index-1:index+4]
+        num_str = text[index - 1:index + 4]
         num_str = num_str.replace('日で延滞', '')
         try:
             return int(num_str)
@@ -168,4 +168,3 @@ class KBot(object):
             ]
         )
         return buttons_template
-

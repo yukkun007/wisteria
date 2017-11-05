@@ -1,41 +1,29 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from kbot.library.html_pages import HtmlPages
+import os
+from kbot.library.html_page import HtmlPage
 from kbot.library.html_parser import HtmlParser
-from kbot.library.message import Message
-from kbot.library.filter import Filter
-from kbot.library.user_status import UserStatus
+from kbot.message import Message
 from kbot.log import Log
+
 
 class Library(object):
 
-    LIBRALY_HOME_URL = "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWUSERCONF.CSP"
-    LIBRALY_BOOK_URL = "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWBOOK.CSP?DB=LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB"
+    LIBRALY_HOME_URL = 'https://www.lib.nerima.tokyo.jp/opw/OPW/OPWUSERCONF.CSP'
+    LIBRALY_BOOK_URL = 'https://www.lib.nerima.tokyo.jp/opw/OPW/OPWBOOK.CSP?DB=LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB'
 
-    def __init__(self, root_dir, users):
-        self.root_dir   = root_dir
-        self.users      = users
-        self.pages      = HtmlPages()
-        self.is_fetched = False
-        self.user_dict  = {}
-        self.books_dict = {}
+    TEMPLATE_HEADER = 'header.tpl'
+    TEMPLATE_FOOTER = 'footer.tpl'
+    TEMPLATE_USER_RESERVED_BOOKS = 'user_reserved_books.tpl'
 
-    def __finalize(self):
-        self.pages.finalize()
-
-    def __get_rental_books(self, user):
-        html   = self.pages.fetch_login_page(Library.LIBRALY_HOME_URL, user)
-        parser = HtmlParser(html)
-        books  = parser.get_rental_books()
-        return books
-
-    def __registe(self, user, books):
-        self.user_dict[user.num]  = user
-        self.books_dict[user.num] = books
+    def __init__(self, users):
+        self.users = users
+        self.all_rental_books_count = 0
+        self.all_reserved_books_count = 0
 
     def yoyaku(self, user_num, book_id):
-        return self.pages.yoyaku(
+        return HtmlPage.reserve(
             Library.LIBRALY_HOME_URL,
             self.users[int(user_num) - 1],
             Library.LIBRALY_BOOK_URL.format(book_id)
@@ -43,7 +31,6 @@ class Library(object):
 
     def check_reserved_books(self, user_nums):
         nums = user_nums.split(',')
-        user_status_list = []
 
         for num in nums:
             user_num = int(num) - 1
@@ -51,44 +38,77 @@ class Library(object):
                 user = self.users[user_num]
 
                 Log.info(user.name)
-                html   = self.pages.fetch_login_page(Library.LIBRALY_HOME_URL, user)
-                parser = HtmlParser(html)
-                books  = parser.get_yoyaku_books()
+                reserved_books = self.__get_reserved_books(user)
+                user.set_reserved_books(reserved_books)
+                self.all_reserved_books_count += user.reserved_books_count
 
-                user_status = UserStatus(user)
-                user_status.set_reserved_books(books)
+    def __get_reserved_books(self, user):
+        html = HtmlPage.fetch_login_page(Library.LIBRALY_HOME_URL, user)
+        reserved_books = HtmlParser.get_reserved_books(html)
+        return reserved_books
 
-                user_status_list.append(user_status)
+    def fetch_status(self, filter_setting):
+        for user in self.users:
+            rental_books = self.__get_rental_books(user)
+            filterd_rental_books = rental_books.get_filtered_books(
+                filter_setting)
+            user.set_rental_books(filterd_rental_books)
+            self.all_rental_books_count += user.rental_books_count
 
-        return user_status_list
-
-    def fetch_status(self):
-        if self.is_fetched == False:
-            for user in self.users:
-                books = self.__get_rental_books(user)
-                self.__registe(user, books)
-            self.__finalize()
-
-        self.is_fetched = True
+    def __get_rental_books(self, user):
+        html = HtmlPage.fetch_login_page(Library.LIBRALY_HOME_URL, user)
+        books = HtmlParser.get_rental_books(html)
+        return books
 
     def is_target_exist(self):
-        all_books_count = 0
-        if self.is_fetched == True:
-            for user_num, user in self.user_dict.items():
-                books = self.books_dict[user_num]
-                all_books_count += books.length()
-        if all_books_count > 0:
+        if self.all_rental_books_count > 0:
             return True
         return False
 
-    def do_filter(self, books_filter):
-        for user_num, user in self.user_dict.items():
-            books = self.books_dict[user_num]
-            books.do_filter(books_filter)
+    def get_text_message(self, filter_setting):
+        return self.__get_message(filter_setting, format='text')
 
-    def get_message(self, type=Message.TYPE_SHORT):
-        message = Message(self.root_dir, self.user_dict, self.books_dict)
-        text_message = message.create(type)
+    def get_html_message(self, filter_setting):
+        return self.__get_message(filter_setting, format='html')
 
-        return text_message
+    def __get_message(self, filter_setting, format='text'):
+        message = ''
 
+        data = {}
+        message += Message.create(os.path.join(format,
+                                               Library.TEMPLATE_HEADER), data)
+
+        for user in self.users:
+            message += user.rental_books.get_message(
+                user, filter_setting, format)
+
+        data = {'all_books_count': self.all_rental_books_count}
+        message += Message.create(os.path.join(format,
+                                               Library.TEMPLATE_FOOTER), data)
+
+        return message
+
+    def get_text_reserved_books_message(self):
+        return self.__get_reserved_books_message(format='text')
+
+    def get_html_reserved_books_message(self):
+        return self.__get_reserved_books_message(format='html')
+
+    def __get_reserved_books_message(self, format='text'):
+        sub_message = ''
+        for user in self.users:
+            sub_message += user.reserved_books.get_message(user, format)
+
+        message = ''
+        data = {'sub_message': sub_message,
+                'is_prepared': self.prepared_reserved_book()}
+        message += Message.create(os.path.join(format,
+                                               Library.TEMPLATE_USER_RESERVED_BOOKS), data)
+
+        return message
+
+    def prepared_reserved_book(self):
+        for user in self.users:
+            if user.reserved_books.prepared_reserved_book():
+                return True
+        return False

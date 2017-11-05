@@ -12,6 +12,7 @@ from oauth2client.tools import argparser, run_flow
 
 from kbot.google.movie import Movie
 
+
 class YouTube(object):
 
     def __init__(self, root_dir):
@@ -31,11 +32,11 @@ class YouTube(object):
         oa.write(contents)
         oa.close()
 
-        CLIENT_SECRETS_FILE            = self.secret_path
-        MISSING_CLIENT_SECRETS_MESSAGE = "missing client secrets."
-        YOUTUBE_READONLY_SCOPE         = "https://www.googleapis.com/auth/youtube.readonly"
-        YOUTUBE_API_SERVICE_NAME       = "youtube"
-        YOUTUBE_API_VERSION            = "v3"
+        CLIENT_SECRETS_FILE = self.secret_path
+        MISSING_CLIENT_SECRETS_MESSAGE = 'missing client secrets.'
+        YOUTUBE_READONLY_SCOPE = 'https://www.googleapis.com/auth/youtube.readonly'
+        YOUTUBE_API_SERVICE_NAME = 'youtube'
+        YOUTUBE_API_VERSION = 'v3'
 
         flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
                                        message=MISSING_CLIENT_SECRETS_MESSAGE,
@@ -52,28 +53,28 @@ class YouTube(object):
                         http=credentials.authorize(httplib2.Http()))
 
         channels_response = youtube.channels().list(
-            mine = True,
-            part = "contentDetails"
+            mine=True,
+            part='contentDetails'
         ).execute()
 
-        for channel in channels_response["items"]:
-            uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
-            print("Videos in list %s" % uploads_list_id)
+        for channel in channels_response['items']:
+            uploads_list_id = channel['contentDetails']['relatedPlaylists']['uploads']
+            print('Videos in list %s' % uploads_list_id)
 
         playlistitems_list_request = youtube.playlistItems().list(
-            playlistId = uploads_list_id,
-            part       = "snippet",
-            maxResults = 50
+            playlistId=uploads_list_id,
+            part='snippet',
+            maxResults=50
         )
 
         item_list = []
         while playlistitems_list_request:
             playlistitems_list_response = playlistitems_list_request.execute()
 
-            length = len(playlistitems_list_response["items"])
+            length = len(playlistitems_list_response['items'])
             print('!!!!!!!!!!!!!! len=%d' % length)
             index = random.randint(0, length - 1)
-            playlist_item = playlistitems_list_response["items"][index]
+            playlist_item = playlistitems_list_response['items'][index]
             item_list.append(playlist_item)
 
             playlistitems_list_request = youtube.playlistItems().list_next(
@@ -85,13 +86,12 @@ class YouTube(object):
         fix_playlist_item = item_list[index2]
 
         # for playlist_item in playlistitems_list_response["items"]:
-        title        = fix_playlist_item["snippet"]["title"]
-        video_id     = fix_playlist_item["snippet"]["resourceId"]["videoId"]
-        url          = fix_playlist_item["snippet"]["thumbnails"]["high"]["url"]
-        published_at = fix_playlist_item["snippet"]["publishedAt"]
-        print("%s (%s) %s %s" % (title, video_id, url, published_at))
+        title = fix_playlist_item['snippet']['title']
+        video_id = fix_playlist_item['snippet']['resourceId']['videoId']
+        url = fix_playlist_item['snippet']['thumbnails']['high']['url']
+        published_at = fix_playlist_item['snippet']['publishedAt']
+        print('%s (%s) %s %s' % (title, video_id, url, published_at))
 
         movie = Movie(title, video_id, url, published_at)
 
         return movie
-
