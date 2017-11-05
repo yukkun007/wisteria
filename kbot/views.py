@@ -14,8 +14,8 @@ from kbot.kbot import KBot
 from kbot.line import Line
 from kbot.library.library import Library
 from kbot.library.user import User
-from kbot.library.rental_books import FilterSetting, ExpireFilterSetting, ExpiredFilterSetting
-from kbot.library.yoyaku_book import ReservedBook
+from kbot.library.rental_book import FilterSetting, ExpireFilterSetting, ExpiredFilterSetting
+from kbot.library.reserved_book import ReservedBook
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
@@ -90,7 +90,7 @@ def library_test(request):
         # xdays = 2
         # filter_setting = ExpireFilterSetting(xdays)
         # filter_setting = ExpiredFilterSetting()
-        library.fetch_rental_books(filter_setting)
+        library.fetch_status(filter_setting)
         library.get_text_message(filter_setting)
 
         return HttpResponse('done! library_test')
@@ -134,7 +134,7 @@ def library_check(request):
         xdays = 2
         library = Library(users)
         filter_setting = ExpireFilterSetting(xdays)
-        library.fetch_rental_books(filter_setting)
+        library.fetch_status(filter_setting)
         if library.is_target_exist():
             line.my_push_message(library.get_text_message(), line_tos)
             gmail.send_message_multi(
@@ -223,21 +223,21 @@ def callback(request):
 def __check_rental(event):
     library = Library(users)
     filter_setting = FilterSetting()
-    library.fetch_rental_books(filter_setting)
+    library.fetch_status(filter_setting)
     line.my_reply_message(library.get_text_message(filter_setting), event)
 
 
 def __check_expire(event, xdays):
     library = Library(users)
     filter_setting = ExpireFilterSetting(xdays)
-    library.fetch_rental_books(filter_setting)
+    library.fetch_status(filter_setting)
     line.my_reply_message(library.get_text_message(filter_setting), event)
 
 
 def __check_expired(event):
     library = Library(users)
     filter_setting = ExpiredFilterSetting()
-    library.fetch_rental_books(filter_setting)
+    library.fetch_status(filter_setting)
     line.my_reply_message(library.get_text_message(filter_setting), event)
 
 
