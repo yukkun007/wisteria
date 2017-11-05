@@ -15,7 +15,9 @@ class HtmlPage(object):
     def fetch_login_page(cls, login_url, user):
         driver = HtmlPage.__start()
         HtmlPage.__login(login_url, user, driver)
+        Log.info('webdriver: PhantomJS encode/start')
         html = driver.page_source.encode('utf-8')
+        Log.info('webdriver: PhantomJS encode/end')
         HtmlPage.__end(driver)
         return html
 
@@ -60,14 +62,16 @@ class HtmlPage(object):
 
     @classmethod
     def __start(cls):
+        Log.info('webdriver: PhantomJS create/start')
         driver = webdriver.PhantomJS()
-        Log.info('webdriver.PhantomJS start')
+        Log.info('webdriver: PhantomJS create/end')
         return driver
 
     @classmethod
     def __end(cls, driver):
+        Log.info('webdriver: PhantomJS quit/start')
         driver.quit()
-        Log.info('webdriver.PhantomJS end')
+        Log.info('webdriver: PhantomJS quit/end')
 
     @classmethod
     def __login(cls, login_url, user, driver):
@@ -76,9 +80,11 @@ class HtmlPage(object):
                 user.name, login_url))
 
         driver.get(login_url)
+        Log.info('-----------:1')
         # 待機
         WebDriverWait(driver, 10).until(ec.presence_of_all_elements_located)
 
+        Log.info('-----------:2')
         # ログインボタン押下
         # uid      = driver.find_element_by_name('usercardno')
         # password = driver.find_element_by_name('userpasswd')
@@ -92,6 +98,7 @@ class HtmlPage(object):
                 (By.NAME, 'userpasswd')))
         uid.send_keys(user.id)
         password.send_keys(user.password)
+        Log.info('-----------:3')
 
         # driver.find_element_by_name('Login').click()
         button = WebDriverWait(
@@ -99,6 +106,7 @@ class HtmlPage(object):
             ec.presence_of_element_located(
                 (By.NAME, 'Login')))
         button.click()
+        Log.info('-----------:4')
 
         # 待機
         WebDriverWait(driver, 10).until(ec.presence_of_all_elements_located)
@@ -108,3 +116,4 @@ class HtmlPage(object):
             ec.presence_of_element_located(
                 (By.NAME, 'FormLEND')))
         # driver.save_screenshot("login.png")
+        Log.info('-----------:5')
