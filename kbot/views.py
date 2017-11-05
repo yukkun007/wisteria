@@ -248,12 +248,12 @@ def __show_reply_string(event):
 
 def __check_reserved_books(event, user_nums):
     library = Library(users)
-    user_status = library.check_reserved_books(user_nums)
+    library.check_reserved_books(user_nums)
     message = library.get_text_reserved_books_message()
     if event is not None:
         line.my_reply_message(message, event)
     else:
-        if library.prepared_reserved_book(user_status):
+        if library.prepared_reserved_book():
             line.my_push_message(message, line_tos)
 
 
