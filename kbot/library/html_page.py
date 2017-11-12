@@ -13,37 +13,37 @@ class HtmlPage(object):
 
     def fetch_login_page(self, login_url, user):
         self.__login(login_url, user)
-        Log.info('webdriver: PhantomJS encode/start')
+        Log.info('driver.page_source.encode/start')
         html = self.driver.page_source.encode('utf-8')
-        Log.info('webdriver: PhantomJS encode/end')
+        Log.info('driver.page_source.encode/end')
         return html
 
     def reserve(self, login_url, user, url):
         self.__login(login_url, user)
         self.driver.get(url)
         # 待機
-        WebDriverWait(self.driver, 10).until(ec.presence_of_all_elements_located)
+        WebDriverWait(self.driver, 10, poll_frequency=0.05).until(ec.presence_of_all_elements_located)
         # self.driver.save_screenshot("login.png")
         # element = self.driver.find_element_by_id('library')
         element = WebDriverWait(
-            self.driver, 10).until(
+            self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_element_located(
                 (By.ID, 'library')))
         select = Select(element)
         select.select_by_index(10)
         # self.driver.save_screenshot("select.png")
         # time.sleep(5)
-        # submit = WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.NAME, "InForm")))
+        # submit = WebDriverWait(self.driver, 10, poll_frequency=0.05).until(ec.presence_of_element_located((By.NAME, "InForm")))
         submit = WebDriverWait(
-            self.driver, 10).until(
+            self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_element_located(
                 (By.NAME, 'reg')))
         submit.click()
         # time.sleep(5)
-        WebDriverWait(self.driver, 10).until(ec.presence_of_all_elements_located)
+        WebDriverWait(self.driver, 10, poll_frequency=0.05).until(ec.presence_of_all_elements_located)
         # self.driver.save_screenshot("button.png")
         submit = WebDriverWait(
-            self.driver, 10).until(
+            self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_element_located(
                 (By.NAME, 'chkRb')))
         submit.click()
@@ -56,14 +56,14 @@ class HtmlPage(object):
         return current_url
 
     def __init__(self):
-        Log.info('webdriver: PhantomJS create/start')
+        Log.info('driver.create/start')
         self.driver = webdriver.PhantomJS()
-        Log.info('webdriver: PhantomJS create/end')
+        Log.info('driver.create/end')
 
     def release_resource(self):
-        Log.info('webdriver: PhantomJS quit/start')
+        Log.info('driver.quit/start')
         self.driver.quit()
-        Log.info('webdriver: PhantomJS quit/end')
+        Log.info('driver.quit/end')
 
     def __login(self, login_url, user):
         Log.info(
@@ -71,40 +71,41 @@ class HtmlPage(object):
                 user.name, login_url))
 
         self.driver.get(login_url)
-        Log.info('-----------:1')
+        Log.info('-----------:1:driver.getted')
         # 待機
-        WebDriverWait(self.driver, 10).until(ec.presence_of_all_elements_located)
+        WebDriverWait(self.driver, 10, poll_frequency=0.05).until(ec.presence_of_all_elements_located)
 
-        Log.info('-----------:2')
+        Log.info('-----------:2:wait end')
         # ログインボタン押下
         # uid      = self.driver.find_element_by_name('usercardno')
         # password = self.driver.find_element_by_name('userpasswd')
         uid = WebDriverWait(
-            self.driver, 10).until(
+            self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_element_located(
                 (By.NAME, 'usercardno')))
         password = WebDriverWait(
-            self.driver, 10).until(
+            self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_element_located(
                 (By.NAME, 'userpasswd')))
         uid.send_keys(user.id)
         password.send_keys(user.password)
-        Log.info('-----------:3')
+        Log.info('-----------:3:sended_keys')
 
         # self.driver.find_element_by_name('Login').click()
         button = WebDriverWait(
-            self.driver, 10).until(
+            self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_element_located(
                 (By.NAME, 'Login')))
+        Log.info('-----------:4:wait ended')
         button.click()
-        Log.info('-----------:4')
+        Log.info('-----------:5:button.clicked')
 
         # 待機
-        WebDriverWait(self.driver, 10).until(ec.presence_of_all_elements_located)
+        WebDriverWait(self.driver, 10, poll_frequency=0.05).until(ec.presence_of_all_elements_located)
         # ロードされたかを確認
         WebDriverWait(
-            self.driver, 10).until(
+            self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_element_located(
                 (By.NAME, 'FormLEND')))
         # self.driver.save_screenshot("login.png")
-        Log.info('-----------:5')
+        Log.info('-----------:6:wait ended')
