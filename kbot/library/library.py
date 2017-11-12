@@ -32,31 +32,39 @@ class Library(object):
     def check_reserved_books(self, user_nums):
         nums = user_nums.split(',')
 
+        html_page = HtmlPage()
+
         for num in nums:
             user_num = int(num) - 1
             if 0 <= user_num < len(self.users):
                 user = self.users[user_num]
 
                 Log.info(user.name)
-                reserved_books = self.__get_reserved_books(user)
+                reserved_books = self.__get_reserved_books(html_page, user)
                 user.set_reserved_books(reserved_books)
                 self.all_reserved_books_count += user.reserved_books_count
 
-    def __get_reserved_books(self, user):
-        html = HtmlPage.fetch_login_page(Library.LIBRALY_HOME_URL, user)
+        html_page.release_resource()
+
+    def __get_reserved_books(self, html_page, user):
+        html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
         reserved_books = HtmlParser.get_reserved_books(html)
         return reserved_books
 
     def fetch_status(self, filter_setting):
+        html_page = HtmlPage()
+
         for user in self.users:
-            rental_books = self.__get_rental_books(user)
+            rental_books = self.__get_rental_books(html_page, user)
             filterd_rental_books = rental_books.get_filtered_books(
                 filter_setting)
             user.set_rental_books(filterd_rental_books)
             self.all_rental_books_count += user.rental_books_count
 
-    def __get_rental_books(self, user):
-        html = HtmlPage.fetch_login_page(Library.LIBRALY_HOME_URL, user)
+        html_page.release_resource()
+
+    def __get_rental_books(self, html_page, user):
+        html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
         books = HtmlParser.get_rental_books(html)
         return books
 
