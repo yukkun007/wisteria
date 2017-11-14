@@ -83,6 +83,9 @@ class BookSearchQuery(object):
     def set(self, key, value):
         self.query[key] = value
 
+    def get(self, key):
+        return self.query.get(key)
+
     def dict(self):
         return self.query
 
