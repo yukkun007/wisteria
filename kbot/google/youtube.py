@@ -15,8 +15,7 @@ from kbot.google.movie import Movie
 
 class YouTube(object):
 
-    def __init__(self, root_dir):
-        self.root_dir = root_dir
+    def __init__(self):
         self.secret_path = '/tmp/sc_test.txt'
         self.oauth_path = '/tmp/oa_test.txt'
 

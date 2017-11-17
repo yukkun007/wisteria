@@ -1,9 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from linebot.models import TemplateSendMessage,\
-    TextSendMessage,\
-    VideoSendMessage
+from linebot.models import TemplateSendMessage, TextSendMessage
 
 
 class Line(object):
@@ -31,7 +29,11 @@ class Line(object):
             )
 
     def my_reply_message(self, input_parameter, event):
-        self.line_bot_api.reply_message(
-            event.reply_token,
-            self.__make_message(input_parameter)
-        )
+        if event is not None:
+            self.line_bot_api.reply_message(
+                event.reply_token,
+                self.__make_message(input_parameter)
+            )
+        else:
+            # debug
+            print(self.__make_message(input_parameter))
