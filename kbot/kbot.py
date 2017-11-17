@@ -4,7 +4,6 @@
 import os
 from dotenv import load_dotenv
 from kbot.log import Log
-from kbot.book.common import BookSearchQuery
 from linebot.models import ButtonsTemplate,\
     ConfirmTemplate,\
     MessageTemplateAction,\
@@ -92,16 +91,6 @@ class KBot(object):
         elif '著？' in text:
             return True
         return False
-
-    def get_search_book_query(self, text):
-        query = BookSearchQuery()
-        if '本？' in text:
-            book_name = text[2:]
-            query.set('title', book_name)
-        elif '著？' in text:
-            author = text[2:]
-            query.set('author', author)
-        return query
 
     def get_xdays(self, text):
         default = 2

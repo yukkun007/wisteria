@@ -9,5 +9,5 @@ class TestYouTube:
 
     def test_youtube(self):
         KBot('wisteria')
-        youtube = YouTube('wisteria')
+        youtube = YouTube()
         youtube.get_youtube_movie()

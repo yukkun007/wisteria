@@ -3,7 +3,6 @@
 
 import os
 
-from django.conf import settings
 from django.http import HttpResponse,\
     HttpResponseBadRequest,\
     HttpResponseRedirect,\
@@ -33,16 +32,15 @@ from linebot.models import ButtonsTemplate,\
     SourceUser\
 
 
-# 定数
-KBOT_TEMPLATE_DIR = settings.PROJECT_ROOT + '/templates/kbot/'
-
 # グローバル変数
-KBOT = KBot(settings.PROJECT_ROOT)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WISTERIA_DIR = os.path.join(BASE_DIR, 'wisteria')
+KBOT = KBot(WISTERIA_DIR)
 line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
 parser = WebhookParser(os.environ['LINE_CHANNEL_SECRET'])
 line = Line(line_bot_api)
 gmail = GMail()
-youtube = YouTube(settings.PROJECT_ROOT)
+youtube = YouTube()
 users = [User(os.environ['USER1']),
          User(os.environ['USER2']),
          User(os.environ['USER3']),
@@ -50,97 +48,93 @@ users = [User(os.environ['USER1']),
 gmail_tos = [os.environ['GMAIL_SEND_ADDRESS1'],
              os.environ['GMAIL_SEND_ADDRESS2']]
 line_tos = [os.environ['LINE_SEND_GROUP_ID']]
-if settings.DEBUG:
+if os.environ.get('PRODUCTION') != 'True':
     line_tos = [os.environ['LINE_SEND_GROUP_ID_DEBUG']]
 # line_tos = [os.environ['LINE_SEND_ID']]
 
 
+def library_check(request):
+    if request.method == 'GET':
+        __library_check()
+        return HttpResponse('done! library_check')
+
+
+def __library_check():
+    Log.info('GET! library_check')
+
+    xdays = 2
+    library = Library(users)
+    filter_setting = ExpireFilterSetting(xdays)
+    library.fetch_status(filter_setting)
+    if library.is_target_exist():
+        line.my_push_message(library.get_text_message(filter_setting), line_tos)
+        gmail.send_message_multi(
+            gmail_tos,
+            '図書館の本返却お願いします！',
+            library.get_html_message(filter_setting))
+
+
+def library_check_reserve(request):
+    if request.method == 'GET':
+        __library_check_reserve()
+        return HttpResponse('done! library_check_reserve')
+
+
+def __library_check_reserve():
+    Log.info('GET! library_check_reserve')
+    user_nums = '1,2,3,4'
+    __check_reserved_books(None, user_nums)
+
+
+def library_reserve(request):
+    if request.method == 'GET':
+        book_id = request.GET.get('book_id')
+        __library_reserve(book_id)
+        return HttpResponse('done! library_reserve')
+
+
+def __library_reserve(book_id):
+    Log.info('GET! library_reserve')
+
+    if book_id is not None:
+        user_num = '1'
+        library = Library(users)
+        url = library.yoyaku(user_num, book_id)
+
+        template = ReservedBook.make_finish_reserve_message_template(
+            user_num)
+        line.my_push_message(template, line_tos)
+
+        return HttpResponseRedirect(url)
+    else:
+        line.my_push_message('予約失敗。。', line_tos)
+
+
 def youtube_omoide(request):
     if request.method == 'GET':
-        Log.info('GET! youtube_omoide')
-
-        movie = youtube.get_youtube_movie()
-        Log.info(movie.to_string())
-
-        buttons_template = ButtonsTemplate(
-            title=movie.title,
-            text='投稿日: ' + movie.published_at,
-            thumbnail_image_url=movie.url,
-            actions=[
-                URITemplateAction(
-                    label='YouTubeへ',
-                    uri='https://www.youtube.com/watch?v=' + movie.video_id)
-            ]
-        )
-        line.my_push_message(buttons_template, line_tos)
-
+        __youtube_omoide()
         return HttpResponse('done! youtube_omoide')
     else:
         return HttpResponseBadRequest()
 
 
-def library_test(request):
-    if request.method == 'GET':
-        Log.info('GET! library_test')
+def __youtube_omoide():
+    Log.info('GET! youtube_omoide')
 
-        library = Library(users)
-        filter_setting = FilterSetting()
-        # xdays = 2
-        # filter_setting = ExpireFilterSetting(xdays)
-        # filter_setting = ExpiredFilterSetting()
-        library.fetch_status(filter_setting)
-        library.get_text_message(filter_setting)
+    movie = youtube.get_youtube_movie()
+    Log.info(movie.to_string())
 
-        return HttpResponse('done! library_test')
-
-
-def library_reserve(request):
-    if request.method == 'GET':
-        Log.info('GET! library_reserve')
-
-        book_id = request.GET.get('book_id')
-        if book_id is not None:
-            user_num = '1'
-            library = Library(users)
-            url = library.yoyaku(user_num, book_id)
-
-            template = ReservedBook.make_finish_reserve_message_template(
-                user_num)
-            line.my_push_message(template, line_tos)
-
-            return HttpResponseRedirect(url)
-        else:
-            line.my_push_message('予約失敗。。', line_tos)
-
-        return HttpResponse('done! library_reserve')
-
-
-def library_check_reserve(request):
-    if request.method == 'GET':
-        Log.info('GET! library_check_reserve')
-
-        user_nums = '1,2,3,4'
-        __check_reserved_books(None, user_nums)
-
-        return HttpResponse('done! library_check_reserve')
-
-
-def library_check(request):
-    if request.method == 'GET':
-        Log.info('GET! library_check')
-
-        xdays = 2
-        library = Library(users)
-        filter_setting = ExpireFilterSetting(xdays)
-        library.fetch_status(filter_setting)
-        if library.is_target_exist():
-            line.my_push_message(library.get_text_message(filter_setting), line_tos)
-            gmail.send_message_multi(
-                gmail_tos,
-                '図書館の本返却お願いします！',
-                library.get_html_message(filter_setting))
-
-        return HttpResponse('done! library_check')
+    buttons_template = ButtonsTemplate(
+        title=movie.title,
+        text='投稿日: ' + movie.published_at,
+        thumbnail_image_url=movie.url,
+        actions=[
+            URITemplateAction(
+                label='YouTubeへ',
+                uri='https://www.youtube.com/watch?v=' + movie.video_id)
+        ]
+    )
+    line.my_push_message(buttons_template, line_tos)
 
 
 @csrf_exempt
@@ -165,8 +159,7 @@ def callback(request):
                         Log.info('groupId' + event.source.group_id)
 
                     if KBOT.is_search_book_command(text):
-                        query = KBOT.get_search_book_query(text)
-                        __search_book(event, query)
+                        __search_book(event, text)
 
                     elif KBOT.is_check_reserve_command(text):
                         user_nums = '1,2,3,4'
@@ -255,69 +248,21 @@ def __check_reserved_books(event, user_nums):
             line.my_push_message(message, line_tos)
 
 
-def __search_book(event, query):
+def __search_book(event, text):
+    query = BookSearchQuery.get_from(text)
     books = RakutenBooksService.search_books(query)
     message = books.slice(0, 5).get_books_select_line_carousel_mseeage()
     line.my_reply_message(message, event)
 
 
 def __search_book_by_isbn(event, text):
-    isbn = text[5:]
     # calilで検索
-    query = BookSearchQuery()
-    query.set('isbn', isbn)
+    query = BookSearchQuery.get_from(text)
     calil_book = CalilService.get_one_book(query)
     # amazonで検索
     # book.merge(amazon.get_book(isbn))
-    query = BookSearchQuery()
-    query.set('isbn', isbn)
+    query = BookSearchQuery.get_from(text)
     rakuten_book = RakutenBooksService.get_one_book(query)
     # メッセージ作成
     message = rakuten_book.get_text_message() + calil_book.get_text_message()
     line.my_reply_message(message, event)
-
-# @csrf_exempt
-# def sample(request):
-#
-#     if request.method == 'POST':
-#         Log.info('POST!!!!!!!!!!!!!')
-#
-#         try:
-#             signature = request.META['HTTP_X_LINE_SIGNATURE']
-#             body = request.body.decode('utf-8')
-#             events = parser.parse(body, signature)
-#
-#             for event in events:
-#
-#                 if isinstance(event, MessageEvent):
-#                     text = event.message.text
-#
-#                     if text == 'confirm':
-#                         template = line.get_confirm_template_sample()
-#                         line.my_reply_message(template, event)
-#                     elif text == 'buttons':
-#                         template = line.get_buttons_template_sample()
-#                         line.my_reply_message(template, event)
-#                     else:
-#                         pass
-#
-#                 elif isinstance(event, PostbackEvent):
-#                     data = event.postback.data
-#
-#                     if data == 'ping':
-#                         line.my_reply_message('ping postback received!', event)
-#                     else:
-#                         line.my_reply_message(data, event)
-#
-#         except InvalidSignatureError as e:
-#             Log.logging_exception(e)
-#             return HttpResponseForbidden()
-#         except LineBotApiError as e:
-#             Log.logging_exception(e)
-#             return HttpResponseBadRequest()
-#         except Exception as e:
-#             Log.logging_exception(e)
-#
-#         return HttpResponse()
-#     else:
-#         return HttpResponseBadRequest()

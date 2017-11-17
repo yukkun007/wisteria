@@ -15,22 +15,23 @@ class TestRakutenBooksService:
     def setup(self):
         KBot('wisteria')
 
-    def test_get_one_book(self):
-        RakutenBooksService._RakutenBooksService__request = MagicMock()
+    @patch('kbot.book.rakuten_books.RakutenBooksService._RakutenBooksService__request')
+    def test_get_one_book(self, mock_method):
         json_str = '''
             { "Items": [
                     {"Item": {"title": "hoge"}},
                     {"Item": {"title": "hogehoge"}}]
             }
         '''
-        RakutenBooksService._RakutenBooksService__request.return_value = json.loads(
-            json_str)
+        mock_method.return_value = json.loads(json_str)
+
         query = BookSearchQuery()
         rakuten_book = RakutenBooksService.get_one_book(query)
-        assert RakutenBooksService._RakutenBooksService__request.called
+
+        assert mock_method.called
         assert rakuten_book.title == 'hoge'
 
-    def test_search_book(self):
+    def test_search_books(self):
         query = BookSearchQuery()
         query.set('title', 'カンブリア')
         rakuten_books = RakutenBooksService.search_books(query)
@@ -41,12 +42,11 @@ class TestRakutenBooksService:
         mock_response = MagicMock()
         mock_response.json.return_value = ['test']
         mock_requests.get.return_value = mock_response
-        # TODO:
-        # query = BookSearchQuery()
-        # json_data = RakutenBooksService._RakutenBooksService__request(query)
-        # assert mock_requests.get.called
-        # assert mock_response.json.called
-        # assert json_data == ['test']
+        query = BookSearchQuery()
+        json_data = RakutenBooksService._RakutenBooksService__request(query)
+        assert mock_requests.get.called
+        assert mock_response.json.called
+        assert json_data == ['test']
 
 
 class TestRakutenBooksQuery:
