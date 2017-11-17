@@ -7,27 +7,7 @@ import requests
 from time import sleep
 from kbot.log import Log
 from kbot.message import Message
-from kbot.books.rakuten_books import BookSearchQuery
-
-
-class CalilQuery(object):
-
-    @classmethod
-    def __set_common(cls, query):
-        query.set('appkey', os.environ['CALIL_APP_KEY'])
-        query.set('format', 'json')
-        return query
-
-    @classmethod
-    def adjust_first_query(cls, query):
-        query = CalilQuery.__set_common(query)
-        query.set('callback', 'no')
-        return query.dict()
-
-    @classmethod
-    def adjust_next_query(cls, query):
-        query = CalilQuery.__set_common(query)
-        return query.dict()
+from kbot.book.common import BookSearchQuery
 
 
 class CalilService(object):
@@ -61,8 +41,8 @@ class CalilService(object):
         reserve_info = json_data['books'][isbn][systemid]
         status = reserve_info.get('status')
         if status != 'OK' and status != 'Cache':
-            return CalilBook()
-        return CalilBook(reserve_info)
+            return CalilBook(isbn, {})
+        return CalilBook(isbn, reserve_info)
 
     @classmethod
     def __request(cls, query):
@@ -88,6 +68,26 @@ class CalilService(object):
         return response
 
 
+class CalilQuery(object):
+
+    @classmethod
+    def __set_common(cls, query):
+        query.set('appkey', os.environ['CALIL_APP_KEY'])
+        query.set('format', 'json')
+        return query
+
+    @classmethod
+    def adjust_first_query(cls, query):
+        query = CalilQuery.__set_common(query)
+        query.set('callback', 'no')
+        return query.dict()
+
+    @classmethod
+    def adjust_next_query(cls, query):
+        query = CalilQuery.__set_common(query)
+        return query.dict()
+
+
 class CalilBook(object):
 
     def __init__(self, isbn, json):
@@ -95,6 +95,7 @@ class CalilBook(object):
         self.reserveurl = json.get('reserveurl', '')
         self.libkey = json.get('libkey', '')
         self.id = self.reserveurl.split('=')[-1]
+        self.kbot_reserve_url = 'https://' + os.environ['MY_SERVER_NAME'] + '/kbot/library/reserve?book_id='
 
         self.log()
 
@@ -103,8 +104,7 @@ class CalilBook(object):
         Log.info('reserveurl : ' + self.reserveurl)
         Log.info('libkey : ' + str(self.libkey))
         Log.info('id : ' + self.id)
+        Log.info('kbot_reserve_url : ' + self.kbot_reserve_url)
 
-    def get_text_info_message(self):
-        data = {'book': self, 'my_server_name': os.environ['MY_SERVER_NAME']}
-        message = Message.create('text/book_info.tpl', data)
-        return message
+    def get_text_message(self):
+        return Message.create_text_by_object(self)

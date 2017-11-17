@@ -4,7 +4,7 @@
 import os
 from dotenv import load_dotenv
 from kbot.log import Log
-from kbot.book.rakuten_books import BookSearchQuery
+from kbot.book.common import BookSearchQuery
 from linebot.models import ButtonsTemplate,\
     ConfirmTemplate,\
     MessageTemplateAction,\

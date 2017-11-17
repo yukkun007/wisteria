@@ -2,12 +2,12 @@
 
 ───────────
 􀂏{{ user.name }}({{ user.id }})
-　　{{ xdays }}日で延滞：{{ books_len }}冊
+　{{ xdays }}日以内で延滞：{{ books_len }}冊
 ───────────
 {% else -%}
 
 ───────────
 􀂏{{ user.name }}({{ user.id }})
-　　{{ xdays }}日で延滞：0冊
+　{{ xdays }}日以内で延滞：0冊
 ───────────
 {% endif -%}

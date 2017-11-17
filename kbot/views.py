@@ -19,9 +19,9 @@ from kbot.library.reserved_book import ReservedBook
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
-from kbot.book.calil import Calil
-from kbot.book.amazon import Amazon
-from kbot.book.rakuten_books import RakutenBooksService, BookSearchQuery
+from kbot.book.calil import CalilService
+from kbot.book.rakuten_books import RakutenBooksService
+from kbot.book.common import BookSearchQuery
 
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -53,8 +53,6 @@ line_tos = [os.environ['LINE_SEND_GROUP_ID']]
 if settings.DEBUG:
     line_tos = [os.environ['LINE_SEND_GROUP_ID_DEBUG']]
 # line_tos = [os.environ['LINE_SEND_ID']]
-calil = Calil()
-amazon = Amazon()
 
 
 def youtube_omoide(request):
@@ -136,7 +134,7 @@ def library_check(request):
         filter_setting = ExpireFilterSetting(xdays)
         library.fetch_status(filter_setting)
         if library.is_target_exist():
-            line.my_push_message(library.get_text_message(), line_tos)
+            line.my_push_message(library.get_text_message(filter_setting), line_tos)
             gmail.send_message_multi(
                 gmail_tos,
                 '図書館の本返却お願いします！',
@@ -266,14 +264,16 @@ def __search_book(event, query):
 def __search_book_by_isbn(event, text):
     isbn = text[5:]
     # calilで検索
-    book = calil.get_book(isbn)
+    query = BookSearchQuery()
+    query.set('isbn', isbn)
+    calil_book = CalilService.get_one_book(query)
     # amazonで検索
     # book.merge(amazon.get_book(isbn))
     query = BookSearchQuery()
     query.set('isbn', isbn)
-    book.merge(RakutenBooksService.get_one_book(query))
+    rakuten_book = RakutenBooksService.get_one_book(query)
     # メッセージ作成
-    message = book.get_text_info_message()
+    message = rakuten_book.get_text_message() + calil_book.get_text_message()
     line.my_reply_message(message, event)
 
 # @csrf_exempt
