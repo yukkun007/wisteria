@@ -15,11 +15,11 @@ class User(object):
         self.rental_books_count = 0
 
     def set_rental_books(self, rental_books):
-        rental_books.set_user(self)
+        rental_books.user = self
         self.rental_books = rental_books
         self.rental_books_count = rental_books.len
 
     def set_reserved_books(self, reserved_books):
-        reserved_books.set_user(self)
+        reserved_books.user = self
         self.reserved_books = reserved_books
-        self.reserved_books_count = reserved_books.length()
+        self.reserved_books_count = reserved_books.len

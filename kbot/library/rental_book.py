@@ -7,7 +7,7 @@ from dateutil.parser import parse
 from collections import defaultdict
 from kbot.message import Message
 from kbot.log import Log
-from kbot.library.user import User
+from kbot.book.common import Books
 
 
 class FilterSetting(object):
@@ -53,38 +53,17 @@ class ExpireFilterSetting(FilterSetting):
         self._type = FilterSetting._FILTER_EXPIRE
 
 
-class RentalBooks(object):
+class RentalBooks(Books):
 
     TEMPLATE_RENTAL_BOOKS = 'rental_books.tpl'
 
     def __init__(self, source, filter_setting=FilterSetting()):
+        super(RentalBooks, self).__init__(source)
         self._filter_setting = filter_setting
-        self._user = User('{}')
-        if source is None:
-            self._books = []
-        else:
-            self._books = source
-
-    def append(self, book):
-        self._books.append(book)
-
-    @property
-    def user(self):
-        return self._user
 
     @property
     def filter_setting(self):
         return self._filter_setting
-
-    @property
-    def len(self):
-        return len(self._books)
-
-    def get(self, index):
-        return self._books[index]
-
-    def set_user(self, user):
-        self._user = user
 
     def get_message(self, format='text'):
         message = ''

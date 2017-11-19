@@ -5,40 +5,28 @@ import os
 from linebot.models import ButtonsTemplate,\
     PostbackTemplateAction
 from kbot.message import Message
+from kbot.book.common import Books
 
 
-class ReservedBooks(object):
+class ReservedBooks(Books):
+
+    TEMPLATE_RESERVED_BOOKS = 'reserved_books.tpl'
+
     def __init__(self, source):
-        if source is None:
-            self.books = []
-        else:
-            self.books = source
-
-    def append(self, book):
-        self.books.append(book)
-
-    def length(self):
-        return len(self.books)
-
-    def list(self):
-        return self.books
-
-    def set_user(self, user):
-        self.user = user
+        super(ReservedBooks, self).__init__(source)
 
     def get_message(self, format='text'):
         message = ''
-        if self.length() > 0:
-            data = {'user': self.user,
-                    'reserved_books': self.books,
+        if self.len > 0:
+            data = {'books': self,
                     'is_prepared': self.is_prepared_reserved_book()}
             message += Message.create(os.path.join(format,
-                                                   'reserved_books.tpl'), data)
+                                                   ReservedBooks.TEMPLATE_RESERVED_BOOKS), data)
 
         return message
 
     def is_prepared_reserved_book(self):
-        for book in self.books:
+        for book in self._books:
             if book.status == 'ご用意できました':
                 return True
         return False

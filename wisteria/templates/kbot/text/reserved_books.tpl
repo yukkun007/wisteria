@@ -1,8 +1,8 @@
 
 ───────────
-{% if is_prepared %}􀁹{% else %}􀂐{% endif %}{{ user.name }}(ID:{{ user.id }})
+{% if is_prepared %}􀁹{% else %}􀂐{% endif %}{{ books.user.name }}(ID:{{ books.user.id }})
 ───────────
-{% for book in reserved_books -%}
+{% for book in books.list -%}
 􀁬{{ book.title }}
 {% if book.is_prepared == True %}􀁠{% else %}■{% endif %}状況：{{ book.status }}
 ■順位：{{ book.order }}

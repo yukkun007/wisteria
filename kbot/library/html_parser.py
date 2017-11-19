@@ -41,7 +41,7 @@ class HtmlParser(object):
 
         Log.info(
             'number of reserved_books:{0}'.format(
-                reserved_books.length()))
+                reserved_books.len))
 
         return reserved_books
 
