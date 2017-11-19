@@ -19,17 +19,17 @@ class TestLibrary:
         return library
 
     def test_library_rental(self, instance1):
-        instance1.fetch_status(FilterSetting())
-        short_message = instance1.get_text_message(FilterSetting())
+        instance1.check_rental_books(FilterSetting())
+        short_message = instance1.get_text_message()
         print(short_message)
 
     def test_library_expired(self, instance1):
-        instance1.fetch_status(ExpiredFilterSetting())
-        short_message = instance1.get_text_message(ExpiredFilterSetting())
+        instance1.check_rental_books(ExpiredFilterSetting())
+        short_message = instance1.get_text_message()
         print(short_message)
 
     def test_library_expire(self, instance1):
         xdays = 2
-        instance1.fetch_status(ExpireFilterSetting(xdays))
-        short_message = instance1.get_text_message(ExpireFilterSetting(xdays))
+        instance1.check_rental_books(ExpireFilterSetting(xdays))
+        short_message = instance1.get_text_message()
         print(short_message)

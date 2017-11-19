@@ -22,7 +22,7 @@ class HtmlParser(object):
         for tds in tds_list:
             rental_books.append(HtmlParser.__get_rental_book(tds))
 
-        Log.info('number of rental_books:{0}'.format(rental_books.length()))
+        Log.info('number of rental_books:{0}'.format(rental_books.len))
 
         return rental_books
 

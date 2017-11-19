@@ -7,106 +7,118 @@ from dateutil.parser import parse
 from collections import defaultdict
 from kbot.message import Message
 from kbot.log import Log
+from kbot.library.user import User
 
 
 class FilterSetting(object):
 
-    FILTER_NONE = 'none'
-    FILTER_EXPIRED = 'expired'
-    FILTER_EXPIRE = 'expire'
+    _FILTER_NONE = 'none'
+    _FILTER_EXPIRED = 'expired'
+    _FILTER_EXPIRE = 'expire'
 
-    def __init__(self):
-        self.type = FilterSetting.FILTER_NONE
-        self.xdays = -1
+    def __init__(self, xdays=-1):
+        self._type = FilterSetting._FILTER_NONE
+        self._xdays = xdays
+
+    @property
+    def xdays(self):
+        return self._xdays
+
+    @xdays.setter
+    def xdays(self, xdays):
+        raise ValueError()
+
+    @property
+    def is_type_none(self):
+        return self._type == FilterSetting._FILTER_NONE
+
+    @property
+    def is_type_expired(self):
+        return self._type == FilterSetting._FILTER_EXPIRED
+
+    @property
+    def is_type_expire(self):
+        return self._type == FilterSetting._FILTER_EXPIRE
 
 
 class ExpiredFilterSetting(FilterSetting):
-    def __init__(self):
-        self.type = FilterSetting.FILTER_EXPIRED
-        self.xdays = -1
+    def __init__(self, xdays=-1):
+        super(ExpiredFilterSetting, self).__init__(xdays)
+        self._type = FilterSetting._FILTER_EXPIRED
 
 
 class ExpireFilterSetting(FilterSetting):
-    def __init__(self, xdays):
-        self.type = FilterSetting.FILTER_EXPIRE
-        self.xdays = xdays
+    def __init__(self, xdays=-1):
+        super(ExpireFilterSetting, self).__init__(xdays)
+        self._type = FilterSetting._FILTER_EXPIRE
 
 
 class RentalBooks(object):
 
-    TEMPLATE_RENTAL = 'rental.tpl'
-    TEMPLATE_EXPIRED = 'expired.tpl'
-    TEMPLATE_EXPIRE = 'expire.tpl'
-    TEMPLATE_BOOK_LIST = 'book_list.tpl'
+    TEMPLATE_RENTAL_BOOKS = 'rental_books.tpl'
 
-    def __init__(self, source):
+    def __init__(self, source, filter_setting=FilterSetting()):
+        self._filter_setting = filter_setting
+        self._user = User('{}')
         if source is None:
-            self.books = []
+            self._books = []
         else:
-            self.books = source
+            self._books = source
 
     def append(self, book):
-        self.books.append(book)
+        self._books.append(book)
 
-    def length(self):
-        return len(self.books)
+    @property
+    def user(self):
+        return self._user
 
-    def list(self):
-        return self.books
+    @property
+    def filter_setting(self):
+        return self._filter_setting
 
-    def get_filtered_books(self, filter_setting):
-        if filter_setting.type == FilterSetting.FILTER_NONE:
-            return RentalBooks(self.books)
-        elif filter_setting.type == FilterSetting.FILTER_EXPIRED:
-            filterd_books = filter(
-                lambda book: book.is_expire_in_xdays(0), self.books)
-            return RentalBooks(RentalBooks.__sort(filterd_books))
-        elif filter_setting.type == FilterSetting.FILTER_EXPIRE:
-            filterd_books = filter(
-                lambda book: book.is_expire_in_xdays(
-                    filter_setting.xdays), self.books)
-            return RentalBooks(RentalBooks.__sort(filterd_books))
+    @property
+    def len(self):
+        return len(self._books)
 
-    @classmethod
-    def __sort(cls, books):
-        return sorted(books, key=lambda book: (book.expire_date, book.name))
+    def get(self, index):
+        return self._books[index]
 
-    def get_text_message(self, user, filter_setting):
-        return self.get_message(user, filter_setting, format='text')
+    def set_user(self, user):
+        self._user = user
 
-    def get_html_message(self, user, filter_setting):
-        return self.get_message(user, filter_setting, format='html')
-
-    def get_message(self, user, filter_setting, format='text'):
+    def get_message(self, format='text'):
         message = ''
-        if self.length() > 0:
-            data = {
-                'user': user,
-                'books_len': self.length(),
-                'xdays': filter_setting.xdays}
-            message += Message.create(
-                RentalBooks.__get_template_path(
-                    filter_setting, format), data)
-
-            date_keyed_books_dict = self.__get_date_keyed_books_dict()
-            data = {'date_keyed_books_dict': date_keyed_books_dict}
+        if self.len > 0:
+            date_keyed_books_dict = RentalBooks.__get_date_keyed_books_dict(self._books)
+            data = {'books': self,
+                    'date_keyed_books_dict': date_keyed_books_dict}
             message += Message.create(os.path.join(format,
-                                                   RentalBooks.TEMPLATE_BOOK_LIST), data)
+                                                   RentalBooks.TEMPLATE_RENTAL_BOOKS), data)
         return message
 
     @classmethod
-    def __get_template_path(cls, filter_setting, format='text'):
-        if filter_setting.type == FilterSetting.FILTER_NONE:
-            template = RentalBooks.TEMPLATE_RENTAL
-        elif filter_setting.type == FilterSetting.FILTER_EXPIRED:
-            template = RentalBooks.TEMPLATE_EXPIRED
-        elif filter_setting.type == FilterSetting.FILTER_EXPIRE:
-            template = RentalBooks.TEMPLATE_EXPIRE
-        return os.path.join(format, template)
+    def get_filtered_books(cls, books, filter_setting):
+        books_list = books._books
+        if filter_setting.is_type_none:
+            return RentalBooks(books_list)
+        elif filter_setting.is_type_expired:
+            filterd_books = filter(
+                lambda book: book.is_expire_in_xdays(0), books_list)
+            return RentalBooks(RentalBooks.__sort(filterd_books), filter_setting)
+        elif filter_setting.is_type_expire:
+            filterd_books = filter(
+                lambda book: book.is_expire_in_xdays(
+                    filter_setting.xdays), books_list)
+            return RentalBooks(RentalBooks.__sort(filterd_books), filter_setting)
 
-    def __get_date_keyed_books_dict(self):
+    @classmethod
+    def __sort(cls, books_list):
+        return sorted(books_list, key=lambda book: (book.expire_date, book.name))
+
+    @classmethod
+    def __get_date_keyed_books_dict(cls, books_list):
         date_keyed_books_dict = defaultdict(lambda: [])
-        for book in self.books:
+        for book in books_list:
             date_keyed_books_dict[book.expire_date_text].append(book)
         return date_keyed_books_dict
 
@@ -152,6 +164,11 @@ class RentalBook(object):
         return text
 
     def to_string(self):
-        string = 'name:{0} expire_date:{1} expire_date(text):{2} can_extend_period:{3} extend_period_button_name:{4}'.format(
-            self.name, self.expire_date, self.expire_date_text, self.can_extend_period, self.extend_period_button_name)
+        string = ('name:{0} expire_date:{1} expire_date(text):{2} '
+                  'can_extend_period:{3} extend_period_button_name:{4}').format(
+                      self.name,
+                      self.expire_date,
+                      self.expire_date_text,
+                      self.can_extend_period,
+                      self.extend_period_button_name)
         return string

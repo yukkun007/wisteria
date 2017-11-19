@@ -2,7 +2,6 @@
 # from __future__ import unicode_literals
 
 import os
-from jinja2 import Environment, FileSystemLoader
 from linebot.models import ButtonsTemplate,\
     PostbackTemplateAction
 from kbot.message import Message
@@ -24,24 +23,21 @@ class ReservedBooks(object):
     def list(self):
         return self.books
 
-    def get_text_message(self, user):
-        return self.get_message(user, format='text')
+    def set_user(self, user):
+        self.user = user
 
-    def get_html_message(self, user):
-        return self.get_message(user, format='html')
-
-    def get_message(self, user, format='text'):
+    def get_message(self, format='text'):
         message = ''
         if self.length() > 0:
-            data = {'user': user,
+            data = {'user': self.user,
                     'reserved_books': self.books,
-                    'is_prepared': self.prepared_reserved_book()}
+                    'is_prepared': self.is_prepared_reserved_book()}
             message += Message.create(os.path.join(format,
                                                    'reserved_books.tpl'), data)
 
         return message
 
-    def prepared_reserved_book(self):
+    def is_prepared_reserved_book(self):
         for book in self.books:
             if book.status == 'ご用意できました':
                 return True
@@ -61,22 +57,6 @@ class ReservedBook(object):
 
     def is_prepared(self):
         return self.is_prepared
-
-    def make_reserved_books_massage(root_dir, user_status):
-        message = ''
-
-        if len(user_status.reserved_books) > 0:
-            env = Environment(loader=FileSystemLoader(root_dir))
-
-            is_prepared = ReservedBook.prepared_reserved_book(
-                user_status.reserved_books)
-            template = env.get_template('book/reserved_books.tpl')
-            data = {'user': user_status.user,
-                    'reserved_books': user_status.reserved_books,
-                    'is_prepared': is_prepared}
-            message = template.render(data)
-
-        return message
 
     def make_finish_reserve_message_template(user_num):
         buttons_template = ButtonsTemplate(

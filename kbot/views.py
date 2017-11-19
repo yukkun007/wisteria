@@ -65,13 +65,13 @@ def __library_check():
     xdays = 2
     library = Library(users)
     filter_setting = ExpireFilterSetting(xdays)
-    library.fetch_status(filter_setting)
-    if library.is_target_exist():
-        line.my_push_message(library.get_text_message(filter_setting), line_tos)
+    library.check_rental_books(filter_setting)
+    if library.is_rental_books_exist():
+        line.my_push_message(library.get_text_message(), line_tos)
         gmail.send_message_multi(
             gmail_tos,
             '図書館の本返却お願いします！',
-            library.get_html_message(filter_setting))
+            library.get_html_message())
 
 
 def library_check_reserve(request):
@@ -99,7 +99,7 @@ def __library_reserve(book_id):
     if book_id is not None:
         user_num = '1'
         library = Library(users)
-        url = library.yoyaku(user_num, book_id)
+        url = library.reserve(user_num, book_id)
 
         template = ReservedBook.make_finish_reserve_message_template(
             user_num)
@@ -214,22 +214,22 @@ def callback(request):
 def __check_rental(event):
     library = Library(users)
     filter_setting = FilterSetting()
-    library.fetch_status(filter_setting)
-    line.my_reply_message(library.get_text_message(filter_setting), event)
+    library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(), event)
 
 
 def __check_expire(event, xdays):
     library = Library(users)
     filter_setting = ExpireFilterSetting(xdays)
-    library.fetch_status(filter_setting)
-    line.my_reply_message(library.get_text_message(filter_setting), event)
+    library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(), event)
 
 
 def __check_expired(event):
     library = Library(users)
     filter_setting = ExpiredFilterSetting()
-    library.fetch_status(filter_setting)
-    line.my_reply_message(library.get_text_message(filter_setting), event)
+    library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(), event)
 
 
 def __show_reply_string(event):
@@ -244,7 +244,7 @@ def __check_reserved_books(event, user_nums):
     if event is not None:
         line.my_reply_message(message, event)
     else:
-        if library.prepared_reserved_book():
+        if library.is_prepared_reserved_book():
             line.my_push_message(message, line_tos)
 
 
