@@ -36,6 +36,22 @@ class Books(object):
         return self._books[index]
 
 
+class BookFilter(object):
+
+    FILTER_USERS_ALL = 'all'
+
+    def __init__(self, *, users=FILTER_USERS_ALL):
+        self._users = users
+
+    @property
+    def users(self):
+        return self._users
+
+    @users.setter
+    def users(self, users):
+        raise ValueError()
+
+
 class BookSearchQuery(object):
 
     def __init__(self):

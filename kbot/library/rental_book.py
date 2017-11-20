@@ -7,17 +7,18 @@ from dateutil.parser import parse
 from collections import defaultdict
 from kbot.message import Message
 from kbot.log import Log
-from kbot.book.common import Books
+from kbot.book.common import Books, BookFilter
 
 
-class FilterSetting(object):
+class RentalBookFilter(BookFilter):
 
-    _FILTER_NONE = 'none'
-    _FILTER_EXPIRED = 'expired'
-    _FILTER_EXPIRE = 'expire'
+    _FILTER_RENTAL_PERIOD_NONE = 'none'
+    _FILTER_RENTAL_PERIOD_EXPIRED = 'expired'
+    _FILTER_RENTAL_PERIOD_EXPIRE = 'expire'
 
-    def __init__(self, xdays=-1):
-        self._type = FilterSetting._FILTER_NONE
+    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL, xdays=-1):
+        super(RentalBookFilter, self).__init__(users=users)
+        self._rental_period = RentalBookFilter._FILTER_RENTAL_PERIOD_NONE
         self._xdays = xdays
 
     @property
@@ -30,34 +31,34 @@ class FilterSetting(object):
 
     @property
     def is_type_none(self):
-        return self._type == FilterSetting._FILTER_NONE
+        return self._rental_period == RentalBookFilter._FILTER_RENTAL_PERIOD_NONE
 
     @property
     def is_type_expired(self):
-        return self._type == FilterSetting._FILTER_EXPIRED
+        return self._rental_period == RentalBookFilter._FILTER_RENTAL_PERIOD_EXPIRED
 
     @property
     def is_type_expire(self):
-        return self._type == FilterSetting._FILTER_EXPIRE
+        return self._rental_period == RentalBookFilter._FILTER_RENTAL_PERIOD_EXPIRE
 
 
-class ExpiredFilterSetting(FilterSetting):
-    def __init__(self, xdays=-1):
-        super(ExpiredFilterSetting, self).__init__(xdays)
-        self._type = FilterSetting._FILTER_EXPIRED
+class RentalBookExpiredFilter(RentalBookFilter):
+    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL, xdays=-1):
+        super(RentalBookExpiredFilter, self).__init__(users=users, xdays=xdays)
+        self._rental_period = RentalBookFilter._FILTER_RENTAL_PERIOD_EXPIRED
 
 
-class ExpireFilterSetting(FilterSetting):
-    def __init__(self, xdays=-1):
-        super(ExpireFilterSetting, self).__init__(xdays)
-        self._type = FilterSetting._FILTER_EXPIRE
+class RentalBookExpireFilter(RentalBookFilter):
+    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL, xdays=-1):
+        super(RentalBookExpireFilter, self).__init__(users=users, xdays=xdays)
+        self._rental_period = RentalBookFilter._FILTER_RENTAL_PERIOD_EXPIRE
 
 
 class RentalBooks(Books):
 
     TEMPLATE_RENTAL_BOOKS = 'rental_books.tpl'
 
-    def __init__(self, source, filter_setting=FilterSetting()):
+    def __init__(self, source, filter_setting=RentalBookFilter()):
         super(RentalBooks, self).__init__(source)
         self._filter_setting = filter_setting
 
@@ -79,10 +80,10 @@ class RentalBooks(Books):
     def get_filtered_books(cls, books, filter_setting):
         books_list = books._books
         if filter_setting.is_type_none:
-            return RentalBooks(books_list)
+            return RentalBooks(RentalBooks.__sort(books_list), filter_setting)
         elif filter_setting.is_type_expired:
             filterd_books = filter(
-                lambda book: book.is_expire_in_xdays(0), books_list)
+                lambda book: book.is_expired(), books_list)
             return RentalBooks(RentalBooks.__sort(filterd_books), filter_setting)
         elif filter_setting.is_type_expire:
             filterd_books = filter(

@@ -7,6 +7,7 @@ from kbot.library.html_parser import HtmlParser
 from kbot.message import Message
 from kbot.log import Log
 from kbot.library.rental_book import RentalBooks
+from kbot.library.reserved_book import ReservedBooks
 
 
 class Library(object):
@@ -26,7 +27,9 @@ class Library(object):
     def check_rental_books(self, filter_setting):
         html_page = HtmlPage()
 
-        for user in self.users:
+        self.users.filter(filter_setting.users)
+        for user in self.users.list:
+            Log.info(user.name)
             rental_books = self.__get_rental_books(html_page, user)
             filterd_rental_books = RentalBooks.get_filtered_books(
                 rental_books,
@@ -41,20 +44,18 @@ class Library(object):
         books = HtmlParser.get_rental_books(html)
         return books
 
-    def check_reserved_books(self, user_nums):
-        nums = user_nums.split(',')
-
+    def check_reserved_books(self, filter_setting):
         html_page = HtmlPage()
 
-        for num in nums:
-            user_num = int(num) - 1
-            if 0 <= user_num < len(self.users):
-                user = self.users[user_num]
-
-                Log.info(user.name)
-                reserved_books = self.__get_reserved_books(html_page, user)
-                user.set_reserved_books(reserved_books)
-                self.all_reserved_books_count += user.reserved_books_count
+        self.users.filter(filter_setting.users)
+        for user in self.users.list:
+            Log.info(user.name)
+            reserved_books = self.__get_reserved_books(html_page, user)
+            filterd_reserved_books = ReservedBooks.get_filtered_books(
+                reserved_books,
+                filter_setting)
+            user.set_reserved_books(filterd_reserved_books)
+            self.all_reserved_books_count += user.reserved_books_count
 
         html_page.release_resource()
 
@@ -66,7 +67,7 @@ class Library(object):
     def reserve(self, user_num, book_id):
         return HtmlPage.reserve(
             Library.LIBRALY_HOME_URL,
-            self.users[int(user_num) - 1],
+            self.users.all[int(user_num)],
             Library.LIBRALY_BOOK_URL.format(book_id)
         )
 
@@ -76,7 +77,7 @@ class Library(object):
         return False
 
     def is_prepared_reserved_book(self):
-        for user in self.users:
+        for user in self.users.all:
             if user.reserved_books.is_prepared_reserved_book():
                 return True
         return False
@@ -89,7 +90,7 @@ class Library(object):
 
     def __get_message(self, format='text'):
         sub_message = ''
-        for user in self.users:
+        for user in self.users.list:
             sub_message += user.rental_books.get_message(format)
 
         message = ''
@@ -108,7 +109,7 @@ class Library(object):
 
     def __get_reserved_books_message(self, format='text'):
         sub_message = ''
-        for user in self.users:
+        for user in self.users.list:
             sub_message += user.reserved_books.get_message(format)
 
         message = ''
