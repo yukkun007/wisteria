@@ -1,6 +1,56 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
+from kbot.library.user import User
+
+
+class Books(object):
+
+    def __init__(self, source):
+        self._user = User('{}')
+        if source is None:
+            self._books = []
+        else:
+            self._books = source
+
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+
+    @property
+    def len(self):
+        return len(self._books)
+
+    @property
+    def list(self):
+        return self._books
+
+    def append(self, book):
+        self._books.append(book)
+
+    def get(self, index):
+        return self._books[index]
+
+
+class BookFilter(object):
+
+    FILTER_USERS_ALL = 'all'
+
+    def __init__(self, *, users=FILTER_USERS_ALL):
+        self._users = users
+
+    @property
+    def users(self):
+        return self._users
+
+    @users.setter
+    def users(self, users):
+        raise ValueError()
+
 
 class BookSearchQuery(object):
 

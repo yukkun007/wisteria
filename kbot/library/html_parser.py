@@ -12,6 +12,10 @@ class HtmlParser(object):
     @classmethod
     def get_rental_books(cls, html):
         soup = BeautifulSoup(html, 'html.parser')
+        return HtmlParser.__get_rental_books(html, soup)
+
+    @classmethod
+    def __get_rental_books(cls, html, soup):
 
         table = HtmlParser.__get_table(soup, 'FormLEND')
         if table is None:
@@ -22,14 +26,17 @@ class HtmlParser(object):
         for tds in tds_list:
             rental_books.append(HtmlParser.__get_rental_book(tds))
 
-        Log.info('number of rental_books:{0}'.format(rental_books.length()))
+        Log.info('number of rental_books:{0}'.format(rental_books.len))
 
         return rental_books
 
     @classmethod
     def get_reserved_books(cls, html):
         soup = BeautifulSoup(html, 'html.parser')
+        return HtmlParser.__get_reserved_books(html, soup)
 
+    @classmethod
+    def __get_reserved_books(cls, html, soup):
         table = HtmlParser.__get_table(soup, 'FormRSV')
         if table is None:
             return ReservedBooks([])
@@ -41,9 +48,17 @@ class HtmlParser(object):
 
         Log.info(
             'number of reserved_books:{0}'.format(
-                reserved_books.length()))
+                reserved_books.len))
 
         return reserved_books
+
+    @classmethod
+    def set_rental_and_reserved_books(cls, html, user):
+        soup = BeautifulSoup(html, 'html.parser')
+        rental_books = HtmlParser.__get_rental_books(html, soup)
+        reserved_books = HtmlParser.__get_reserved_books(html, soup)
+        user.set_rental_books(rental_books)
+        user.set_reserved_books(reserved_books)
 
     @classmethod
     def __get_table(cls, soup, id_string):
@@ -97,7 +112,7 @@ class HtmlParser(object):
     def __get_reserved_book(cls, tds):
         status = tds[1].get_text().strip()
         order = tds[2].get_text().strip()
-        title = tds[3].a.get_text().strip()
+        title = tds[3].get_text().strip()
         kind = tds[4].get_text().strip()
         yoyaku_date = tds[6].get_text().strip()
         torioki_date = tds[7].get_text().strip()

@@ -16,7 +16,7 @@ class Line(object):
 
     def __make_message(self, input_parameter):
         if self.__is_text_message(input_parameter):
-            return TextSendMessage(text=input_parameter)
+            return TextSendMessage(text=input_parameter[:1900] + '.....')
         else:
             return TemplateSendMessage(
                 alt_text='.....', template=input_parameter)

@@ -12,9 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 from kbot.kbot import KBot
 from kbot.line import Line
 from kbot.library.library import Library
-from kbot.library.user import User
-from kbot.library.rental_book import FilterSetting, ExpireFilterSetting, ExpiredFilterSetting
-from kbot.library.reserved_book import ReservedBook
+from kbot.library.user import User, Users
+from kbot.library.rental_book import RentalBookFilter, RentalBookExpireFilter, RentalBookExpiredFilter
+from kbot.library.reserved_book import ReservedBook, ReservedBookFilter, ReservedBookPreparedFilter
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
@@ -41,10 +41,10 @@ parser = WebhookParser(os.environ['LINE_CHANNEL_SECRET'])
 line = Line(line_bot_api)
 gmail = GMail()
 youtube = YouTube()
-users = [User(os.environ['USER1']),
-         User(os.environ['USER2']),
-         User(os.environ['USER3']),
-         User(os.environ['USER4'])]
+users = Users([User(os.environ['USER1']),
+               User(os.environ['USER2']),
+               User(os.environ['USER3']),
+               User(os.environ['USER4'])])
 gmail_tos = [os.environ['GMAIL_SEND_ADDRESS1'],
              os.environ['GMAIL_SEND_ADDRESS2']]
 line_tos = [os.environ['LINE_SEND_GROUP_ID']]
@@ -64,14 +64,14 @@ def __library_check():
 
     xdays = 2
     library = Library(users)
-    filter_setting = ExpireFilterSetting(xdays)
-    library.fetch_status(filter_setting)
-    if library.is_target_exist():
-        line.my_push_message(library.get_text_message(filter_setting), line_tos)
+    filter_setting = RentalBookExpireFilter(xdays=xdays)
+    library.check_rental_books(filter_setting)
+    if library.is_rental_books_exist():
+        line.my_push_message(library.get_text_message(), line_tos)
         gmail.send_message_multi(
             gmail_tos,
             '図書館の本返却お願いします！',
-            library.get_html_message(filter_setting))
+            library.get_html_message())
 
 
 def library_check_reserve(request):
@@ -82,8 +82,9 @@ def library_check_reserve(request):
 
 def __library_check_reserve():
     Log.info('GET! library_check_reserve')
-    user_nums = '1,2,3,4'
-    __check_reserved_books(None, user_nums)
+    rental_filter = RentalBookFilter(users='all')
+    reserved_filter = ReservedBookPreparedFilter(users='all')
+    __check_rental_and_reserved_books(rental_filter, reserved_filter)
 
 
 def library_reserve(request):
@@ -97,12 +98,11 @@ def __library_reserve(book_id):
     Log.info('GET! library_reserve')
 
     if book_id is not None:
-        user_num = '1'
+        user_num = '0'
         library = Library(users)
-        url = library.yoyaku(user_num, book_id)
+        url = library.reserve(user_num, book_id)
 
-        template = ReservedBook.make_finish_reserve_message_template(
-            user_num)
+        template = ReservedBook.make_finish_reserve_message_template(user_num)
         line.my_push_message(template, line_tos)
 
         return HttpResponseRedirect(url)
@@ -162,8 +162,8 @@ def callback(request):
                         __search_book(event, text)
 
                     elif KBOT.is_check_reserve_command(text):
-                        user_nums = '1,2,3,4'
-                        __check_reserved_books(event, user_nums)
+                        filter_setting = ReservedBookFilter(users='all')
+                        __check_reserved_books(event, filter_setting)
 
                     elif KBOT.is_rental_check_command(text):
                         __check_rental(event)
@@ -188,7 +188,8 @@ def callback(request):
                         __search_book_by_isbn(event, data)
                     elif data.startswith('check_reserve:'):
                         user_nums = data[14:]
-                        __check_reserved_books(event, user_nums)
+                        filter_setting = ReservedBookFilter(users=user_nums)
+                        __check_reserved_books(event, filter_setting)
                     # if data == 'check_rental':
                     #     __check_rental(event)
                     # elif data == 'check_expire':
@@ -213,23 +214,23 @@ def callback(request):
 
 def __check_rental(event):
     library = Library(users)
-    filter_setting = FilterSetting()
-    library.fetch_status(filter_setting)
-    line.my_reply_message(library.get_text_message(filter_setting), event)
+    filter_setting = RentalBookFilter()
+    library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(), event)
 
 
 def __check_expire(event, xdays):
     library = Library(users)
-    filter_setting = ExpireFilterSetting(xdays)
-    library.fetch_status(filter_setting)
-    line.my_reply_message(library.get_text_message(filter_setting), event)
+    filter_setting = RentalBookExpireFilter(xdays=xdays)
+    library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(), event)
 
 
 def __check_expired(event):
     library = Library(users)
-    filter_setting = ExpiredFilterSetting()
-    library.fetch_status(filter_setting)
-    line.my_reply_message(library.get_text_message(filter_setting), event)
+    filter_setting = RentalBookExpiredFilter()
+    library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(), event)
 
 
 def __show_reply_string(event):
@@ -237,14 +238,24 @@ def __show_reply_string(event):
     line.my_reply_message(message, event)
 
 
-def __check_reserved_books(event, user_nums):
+def __check_reserved_books(event, filter_setting):
     library = Library(users)
-    library.check_reserved_books(user_nums)
+    library.check_reserved_books(filter_setting)
     message = library.get_text_reserved_books_message()
     if event is not None:
         line.my_reply_message(message, event)
     else:
-        if library.prepared_reserved_book():
+        if library.is_prepared_reserved_book():
+            line.my_push_message(message, line_tos)
+
+
+def __check_rental_and_reserved_books(rental_filter, reserved_filter):
+    library = Library(users)
+    library.check_rental_and_reserved_books(rental_filter, reserved_filter)
+    users.filter(rental_filter.users)
+    for user in users.list:
+        message = library.get_text_rental_and_reserved_books_message(user)
+        if library.is_prepared_reserved_book_at_one_user(user):
             line.my_push_message(message, line_tos)
 
 

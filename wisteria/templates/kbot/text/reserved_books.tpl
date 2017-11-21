@@ -1,10 +1,11 @@
 
 ───────────
-{% if is_prepared %}􀁹{% else %}􀂐{% endif %}{{ user.name }}(ID:{{ user.id }})
+{% if is_prepared %}􀁹{% else %}􀂐{% endif %}{{ books.user.name }}({{ books.user.id }})
+　　　対象：{{ books.len }}冊
 ───────────
-{% for book in reserved_books -%}
+{% for book in books.list -%}
 􀁬{{ book.title }}
-{% if book.is_prepared == True %}􀁠{% else %}■{% endif %}状況：{{ book.status }}
+{% if book.is_prepared == True %}􀁠{% elif book.is_dereverd == True %}􀁉{% else %}■{% endif %}状況：{{ book.status }}
 ■順位：{{ book.order }}
 ■区分：{{ book.kind }}
 ■予約日：{{ book.yoyaku_date }}
