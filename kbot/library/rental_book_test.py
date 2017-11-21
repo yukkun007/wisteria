@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date, timedelta
-from kbot.library.rental_book import ExpireFilterSetting, ExpiredFilterSetting, RentalBook, RentalBooks
+from kbot.library.rental_book import RentalBookExpireFilter, RentalBookExpiredFilter, RentalBook, RentalBooks
 
 
 class TestRentalBooks:
@@ -19,7 +19,7 @@ class TestRentalBooks:
         books.append(book)
         books.append(RentalBook('test2', '9999/01/02', True, 'hoge'))
         books.append(RentalBook('test3', '9999/01/07', True, 'hoge'))
-        books = RentalBooks.get_filtered_books(books, ExpiredFilterSetting())
+        books = RentalBooks.get_filtered_books(books, RentalBookExpiredFilter())
         assert books.len == 1
         assert books.get(0) == book  # メモリ比較
 
@@ -29,7 +29,7 @@ class TestRentalBooks:
         books.append(book)
         books.append(RentalBook('test2', '2017/01/03', True, 'hoge'))
         books.append(RentalBook('test3', '2017/01/05', True, 'hoge'))
-        books = RentalBooks.get_filtered_books(books, ExpireFilterSetting(5))
+        books = RentalBooks.get_filtered_books(books, RentalBookExpireFilter(xdays=5))
         assert books.len == 3
         assert books.get(0) == book  # メモリ比較
 
@@ -39,7 +39,7 @@ class TestRentalBooks:
         books.append(RentalBook('test1', '2017/01/03', True, 'hoge'))
         book = RentalBook('test1', '2017/01/02', True, 'hoge')
         books.append(book)
-        books = RentalBooks.get_filtered_books(books, ExpireFilterSetting(5))
+        books = RentalBooks.get_filtered_books(books, RentalBookExpireFilter(xdays=5))
         assert books.len == 3
         assert books.get(0) == book  # メモリ比較
 

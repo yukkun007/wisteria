@@ -6,26 +6,28 @@ from linebot.models import ButtonsTemplate,\
     PostbackTemplateAction
 from kbot.message import Message
 from kbot.book.common import Books, BookFilter
+from kbot.log import Log
 
 
 class ReservedBookFilter(BookFilter):
 
     _FILTER_RESERVED_PREPARED_NONE = 'none'
-    _FILTER_RESERVED_PREPARED_YES = 'yes'
+    _FILTER_RESERVED_PREPARED_YES_AND_DEREVERD = 'yes_and_dereverd'
 
     def __init__(self, *, users=BookFilter.FILTER_USERS_ALL):
         super(ReservedBookFilter, self).__init__(users=users)
         self._prepared = ReservedBookFilter._FILTER_RESERVED_PREPARED_NONE
 
     @property
-    def prepared(self):
-        return self._prepared == ReservedBookFilter._FILTER_RESERVED_PREPARED_YES
+    def almost_prepared(self):
+        return self._prepared == ReservedBookFilter._FILTER_RESERVED_PREPARED_YES_AND_DEREVERD
 
 
 class ReservedBookPreparedFilter(ReservedBookFilter):
+
     def __init__(self, *, users=BookFilter.FILTER_USERS_ALL):
         super(ReservedBookPreparedFilter, self).__init__(users=users)
-        self._prepared = ReservedBookFilter._FILTER_RESERVED_PREPARED_YES
+        self._prepared = ReservedBookFilter._FILTER_RESERVED_PREPARED_YES_AND_DEREVERD
 
 
 class ReservedBooks(Books):
@@ -54,16 +56,16 @@ class ReservedBooks(Books):
     @classmethod
     def get_filtered_books(cls, books, filter_setting):
         books_list = books._books
-        if filter_setting.prepared:
+        if filter_setting.almost_prepared:
             filterd_books = filter(
-                lambda book: book.is_prepared(), books_list)
+                lambda book: book.is_prepared or book.is_dereverd, books_list)
             return ReservedBooks(ReservedBooks.__sort(filterd_books))
         else:
-            return ReservedBooks(ReservedBooks.__sort(books))
+            return ReservedBooks(ReservedBooks.__sort(books_list))
 
     @classmethod
     def __sort(cls, books_list):
-        return sorted(books_list, key=lambda book: (book.order, book.title))
+        return sorted(books_list, key=lambda book: (book.order_num, book.status))
 
 
 class ReservedBook(object):
@@ -71,14 +73,41 @@ class ReservedBook(object):
     def __init__(self, status, order, title, kind, yoyaku_date, torioki_date):
         self.status = status
         self.order = order
+        self.order_num = self.__get_order_num(order)
         self.title = title
         self.kind = kind
         self.yoyaku_date = yoyaku_date
         self.torioki_date = torioki_date
-        self.is_prepared = status == 'ご用意できました'
+        self.is_prepared = self.__is_prepared(status)
+        self.is_dereverd = self.__is_dereverd(status)
 
-    def is_prepared(self):
-        return self.is_prepared
+        Log.info(self.to_string())
+
+    def to_string(self):
+        string = ('status:{0} order:{1} title:{2} '
+                  'kind:{3} yoyaku_date:{4}').format(
+                      self.status,
+                      self.order,
+                      self.title,
+                      self.kind,
+                      self.yoyaku_date)
+        return string
+
+    def __is_prepared(self, status):
+        if status == 'ご用意できました':
+            return True
+        return False
+
+    def __is_dereverd(self, status):
+        if status == '移送中です':
+            return True
+        return False
+
+    def __get_order_num(self, order):
+        try:
+            return int(order.split('/')[0])
+        except ValueError:
+            return 0
 
     def make_finish_reserve_message_template(user_num):
         buttons_template = ButtonsTemplate(

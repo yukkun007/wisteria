@@ -82,8 +82,9 @@ def library_check_reserve(request):
 
 def __library_check_reserve():
     Log.info('GET! library_check_reserve')
-    filter_setting = ReservedBookPreparedFilter(users='all')
-    __check_reserved_books(None, filter_setting)
+    rental_filter = RentalBookFilter(users='all')
+    reserved_filter = ReservedBookPreparedFilter(users='all')
+    __check_rental_and_reserved_books(rental_filter, reserved_filter)
 
 
 def library_reserve(request):
@@ -245,6 +246,16 @@ def __check_reserved_books(event, filter_setting):
         line.my_reply_message(message, event)
     else:
         if library.is_prepared_reserved_book():
+            line.my_push_message(message, line_tos)
+
+
+def __check_rental_and_reserved_books(rental_filter, reserved_filter):
+    library = Library(users)
+    library.check_rental_and_reserved_books(rental_filter, reserved_filter)
+    users.filter(rental_filter.users)
+    for user in users.list:
+        message = library.get_text_rental_and_reserved_books_message(user)
+        if library.is_prepared_reserved_book_at_one_user(user):
             line.my_push_message(message, line_tos)
 
 

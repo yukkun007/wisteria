@@ -15,9 +15,10 @@ class TestUsers:
         users = Users([
             User(data_json)
         ])
-        for user in users.all:
+        for user in users.list:
             assert user.name == 'test'
-        for user in users.select('2'):
+        users.filter('1')
+        for user in users.list:
             assert user.name == 'test2'
 
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-from kbot.book.common import BookFilter
+# from kbot.book.common import BookFilter
 
 
 class Users(object):
@@ -14,7 +14,7 @@ class Users(object):
         return self._users
 
     def filter(self, user_filter):
-        if user_filter == BookFilter.FILTER_USERS_ALL:
+        if user_filter == 'all':  # BookFilter.FILTER_USERS_ALL:
             return
 
         new_users = []
