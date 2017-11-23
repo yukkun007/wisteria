@@ -1,3 +1,4 @@
 neovim-remote==1.8.6
 pipdeptree==0.10.1
 Pygments==2.2.0
+codecov==2.0.9
