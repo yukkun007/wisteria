@@ -75,6 +75,9 @@ class BookSearchQuery(object):
         elif '著？' in text:
             author = text[2:]
             query.set('author', author)
+        elif 'ほ？' in text:
+            book_name = text[2:]
+            query.set('title', book_name)
         elif 'isbn' in text:
             isbn = text[5:]
             query.set('isbn', isbn)

@@ -11,6 +11,11 @@ from kbot.log import Log
 
 class HtmlPage(object):
 
+    def fetch_search_result_page(self, url):
+        self.driver.get(url)
+        # 待機
+        WebDriverWait(self.driver, 10, poll_frequency=0.05).until(ec.presence_of_all_elements_located)
+
     def fetch_login_page(self, login_url, user):
         self.__login(login_url, user)
         Log.info('driver.page_source.encode/start')

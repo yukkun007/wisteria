@@ -161,6 +161,9 @@ def callback(request):
                     if KBOT.is_search_book_command(text):
                         __search_book(event, text)
 
+                    elif KBOT.is_search_library_book_command(text):
+                        __search_library_book(event, text)
+
                     elif KBOT.is_user_reserve_check_command(text):
                         user_num = users.get_user_num(text)
                         rental_filter = RentalBookFilter(users=user_num)
@@ -267,6 +270,13 @@ def __search_book(event, text):
     query = BookSearchQuery.get_from(text)
     books = RakutenBooksService.search_books(query)
     message = books.slice(0, 5).get_books_select_line_carousel_mseeage()
+    line.my_reply_message(message, event)
+
+
+def __search_library_book(event, text):
+    query = BookSearchQuery.get_from(text)
+    books = Library.search_books(query)
+    message = books.slice(0, 50).get_message()
     line.my_reply_message(message, event)
 
 

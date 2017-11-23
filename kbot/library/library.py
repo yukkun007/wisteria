@@ -16,6 +16,10 @@ class Library(object):
     LIBRALY_BOOK_URL = ('https://www.lib.nerima.tokyo.jp/opw/OPW/OPWBOOK.CSP?DB='
                         'LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB')
 
+    LIBRALY_SEARCH_URL = ('https://www.lib.nerima.tokyo.jp/opw/OPW/OPWSRCHLIST.CSP?'
+                          'DB=LIB&FLG=SEARCH&LOCAL(%22LIB%22,%22SK41%22,1)=on&MODE=1&'
+                          'PID2=OPWSRCH2&SORT=-3&opr(1)=OR&qual(1)=ALL&WRTCOUNT=100&text(1)=')
+
     TEMPLATE_USER_RENTAL_BOOKS = 'user_rental_books.tpl'
     TEMPLATE_USER_RESERVED_BOOKS = 'user_reserved_books.tpl'
     TEMPLATE_ONE_USER_RESERVED_BOOKS = 'one_user_reserved_books.tpl'
@@ -24,6 +28,14 @@ class Library(object):
         self.users = users
         self.all_rental_books_count = 0
         self.all_reserved_books_count = 0
+
+    @classmethod
+    def search_books(cls, query):
+        html_page = HtmlPage()
+        html = html_page.fetch_search_result_page(Library.LIBRALY_SEARCH_URL + query.title)
+        books = HtmlParser.get_searched_books(html)
+        html_page.release_resource()
+        return books
 
     def check_rental_books(self, filter_setting):
         html_page = HtmlPage()

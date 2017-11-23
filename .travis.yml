@@ -1,0 +1,6 @@
+install:
+  - pip install pytest pytest-cov
+script:
+  - py.test --cov ./kbot
+after_success:
+  - codecov

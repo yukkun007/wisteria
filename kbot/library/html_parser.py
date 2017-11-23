@@ -4,10 +4,28 @@
 from bs4 import BeautifulSoup
 from kbot.library.rental_book import RentalBook, RentalBooks
 from kbot.library.reserved_book import ReservedBook, ReservedBooks
+from kbot.library.searched_book import SearchedBooks
 from kbot.log import Log
 
 
 class HtmlParser(object):
+
+    @classmethod
+    def get_searched_books(cls, html):
+        soup = BeautifulSoup(html, 'html.parser')
+
+        table = HtmlParser.__get_table(soup, 'FormLEND')
+        if table is None:
+            return SearchedBooks([])
+
+        searched_books = SearchedBooks([])
+        tds_list = HtmlParser.__get_target_tds_list(table)
+        for tds in tds_list:
+            searched_books.append(HtmlParser.__get_searched_book(tds))
+
+        Log.info('number of searched_books:{0}'.format(searched_books.len))
+
+        return searched_books
 
     @classmethod
     def get_rental_books(cls, html):

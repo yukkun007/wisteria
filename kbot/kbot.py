@@ -99,6 +99,11 @@ class KBot(object):
             return True
         return False
 
+    def is_search_library_book_command(self, text):
+        if 'ほ？' in text:
+            return True
+        return False
+
     def get_xdays(self, text):
         default = 2
         index = text.find('日で延滞')
