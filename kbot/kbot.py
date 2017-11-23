@@ -30,11 +30,6 @@ class KBot(object):
             title='kbotコマンドメニュー',
             text='直接メッセージを入れても反応します!',
             actions=[
-                # URITemplateAction(
-                # label='図書館のサイトへ',
-                # uri='https://www.lib.nerima.tokyo.jp/opw/\
-                #                 OPW/OPWLOGINTIME.CSP?HPFLG=1&NEXT=OPWUSER\
-                #                 INFO&DB=LIB'),
                 PostbackTemplateAction(
                     label='借りてる本をﾁｪｯｸ',
                     data='check_rental',
@@ -55,8 +50,20 @@ class KBot(object):
         )
         return buttons_template
 
-    def is_check_reserve_command(self, text):
+    def is_user_reserve_check_command(self, text):
         for key in ['予約？']:
+            if key in text:
+                return True
+        return False
+
+    def is_reserve_check_command(self, text):
+        for key in ['予約']:
+            if key in text:
+                return True
+        return False
+
+    def is_user_rental_check_command(self, text):
+        for key in ['図書？']:
             if key in text:
                 return True
         return False
@@ -110,12 +117,16 @@ class KBot(object):
 ──────
 ■貸出状況ﾁｪｯｸ
 　◎図書館
+■貸出状況ﾁｪｯｸ(ﾕｰｻﾞｰ毎)
+　◎図書？豊
 ■期限切れの本ﾁｪｯｸ
 　◎延滞
 ■期限間近の本ﾁｪｯｸ
 　◎2日で延滞 (X日で延滞)
 ■予約状況ﾁｪｯｸ
-　◎予約？
+　◎予約
+■予約状況ﾁｪｯｸ(ﾕｰｻﾞｰ毎)
+　◎予約？豊
 
 ──────
 本

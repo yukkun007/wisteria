@@ -39,11 +39,10 @@ class ReservedBooks(Books):
 
     def get_message(self, format='text'):
         message = ''
-        if self.len > 0:
-            data = {'books': self,
-                    'is_prepared': self.is_prepared_reserved_book()}
-            message += Message.create(os.path.join(format,
-                                                   ReservedBooks.TEMPLATE_RESERVED_BOOKS), data)
+        data = {'books': self,
+                'is_prepared': self.is_prepared_reserved_book()}
+        message += Message.create(os.path.join(format,
+                                               ReservedBooks.TEMPLATE_RESERVED_BOOKS), data)
 
         return message
 

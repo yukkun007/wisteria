@@ -12,6 +12,7 @@ from kbot.views import __check_reserved_books as check_reserved_books
 from kbot.views import __search_book as search_book
 from kbot.views import __search_book_by_isbn as search_book_by_isbn
 from kbot.kbot import KBot
+from kbot.library.rental_book import RentalBookFilter
 from kbot.library.reserved_book import ReservedBookFilter
 
 
@@ -30,7 +31,8 @@ class TestViews:
         youtube_omoide()
 
     def test_check_rental(self):
-        check_rental(None)
+        filter_setting = RentalBookFilter(users='all')
+        check_rental(None, filter_setting)
 
     def test_check_expire(self):
         check_expire(None, 2)

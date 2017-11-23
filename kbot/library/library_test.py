@@ -20,16 +20,16 @@ class TestLibrary:
 
     def test_library_rental(self, instance1):
         instance1.check_rental_books(RentalBookFilter())
-        short_message = instance1.get_text_message()
+        short_message = instance1.get_text_message(instance1.users)
         print(short_message)
 
     def test_library_expired(self, instance1):
         instance1.check_rental_books(RentalBookExpiredFilter())
-        short_message = instance1.get_text_message()
+        short_message = instance1.get_text_message(instance1.users)
         print(short_message)
 
     def test_library_expire(self, instance1):
         xdays = 2
         instance1.check_rental_books(RentalBookExpireFilter(xdays=xdays))
-        short_message = instance1.get_text_message()
+        short_message = instance1.get_text_message(instance1.users)
         print(short_message)

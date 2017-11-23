@@ -65,9 +65,9 @@ def __library_check():
     xdays = 2
     library = Library(users)
     filter_setting = RentalBookExpireFilter(xdays=xdays)
-    library.check_rental_books(filter_setting)
+    new_users = library.check_rental_books(filter_setting)
     if library.is_rental_books_exist():
-        line.my_push_message(library.get_text_message(), line_tos)
+        line.my_push_message(library.get_text_message(new_users), line_tos)
         gmail.send_message_multi(
             gmail_tos,
             '図書館の本返却お願いします！',
@@ -84,7 +84,7 @@ def __library_check_reserve():
     Log.info('GET! library_check_reserve')
     rental_filter = RentalBookFilter(users='all')
     reserved_filter = ReservedBookPreparedFilter(users='all')
-    __check_rental_and_reserved_books(rental_filter, reserved_filter)
+    __check_rental_and_reserved_books(None, rental_filter, reserved_filter)
 
 
 def library_reserve(request):
@@ -161,12 +161,24 @@ def callback(request):
                     if KBOT.is_search_book_command(text):
                         __search_book(event, text)
 
-                    elif KBOT.is_check_reserve_command(text):
+                    elif KBOT.is_user_reserve_check_command(text):
+                        user_num = users.get_user_num(text)
+                        rental_filter = RentalBookFilter(users=user_num)
+                        reserved_filter = ReservedBookFilter(users=user_num)
+                        __check_rental_and_reserved_books(event, rental_filter, reserved_filter)
+
+                    elif KBOT.is_reserve_check_command(text):
                         filter_setting = ReservedBookFilter(users='all')
                         __check_reserved_books(event, filter_setting)
 
+                    elif KBOT.is_user_rental_check_command(text):
+                        user_num = users.get_user_num(text)
+                        filter_setting = RentalBookFilter(users=user_num)
+                        __check_rental(event, filter_setting)
+
                     elif KBOT.is_rental_check_command(text):
-                        __check_rental(event)
+                        filter_setting = RentalBookFilter(users='all')
+                        __check_rental(event, filter_setting)
 
                     elif KBOT.is_expire_check_command(text):
                         xdays = KBOT.get_xdays(text)
@@ -188,15 +200,9 @@ def callback(request):
                         __search_book_by_isbn(event, data)
                     elif data.startswith('check_reserve:'):
                         user_nums = data[14:]
-                        filter_setting = ReservedBookFilter(users=user_nums)
-                        __check_reserved_books(event, filter_setting)
-                    # if data == 'check_rental':
-                    #     __check_rental(event)
-                    # elif data == 'check_expire':
-                    #     xdays = 2
-                    #     __check_expire(event, xdays)
-                    # elif data == 'show_reply_string':
-                    #     __show_reply_string(event)
+                        rental_filter = RentalBookFilter(users=user_nums)
+                        reserved_filter = ReservedBookPreparedFilter(users=user_nums)
+                        __check_rental_and_reserved_books(event, rental_filter, reserved_filter)
 
         except InvalidSignatureError as e:
             Log.logging_exception(e)
@@ -212,25 +218,25 @@ def callback(request):
         return HttpResponseBadRequest()
 
 
-def __check_rental(event):
+def __check_rental(event, filter_setting):
     library = Library(users)
-    filter_setting = RentalBookFilter()
-    library.check_rental_books(filter_setting)
-    line.my_reply_message(library.get_text_message(), event)
+    new_users = library.check_rental_books(filter_setting)
+    message = library.get_text_message(new_users)
+    line.my_reply_message(message, event)
 
 
 def __check_expire(event, xdays):
     library = Library(users)
     filter_setting = RentalBookExpireFilter(xdays=xdays)
-    library.check_rental_books(filter_setting)
-    line.my_reply_message(library.get_text_message(), event)
+    new_users = library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(new_users), event)
 
 
 def __check_expired(event):
     library = Library(users)
     filter_setting = RentalBookExpiredFilter()
-    library.check_rental_books(filter_setting)
-    line.my_reply_message(library.get_text_message(), event)
+    new_users = library.check_rental_books(filter_setting)
+    line.my_reply_message(library.get_text_message(new_users), event)
 
 
 def __show_reply_string(event):
@@ -240,23 +246,21 @@ def __show_reply_string(event):
 
 def __check_reserved_books(event, filter_setting):
     library = Library(users)
-    library.check_reserved_books(filter_setting)
-    message = library.get_text_reserved_books_message()
-    if event is not None:
-        line.my_reply_message(message, event)
-    else:
-        if library.is_prepared_reserved_book():
-            line.my_push_message(message, line_tos)
+    new_users = library.check_reserved_books(filter_setting)
+    message = library.get_text_reserved_books_message(new_users)
+    line.my_reply_message(message, event)
 
 
-def __check_rental_and_reserved_books(rental_filter, reserved_filter):
+def __check_rental_and_reserved_books(event, rental_filter, reserved_filter):
     library = Library(users)
-    library.check_rental_and_reserved_books(rental_filter, reserved_filter)
-    users.filter(rental_filter.users)
-    for user in users.list:
+    new_users = library.check_rental_and_reserved_books(rental_filter, reserved_filter)
+    for user in new_users.list:
         message = library.get_text_rental_and_reserved_books_message(user)
-        if library.is_prepared_reserved_book_at_one_user(user):
-            line.my_push_message(message, line_tos)
+        if event is None:
+            if library.is_prepared_reserved_book_at_one_user(user):
+                line.my_push_message(message, line_tos)
+        else:
+            line.my_reply_message(message, event)
 
 
 def __search_book(event, text):

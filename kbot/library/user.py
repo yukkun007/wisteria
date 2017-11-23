@@ -15,7 +15,7 @@ class Users(object):
 
     def filter(self, user_filter):
         if user_filter == 'all':  # BookFilter.FILTER_USERS_ALL:
-            return
+            return self
 
         new_users = []
         nums = user_filter.split(',')
@@ -24,7 +24,15 @@ class Users(object):
             if 0 <= user_num < len(self._users):
                 new_users.append(self._users[user_num])
 
-        self._users = new_users
+        return Users(new_users)
+
+    def get_user_num(self, text):
+        user_name = text[3:]
+        filterd_users = list(filter(lambda user: user.name == user_name, self._users))
+        if len(filterd_users) == 1:
+            return filterd_users[0].num
+        else:
+            return '0'
 
 
 class User(object):
@@ -36,6 +44,9 @@ class User(object):
         self.id = data.get('id')
         self.password = data.get('password')
         self.rental_books_count = 0
+        self.reserved_books_count = 0
+        self.rental_books = None
+        self.reserved_books = None
 
     def set_rental_books(self, rental_books):
         rental_books.user = self

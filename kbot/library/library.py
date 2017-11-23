@@ -28,8 +28,8 @@ class Library(object):
     def check_rental_books(self, filter_setting):
         html_page = HtmlPage()
 
-        self.users.filter(filter_setting.users)
-        for user in self.users.list:
+        new_users = self.users.filter(filter_setting.users)
+        for user in new_users.list:
             Log.info(user.name)
             rental_books = self.__get_rental_books(html_page, user)
             filterd_rental_books = RentalBooks.get_filtered_books(
@@ -40,6 +40,8 @@ class Library(object):
 
         html_page.release_resource()
 
+        return new_users
+
     def __get_rental_books(self, html_page, user):
         html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
         books = HtmlParser.get_rental_books(html)
@@ -48,8 +50,8 @@ class Library(object):
     def check_reserved_books(self, filter_setting):
         html_page = HtmlPage()
 
-        self.users.filter(filter_setting.users)
-        for user in self.users.list:
+        new_users = self.users.filter(filter_setting.users)
+        for user in new_users.list:
             Log.info(user.name)
             reserved_books = self.__get_reserved_books(html_page, user)
             filterd_reserved_books = ReservedBooks.get_filtered_books(
@@ -60,6 +62,8 @@ class Library(object):
 
         html_page.release_resource()
 
+        return new_users
+
     def __get_reserved_books(self, html_page, user):
         html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
         reserved_books = HtmlParser.get_reserved_books(html)
@@ -68,8 +72,8 @@ class Library(object):
     def check_rental_and_reserved_books(self, rental_filter, reserved_filter):
         html_page = HtmlPage()
 
-        self.users.filter(rental_filter.users)
-        for user in self.users.list:
+        new_users = self.users.filter(rental_filter.users)
+        for user in new_users.list:
             Log.info(user.name)
             self.__set_rental_and_reserved_books(html_page, user)
             user.set_rental_books(RentalBooks.get_filtered_books(
@@ -82,6 +86,8 @@ class Library(object):
             self.all_reserved_books_count += user.reserved_books_count
 
         html_page.release_resource()
+
+        return new_users
 
     def __set_rental_and_reserved_books(self, html_page, user):
         html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
@@ -99,8 +105,8 @@ class Library(object):
             return True
         return False
 
-    def is_prepared_reserved_book(self):
-        for user in self.users.list:
+    def is_prepared_reserved_book(self, users):
+        for user in users.list:
             if user.reserved_books.is_prepared_reserved_book():
                 return True
         return False
@@ -110,39 +116,38 @@ class Library(object):
             return True
         return False
 
-    def get_text_message(self):
-        return self.__get_message(format='text')
+    def get_text_message(self, users):
+        return self.__get_message(users, format='text')
 
-    def get_html_message(self):
-        return self.__get_message(format='html')
+    def get_html_message(self, users):
+        return self.__get_message(users, format='html')
 
-    def __get_message(self, format='text'):
+    def __get_message(self, users, format='text'):
         sub_message = ''
-        for user in self.users.list:
+        for user in users.list:
             sub_message += user.rental_books.get_message(format)
 
         message = ''
-        data = {'sub_message': sub_message,
-                'all_books_count': self.all_rental_books_count}
+        data = {'sub_message': sub_message}
         message += Message.create(os.path.join(format,
                                                Library.TEMPLATE_USER_RENTAL_BOOKS), data)
 
         return message
 
-    def get_text_reserved_books_message(self):
-        return self.__get_reserved_books_message(format='text')
+    def get_text_reserved_books_message(self, users):
+        return self.__get_reserved_books_message(users, format='text')
 
-    def get_html_reserved_books_message(self):
-        return self.__get_reserved_books_message(format='html')
+    def get_html_reserved_books_message(self, users):
+        return self.__get_reserved_books_message(users, format='html')
 
-    def __get_reserved_books_message(self, format='text'):
+    def __get_reserved_books_message(self, users, format='text'):
         sub_message = ''
-        for user in self.users.list:
+        for user in users.list:
             sub_message += user.reserved_books.get_message(format)
 
         message = ''
         data = {'sub_message': sub_message,
-                'is_prepared': self.is_prepared_reserved_book()}
+                'is_prepared': self.is_prepared_reserved_book(users)}
         message += Message.create(os.path.join(format,
                                                Library.TEMPLATE_USER_RESERVED_BOOKS), data)
 
@@ -156,8 +161,7 @@ class Library(object):
 
         message = ''
         data = {'sub_message1': sub_message1,
-                'sub_message2': sub_message2,
-                'rental_books_count': user.rental_books_count}
+                'sub_message2': sub_message2}
         message += Message.create(os.path.join(format,
                                                Library.TEMPLATE_ONE_USER_RESERVED_BOOKS), data)
 

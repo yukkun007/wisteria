@@ -68,12 +68,11 @@ class RentalBooks(Books):
 
     def get_message(self, format='text'):
         message = ''
-        if self.len > 0:
-            date_keyed_books_dict = RentalBooks.__get_date_keyed_books_dict(self._books)
-            data = {'books': self,
-                    'date_keyed_books_dict': date_keyed_books_dict}
-            message += Message.create(os.path.join(format,
-                                                   RentalBooks.TEMPLATE_RENTAL_BOOKS), data)
+        date_keyed_books_dict = RentalBooks.__get_date_keyed_books_dict(self._books)
+        data = {'books': self,
+                'date_keyed_books_dict': date_keyed_books_dict}
+        message += Message.create(os.path.join(format,
+                                               RentalBooks.TEMPLATE_RENTAL_BOOKS), data)
         return message
 
     @classmethod
