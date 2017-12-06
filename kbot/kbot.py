@@ -4,11 +4,7 @@
 import os
 from dotenv import load_dotenv
 from kbot.log import Log
-from linebot.models import ButtonsTemplate,\
-    ConfirmTemplate,\
-    MessageTemplateAction,\
-    PostbackTemplateAction,\
-    URITemplateAction
+from linebot.models import ButtonsTemplate, PostbackTemplateAction
 
 
 class KBot(object):
@@ -142,34 +138,3 @@ class KBot(object):
 　◎著？夏目漱石
         '''
         return message
-
-    def get_confirm_template_sample(self):
-        confirm_template = ConfirmTemplate(
-            text='Do it?', actions=[
-                MessageTemplateAction(label='Yes',
-                                      text='Yes!'),
-                MessageTemplateAction(label='No',
-                                      text='No!'),
-            ]
-        )
-        return confirm_template
-
-    def get_buttons_template_sample(self):
-        buttons_template = ButtonsTemplate(
-            title='My buttons sample',
-            text='Hello, my buttons',
-            actions=[
-                URITemplateAction(
-                    label='Go to line.me',
-                    uri='https://line.me'),
-                PostbackTemplateAction(label='ping',
-                                       data='ping'),
-                PostbackTemplateAction(
-                    label='ping with text',
-                    data='ping',
-                    text='ping'),
-                MessageTemplateAction(label='Translate Rice',
-                                      text='米')
-            ]
-        )
-        return buttons_template

@@ -29,6 +29,10 @@ class TestUsers:
         num = users1.get_user_num('図書？test2')
         assert num == '1'
 
+    def test_get_user_num_miss(self, users1):
+        num = users1.get_user_num('図書？test3')
+        assert num == '0'
+
 
 class TestUser:
 

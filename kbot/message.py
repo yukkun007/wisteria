@@ -8,9 +8,6 @@ class Message(object):
 
     TEMPLATE_ROOT_DIR = 'wisteria/templates/kbot'
 
-    def __init__(self):
-        pass
-
     @staticmethod
     def create(template_path, data):
         env = Environment(loader=FileSystemLoader(Message.TEMPLATE_ROOT_DIR))

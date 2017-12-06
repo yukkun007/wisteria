@@ -38,7 +38,7 @@ class CalilService(object):
 
     @classmethod
     def __get_one_book_from_json(cls, json_data, isbn, systemid):
-        reserve_info = json_data['books'][isbn][systemid]
+        reserve_info = json_data.get('books').get(isbn).get(systemid)
         status = reserve_info.get('status')
         if status != 'OK' and status != 'Cache':
             return CalilBook(isbn, {})
