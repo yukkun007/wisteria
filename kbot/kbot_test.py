@@ -14,6 +14,13 @@ class TestKBot:
     def kbot1(request):
         return KBot('wisteria')
 
+    @pytest.fixture()
+    def kbot2(request):
+        return KBot('')
+
+    def test_load_dotenv(self, kbot2):
+        kbot2._KBot__load_dotenv()
+
     def test_kbot_commnad_menu(self, kbot1):
         kbot1.get_kbot_command_menu()
 
