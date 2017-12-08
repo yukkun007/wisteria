@@ -65,13 +65,13 @@ def __library_check():
     xdays = 2
     library = Library(users)
     filter_setting = RentalBookExpireFilter(xdays=xdays)
-    new_users = library.check_rental_books(filter_setting)
-    if library.is_rental_books_exist():
-        line.my_push_message(library.get_text_message(new_users), line_tos)
+    target_users = library.check_rental_books(filter_setting)
+    if target_users.is_rental_books_exist():
+        line.my_push_message(target_users.get_rental_books_text_message(), line_tos)
         gmail.send_message_multi(
             gmail_tos,
             '図書館の本返却お願いします！',
-            library.get_html_message())
+            target_users.get_rental_books_html_message())
 
 
 def library_check_reserve(request):
@@ -223,23 +223,23 @@ def callback(request):
 
 def __check_rental(event, filter_setting):
     library = Library(users)
-    new_users = library.check_rental_books(filter_setting)
-    message = library.get_text_message(new_users)
+    target_users = library.check_rental_books(filter_setting)
+    message = target_users.get_rental_books_text_message()
     line.my_reply_message(message, event)
 
 
 def __check_expire(event, xdays):
     library = Library(users)
     filter_setting = RentalBookExpireFilter(xdays=xdays)
-    new_users = library.check_rental_books(filter_setting)
-    line.my_reply_message(library.get_text_message(new_users), event)
+    target_users = library.check_rental_books(filter_setting)
+    line.my_reply_message(target_users.get_rental_books_text_message(), event)
 
 
 def __check_expired(event):
     library = Library(users)
     filter_setting = RentalBookExpiredFilter()
-    new_users = library.check_rental_books(filter_setting)
-    line.my_reply_message(library.get_text_message(new_users), event)
+    target_users = library.check_rental_books(filter_setting)
+    line.my_reply_message(target_users.get_rental_books_text_message(), event)
 
 
 def __show_reply_string(event):
@@ -249,18 +249,18 @@ def __show_reply_string(event):
 
 def __check_reserved_books(event, filter_setting):
     library = Library(users)
-    new_users = library.check_reserved_books(filter_setting)
-    message = library.get_text_reserved_books_message(new_users)
+    target_users = library.check_reserved_books(filter_setting)
+    message = target_users.get_reserved_books_text_message()
     line.my_reply_message(message, event)
 
 
 def __check_rental_and_reserved_books(event, rental_filter, reserved_filter):
     library = Library(users)
-    new_users = library.check_rental_and_reserved_books(rental_filter, reserved_filter)
-    for user in new_users.list:
-        message = library.get_text_rental_and_reserved_books_message(user)
+    target_users = library.check_rental_and_reserved_books(rental_filter, reserved_filter)
+    for user in target_users.list:
+        message = user.get_rental_and_reserved_books_message()
         if event is None:
-            if library.is_prepared_reserved_book_at_one_user(user):
+            if user.is_prepared_reserved_book():
                 line.my_push_message(message, line_tos)
         else:
             line.my_reply_message(message, event)

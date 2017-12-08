@@ -11,25 +11,26 @@ from kbot.library.rental_book import RentalBookFilter, RentalBookExpireFilter, R
 
 class TestLibrary:
 
-    @pytest.fixture()
-    def instance1(request):
+    def setup(self):
         KBot('wisteria')
+
+    @pytest.fixture()
+    def library1(request):
         users = Users([User(os.environ['USER1'])])
-        library = Library(users)
-        return library
+        return Library(users)
 
-    def test_library_rental(self, instance1):
-        instance1.check_rental_books(RentalBookFilter())
-        short_message = instance1.get_text_message(instance1.users)
+    def test_check_rental_books(self, library1):
+        target_users = library1.check_rental_books(RentalBookFilter())
+        short_message = target_users.get_rental_books_text_message()
         print(short_message)
 
-    def test_library_expired(self, instance1):
-        instance1.check_rental_books(RentalBookExpiredFilter())
-        short_message = instance1.get_text_message(instance1.users)
+    def test_check_rental_books_expired(self, library1):
+        target_users = library1.check_rental_books(RentalBookExpiredFilter())
+        short_message = target_users.get_rental_books_text_message()
         print(short_message)
 
-    def test_library_expire(self, instance1):
+    def test_check_rental_books_expire(self, library1):
         xdays = 2
-        instance1.check_rental_books(RentalBookExpireFilter(xdays=xdays))
-        short_message = instance1.get_text_message(instance1.users)
+        target_users = library1.check_rental_books(RentalBookExpireFilter(xdays=xdays))
+        short_message = target_users.get_rental_books_text_message()
         print(short_message)
