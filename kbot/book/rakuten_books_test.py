@@ -31,6 +31,15 @@ class TestRakutenBooksService:
         assert mock_method.called
         assert rakuten_book.title == 'hoge'
 
+    @patch('kbot.book.rakuten_books.RakutenBooksService._RakutenBooksService__request')
+    def test_get_one_book_empty(self, mock_method):
+        json_str = '{ "Items": []}'
+        mock_method.return_value = json.loads(json_str)
+        query = BookSearchQuery()
+        rakuten_book = RakutenBooksService.get_one_book(query)
+        assert mock_method.called
+        assert rakuten_book.author == ''
+
     def test_search_books(self):
         query = BookSearchQuery()
         query.set('title', 'カンブリア')
@@ -80,9 +89,10 @@ class TestRakutenBooks:
         assert books1.length() == 2
 
     def test_new_empty(self):
-        rakuten_book = RakutenBooks(json.loads('{"Items": []}'))
-        assert isinstance(rakuten_book, RakutenBooks)
-        assert rakuten_book.length() == 0
+        rakuten_books = RakutenBooks(json.loads('{"Items": []}'))
+        assert isinstance(rakuten_books, RakutenBooks)
+        assert rakuten_books.length() == 0
+        assert rakuten_books.get_books_select_line_carousel_mseeage() == '見つかりませんでした。。'
 
     def test_new_from_list(self):
         rakuten_book = RakutenBooks(['', ''])

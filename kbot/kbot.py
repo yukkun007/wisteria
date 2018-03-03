@@ -4,11 +4,7 @@
 import os
 from dotenv import load_dotenv
 from kbot.log import Log
-from linebot.models import ButtonsTemplate,\
-    ConfirmTemplate,\
-    MessageTemplateAction,\
-    PostbackTemplateAction,\
-    URITemplateAction
+from linebot.models import ButtonsTemplate, PostbackTemplateAction
 
 
 class KBot(object):
@@ -30,11 +26,6 @@ class KBot(object):
             title='kbotコマンドメニュー',
             text='直接メッセージを入れても反応します!',
             actions=[
-                # URITemplateAction(
-                # label='図書館のサイトへ',
-                # uri='https://www.lib.nerima.tokyo.jp/opw/\
-                #                 OPW/OPWLOGINTIME.CSP?HPFLG=1&NEXT=OPWUSER\
-                #                 INFO&DB=LIB'),
                 PostbackTemplateAction(
                     label='借りてる本をﾁｪｯｸ',
                     data='check_rental',
@@ -55,8 +46,20 @@ class KBot(object):
         )
         return buttons_template
 
-    def is_check_reserve_command(self, text):
+    def is_user_reserve_check_command(self, text):
         for key in ['予約？']:
+            if key in text:
+                return True
+        return False
+
+    def is_reserve_check_command(self, text):
+        for key in ['予約']:
+            if key in text:
+                return True
+        return False
+
+    def is_user_rental_check_command(self, text):
+        for key in ['図書？']:
             if key in text:
                 return True
         return False
@@ -92,6 +95,11 @@ class KBot(object):
             return True
         return False
 
+    def is_search_library_book_command(self, text):
+        if 'ほ？' in text:
+            return True
+        return False
+
     def get_xdays(self, text):
         default = 2
         index = text.find('日で延滞')
@@ -110,12 +118,16 @@ class KBot(object):
 ──────
 ■貸出状況ﾁｪｯｸ
 　◎図書館
+■貸出状況ﾁｪｯｸ(ﾕｰｻﾞｰ毎)
+　◎図書？豊
 ■期限切れの本ﾁｪｯｸ
 　◎延滞
 ■期限間近の本ﾁｪｯｸ
 　◎2日で延滞 (X日で延滞)
 ■予約状況ﾁｪｯｸ
-　◎予約？
+　◎予約
+■予約状況ﾁｪｯｸ(ﾕｰｻﾞｰ毎)
+　◎予約？豊
 
 ──────
 本
@@ -126,34 +138,3 @@ class KBot(object):
 　◎著？夏目漱石
         '''
         return message
-
-    def get_confirm_template_sample(self):
-        confirm_template = ConfirmTemplate(
-            text='Do it?', actions=[
-                MessageTemplateAction(label='Yes',
-                                      text='Yes!'),
-                MessageTemplateAction(label='No',
-                                      text='No!'),
-            ]
-        )
-        return confirm_template
-
-    def get_buttons_template_sample(self):
-        buttons_template = ButtonsTemplate(
-            title='My buttons sample',
-            text='Hello, my buttons',
-            actions=[
-                URITemplateAction(
-                    label='Go to line.me',
-                    uri='https://line.me'),
-                PostbackTemplateAction(label='ping',
-                                       data='ping'),
-                PostbackTemplateAction(
-                    label='ping with text',
-                    data='ping',
-                    text='ping'),
-                MessageTemplateAction(label='Translate Rice',
-                                      text='米')
-            ]
-        )
-        return buttons_template

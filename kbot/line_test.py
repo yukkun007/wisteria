@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pytest
+from unittest.mock import MagicMock
 
 from kbot.kbot import KBot
 from kbot.line import Line
@@ -13,18 +15,19 @@ from linebot.models import ButtonsTemplate,\
 
 class TestLine:
 
-    def test_1(self):
+    def setup(self):
         KBot('wisteria')
 
+    @pytest.fixture()
+    def line1(request):
         line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
         line = Line(line_bot_api)
-        line.my_push_message('これはテストです。', [os.environ['LINE_SEND_ID']])
+        return line
 
-    def test_2(self):
-        KBot('wisteria')
+    def test_1(self, line1):
+        line1.my_push_message('これはテストです。', [os.environ['LINE_SEND_ID']])
 
-        line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
-        line = Line(line_bot_api)
+    def test_2(self, line1):
         buttons_template = ButtonsTemplate(
             title='test',
             text='this is test.',
@@ -34,4 +37,11 @@ class TestLine:
                     uri='https://www.youtube.com/')
             ]
         )
-        line.my_push_message(buttons_template, [os.environ['LINE_SEND_ID']])
+        line1.my_push_message(buttons_template, [os.environ['LINE_SEND_ID']])
+
+    def test_my_reply_message(self, line1):
+        mock_event = MagicMock()
+        method = MagicMock()
+        line1.line_bot_api.reply_message = method
+        line1.my_reply_message('test', mock_event)
+        method.assert_called_once()

@@ -21,7 +21,7 @@ class RakutenBooksService(object):
         json_data = RakutenBooksService.__request(query)
         rakuten_books = RakutenBooks(json_data)
         if rakuten_books.length() <= 0:
-            return RakutenBook()
+            return RakutenBook({})
         return rakuten_books.get(0)
 
     @classmethod

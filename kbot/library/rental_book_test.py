@@ -1,8 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import pytest
 from datetime import date, timedelta
-from kbot.library.rental_book import RentalBookExpireFilter, RentalBookExpiredFilter, RentalBook, RentalBooks
+from kbot.library.rental_book import RentalBookFilter, RentalBookExpireFilter, RentalBookExpiredFilter, \
+    RentalBook, RentalBooks
+
+
+class TestRentalBookFilter:
+
+    def test_xdays_setter(self):
+        book_filter = RentalBookFilter()
+        with pytest.raises(ValueError):
+            book_filter.xdays = 1
 
 
 class TestRentalBooks:
@@ -52,7 +62,7 @@ class TestRentalBook:
 
     def test_is_expired_false(self):
         book = RentalBook('test', '9999/01/1', False, 'hoge')
-        assert book.is_expired() == False
+        assert book.is_expired() is False
 
     def test_is_expired_true_one_day_before(self):
         d = date.today() - timedelta(days=1)
@@ -62,12 +72,12 @@ class TestRentalBook:
     def test_is_expired_false_one_day_after(self):
         d = date.today() + timedelta(days=1)
         book = RentalBook('test', d.strftime('%Y/%m/%d'), True, 'hoge')
-        assert book.is_expired() == False
+        assert book.is_expired() is False
 
     def test_is_expired_false_today(self):
         d = date.today()
         book = RentalBook('test', d.strftime('%Y/%m/%d'), True, 'hoge')
-        assert book.is_expired() == False
+        assert book.is_expired() is False
 
     # -日前：期限切れの本
     # 返却0日前：返却日まで1日切ってる本：今日が返却日
@@ -99,9 +109,24 @@ class TestRentalBook:
     def test_is_expire_in_xdays_false(self):
         d = date.today() + timedelta(days=5)
         book = RentalBook('test', d.strftime('%Y/%m/%d'), True, 'hoge')
-        assert book.is_expire_in_xdays(3) == False
+        assert book.is_expire_in_xdays(3) is False
 
     def test_get_expire_text_from_today(self):
         d = date.today() + timedelta(days=5)
         book = RentalBook('test', d.strftime('%Y/%m/%d'), True, 'hoge')
         assert book.get_expire_text_from_today() == ' (あと5日)'
+
+    def test_get_expire_text_from_today_today(self):
+        d = date.today()
+        book = RentalBook('test', d.strftime('%Y/%m/%d'), True, 'hoge')
+        assert book.get_expire_text_from_today() == ' (今日ﾏﾃﾞ)'
+
+    def test_get_expire_text_from_today_tomorrow(self):
+        d = date.today() + timedelta(days=1)
+        book = RentalBook('test', d.strftime('%Y/%m/%d'), True, 'hoge')
+        assert book.get_expire_text_from_today() == ' (明日ﾏﾃﾞ)'
+
+    def test_get_expire_text_from_today_entai(self):
+        d = date.today() + timedelta(days=-5)
+        book = RentalBook('test', d.strftime('%Y/%m/%d'), True, 'hoge')
+        assert book.get_expire_text_from_today() == ' (延滞)'

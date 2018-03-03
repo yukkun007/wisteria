@@ -39,11 +39,10 @@ class ReservedBooks(Books):
 
     def get_message(self, format='text'):
         message = ''
-        if self.len > 0:
-            data = {'books': self,
-                    'is_prepared': self.is_prepared_reserved_book()}
-            message += Message.create(os.path.join(format,
-                                                   ReservedBooks.TEMPLATE_RESERVED_BOOKS), data)
+        data = {'books': self,
+                'is_prepared': self.is_prepared_reserved_book()}
+        message += Message.create(os.path.join(format,
+                                               ReservedBooks.TEMPLATE_RESERVED_BOOKS), data)
 
         return message
 
@@ -78,8 +77,8 @@ class ReservedBook(object):
         self.kind = kind
         self.yoyaku_date = yoyaku_date
         self.torioki_date = torioki_date
-        self.is_prepared = self.__is_prepared(status)
-        self.is_dereverd = self.__is_dereverd(status)
+        self.is_prepared = ReservedBook.__is_prepared(status)
+        self.is_dereverd = ReservedBook.__is_dereverd(status)
 
         Log.info(self.to_string())
 
@@ -93,12 +92,14 @@ class ReservedBook(object):
                       self.yoyaku_date)
         return string
 
-    def __is_prepared(self, status):
+    @classmethod
+    def __is_prepared(cls, status):
         if status == 'ご用意できました':
             return True
         return False
 
-    def __is_dereverd(self, status):
+    @classmethod
+    def __is_dereverd(cls, status):
         if status == '移送中です':
             return True
         return False
@@ -109,6 +110,7 @@ class ReservedBook(object):
         except ValueError:
             return 0
 
+    @staticmethod
     def make_finish_reserve_message_template(user_num):
         buttons_template = ButtonsTemplate(
             title='予約完了',
