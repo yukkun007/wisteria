@@ -6,6 +6,9 @@
     "BUILDPACK_URL": {
       "required": true
     },
+    "CALIL_APP_KEY": {
+      "required": true
+    },
     "DATABASE_URL": {
       "required": true
     },
@@ -27,6 +30,9 @@
     "GMAIL_SEND_ADDRESS2": {
       "required": true
     },
+    "GYAZO_ACCESS_TOKEN": {
+      "required": true
+    },
     "LD_LIBRARY_PATH": {
       "required": true
     },
@@ -39,13 +45,22 @@
     "LINE_SEND_GROUP_ID": {
       "required": true
     },
+    "LINE_SEND_GROUP_ID_DEBUG": {
+      "required": true
+    },
     "LINE_SEND_ID": {
+      "required": true
+    },
+    "MY_SERVER_NAME": {
       "required": true
     },
     "NEW_RELIC_LICENSE_KEY": {
       "required": true
     },
     "NEW_RELIC_LOG": {
+      "required": true
+    },
+    "RAKUTEN_APP_ID": {
       "required": true
     },
     "PATH": {
@@ -55,6 +70,9 @@
       "required": true
     },
     "USER_TEST": {
+      "required": true
+    },
+    "USER_TEST2": {
       "required": true
     },
     "USER1": {
