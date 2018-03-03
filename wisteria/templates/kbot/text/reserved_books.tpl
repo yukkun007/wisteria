@@ -9,7 +9,7 @@
 　　　対象：0冊
 ───────────
 {%- endif -%}
-{% for book in books.list -%}
+{% for book in books.list %}
 􀁬{{ book.title }}
 {% if book.is_prepared == True %}􀁠{% elif book.is_dereverd == True %}􀁉{% else %}■{% endif %}状況：{{ book.status }}
 ■順位：{{ book.order }}
