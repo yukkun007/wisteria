@@ -35,6 +35,9 @@ class Books(object):
     def get(self, index):
         return self._books[index]
 
+    def slice(self, start, end):
+        return self.__class__(self._books[start:end])
+
 
 class BookFilter(object):
 

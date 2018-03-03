@@ -10,6 +10,7 @@ from kbot.views import __check_expired as check_expired
 from kbot.views import __show_reply_string as show_reply_string
 from kbot.views import __check_reserved_books as check_reserved_books
 from kbot.views import __search_book as search_book
+from kbot.views import __search_library_book as search_library_book
 from kbot.views import __search_book_by_isbn as search_book_by_isbn
 from kbot.kbot import KBot
 from kbot.library.rental_book import RentalBookFilter
@@ -59,3 +60,6 @@ class TestViews:
 
     def test_search_book_by_isbn(self):
         search_book_by_isbn(None, 'isbn:9784532280208')
+
+    def test_search_library_book(self):
+        search_library_book(None, 'ほ？あ')

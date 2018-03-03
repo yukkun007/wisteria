@@ -15,6 +15,8 @@ class HtmlPage(object):
         self.driver.get(url)
         # 待機
         WebDriverWait(self.driver, 10, poll_frequency=0.05).until(ec.presence_of_all_elements_located)
+        html = self.driver.page_source.encode('utf-8')
+        return html
 
     def fetch_login_page(self, login_url, user):
         self.__login(login_url, user)

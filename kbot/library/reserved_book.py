@@ -110,6 +110,7 @@ class ReservedBook(object):
         except ValueError:
             return 0
 
+    @staticmethod
     def make_finish_reserve_message_template(user_num):
         buttons_template = ButtonsTemplate(
             title='予約完了',

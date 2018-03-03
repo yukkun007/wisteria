@@ -4,7 +4,7 @@
 from bs4 import BeautifulSoup
 from kbot.library.rental_book import RentalBook, RentalBooks
 from kbot.library.reserved_book import ReservedBook, ReservedBooks
-from kbot.library.searched_book import SearchedBooks
+from kbot.library.searched_book import SearchedBook, SearchedBooks
 from kbot.log import Log
 
 
@@ -14,7 +14,7 @@ class HtmlParser(object):
     def get_searched_books(cls, html):
         soup = BeautifulSoup(html, 'html.parser')
 
-        table = HtmlParser.__get_table(soup, 'FormLEND')
+        table = HtmlParser.__get_table_by_attribute_value(soup, 'rules', 'none')
         if table is None:
             return SearchedBooks([])
 
@@ -26,6 +26,15 @@ class HtmlParser(object):
         Log.info('number of searched_books:{0}'.format(searched_books.len))
 
         return searched_books
+
+    @classmethod
+    def __get_searched_book(cls, tds):
+        title = tds[2].get_text().strip()
+        author = tds[3].get_text().strip()
+        publisher = tds[4].get_text().strip()
+        publish_date = tds[5].get_text().strip()
+        searched_book = SearchedBook(title, author, publisher, publish_date)
+        return searched_book
 
     @classmethod
     def get_rental_books(cls, html):
@@ -81,6 +90,18 @@ class HtmlParser(object):
     @classmethod
     def __get_table(cls, soup, id_string):
         table = soup.select("form[name='" + id_string + "'] > table[border]")
+
+        if len(table) <= 0:
+            Log.info('table not found.')
+            return None
+
+        return table
+
+    @classmethod
+    def __get_table_by_attribute_value(cls, soup, attribute, value):
+        css_selector = "table[" + attribute + "=\"" + value + "\"]"
+        print(css_selector)
+        table = soup.select(css_selector)
 
         if len(table) <= 0:
             Log.info('table not found.')
