@@ -1,6 +1,6 @@
 {%- if books.len > 0 %}
 ───────────
-{%- if books.filter_setting.is_type_none -%}
+{% if books.filter_setting.is_type_none -%}
 􀂏{{ books.user.name }}({{ books.user.id }})
 　　　貸出：{{ books.len }}冊
 {%- elif books.filter_setting.is_type_expired -%}
