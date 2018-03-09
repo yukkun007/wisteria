@@ -1,15 +1,14 @@
 language: python
 python:
-- 3.6
+  - 3.6
 before_install:
-- openssl aes-256-cbc -K $encrypted_b6099d0e7402_key -iv $encrypted_b6099d0e7402_iv
-  -in .env.enc -out wisteria/.env -d
+  - openssl aes-256-cbc -K $encrypted_b6099d0e7402_key -iv $encrypted_b6099d0e7402_iv -in .env.enc -out wisteria/.env -d
 install:
-- pip install -r requirements_dev.txt
+  - pip install -r requirements_dev.txt
 script:
-- py.test --cov-config .coveragerc --cov=kbot .
+  - py.test --cov-config .coveragerc --cov=kbot .
 after_success:
-- codecov
+  - codecov
 notifications:
   slack:
     secure: R0B6FLUM7xXnePVyC3WG31jAI8qrPL2SYYqg6WEuMsDML84o+GSuYxW4EHJwKU89aO+LgX6YgkO+tVvCxnMszqaanFkeCsNM5Ni/R13+Xor6wlLiE1ibFMRQMFEdrXqwxVlIGvKvxnsSfENZWA1ls/BGFgBhdqj0EIUEcyBt5I7D1ZEB1WfEL0fUD9uDXE52FM9ZOBl38xMghEMVcmZd6EIGXDYGuVU5lQkcPznYdiQSUdFXvxOBRbB9IjE7vr2+OZJ4SrJvcVW82J+hSRjZunLzP2LwiMsq7RNFrxrNjFIlbxZC/Z5Kgjjsy2W99uXvNXFThCHvWR2ChksuXmfy9iluu/zPLQN+2UDLF6LMUKdyleQU751CKeVQb5Dd1S7C0vbMSxQaJuCo35jwvGHnk641p/b/lFygsBvK7Lc4/AUK0Dp96H3pRaiABEo1enkOLRayT6GC/er20BPUeSbIdIDXVWiyYCTjVM2e3A5r2MCmuXNifXL3yR7jnZbN6SH8kmeQKqQqBDrBu/PYG6IZSPi9T6F2JBR/HCY53NXcqgHfL8yVG9kKhlxgdBHCUl882JIgqQLfNldejL0sNITpf/ifBfOKR+ZZ3QBhiQ1WmmsSdF/Use+A0DIUjBnAWxWL++/D9gsyTwTy7GUU4a+Z1xzHiZ+u5QS4070Tg+IRCIY=
