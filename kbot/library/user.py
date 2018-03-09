@@ -19,6 +19,9 @@ class Users(object):
     def list(self):
         return self._users
 
+    def get(self, index):
+        return self._users[index]
+
     def filter(self, user_filter):
         if user_filter == 'all':  # BookFilter.FILTER_USERS_ALL:
             return self

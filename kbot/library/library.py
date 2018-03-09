@@ -98,8 +98,9 @@ class Library(object):
         HtmlParser.set_rental_and_reserved_books(html, user)
 
     def reserve(self, user_num, book_id):
-        return HtmlPage.reserve(
+        html_page = HtmlPage()
+        return html_page.reserve(
             Library.LIBRALY_HOME_URL,
-            self.users.all[int(user_num)],
+            self.users.get(int(user_num)),
             Library.LIBRALY_BOOK_URL.format(book_id)
         )
