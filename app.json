@@ -45,6 +45,12 @@
     "LINE_SEND_GROUP_ID": {
       "required": true
     },
+    "LINE_CHANNEL_ACCESS_TOKEN_DEBUG": {
+      "required": true
+    },
+    "LINE_CHANNEL_SECRET_DEBUG": {
+      "required": true
+    },
     "LINE_SEND_GROUP_ID_DEBUG": {
       "required": true
     },

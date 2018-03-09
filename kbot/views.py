@@ -36,8 +36,14 @@ from linebot.models import ButtonsTemplate,\
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WISTERIA_DIR = os.path.join(BASE_DIR, 'wisteria')
 KBOT = KBot(WISTERIA_DIR)
-line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
-parser = WebhookParser(os.environ['LINE_CHANNEL_SECRET'])
+if os.environ.get('PRODUCTION') != 'True':
+    line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN_DEBUG'])
+    parser = WebhookParser(os.environ['LINE_CHANNEL_SECRET_DEBUG'])
+    line_tos = [os.environ['LINE_SEND_GROUP_ID_DEBUG']]
+else:
+    line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
+    parser = WebhookParser(os.environ['LINE_CHANNEL_SECRET'])
+    line_tos = [os.environ['LINE_SEND_GROUP_ID']]
 line = Line(line_bot_api)
 gmail = GMail()
 youtube = YouTube()
@@ -47,10 +53,6 @@ users = Users([User(os.environ['USER1']),
                User(os.environ['USER4'])])
 gmail_tos = [os.environ['GMAIL_SEND_ADDRESS1'],
              os.environ['GMAIL_SEND_ADDRESS2']]
-line_tos = [os.environ['LINE_SEND_GROUP_ID']]
-if os.environ.get('PRODUCTION') != 'True':
-    line_tos = [os.environ['LINE_SEND_GROUP_ID_DEBUG']]
-# line_tos = [os.environ['LINE_SEND_ID']]
 
 
 def library_check(request):
