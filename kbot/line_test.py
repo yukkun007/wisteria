@@ -20,7 +20,7 @@ class TestLine:
 
     @pytest.fixture()
     def line1(request):
-        line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
+        line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN_DEBUG'])
         line = Line(line_bot_api)
         return line
 
