@@ -1,9 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from kbot.views import __library_check as library_check
-from kbot.views import __library_check_reserve as library_check_reserve
-from kbot.views import __youtube_omoide as youtube_omoide
+from unittest.mock import patch, MagicMock
+from kbot.views import library_check, library_check_reserve, youtube_omoide, library_reserve
+from kbot.views import __library_check as inner_library_check
+from kbot.views import __library_check_reserve as inner_library_check_reserve
+from kbot.views import __youtube_omoide as inner_youtube_omoide
+from kbot.views import __library_reserve as inner_library_reserve
 from kbot.views import __check_rental_books as check_rental_books
 from kbot.views import __reply_command_menu as reply_command_menu
 from kbot.views import __reply_response_string as reply_response_string
@@ -21,14 +24,79 @@ class TestViews:
     def setup(self):
         KBot('wisteria')
 
-    def test_library_check(self):
-        library_check()
+    @classmethod
+    def __create_request_mock(cls, method):
+        request_mock = MagicMock()
+        request_mock.method = method
+        return request_mock
 
-    def test_library_check_reserve(self):
-        library_check_reserve()
+    @classmethod
+    def __library_check_sub(cls, method):
+        with patch('kbot.views.__library_check') as mock, \
+                patch('kbot.views.HttpResponse'):
+            library_check(TestViews.__create_request_mock(method))
+            if method == 'GET':
+                mock.assert_called_once()
 
-    def test_youtube_omoide(self):
-        youtube_omoide()
+    def test_library_check_get(self):
+        TestViews.__library_check_sub('GET')
+
+    def test_inner_library_check(self):
+        inner_library_check()
+
+    @classmethod
+    def __library_check_reserve_sub(cls, method):
+        with patch('kbot.views.__library_check_reserve') as mock, \
+                patch('kbot.views.HttpResponse'):
+            library_check_reserve(TestViews.__create_request_mock(method))
+            if method == 'GET':
+                mock.assert_called_once()
+
+    def test_library_check_reserve_get(self):
+        TestViews.__library_check_reserve_sub('GET')
+
+    def test_inner_library_check_reserve(self):
+        inner_library_check_reserve()
+
+    @classmethod
+    def __youtube_omoide_sub(cls, method):
+        with patch('kbot.views.__youtube_omoide') as mock, \
+                patch('kbot.views.HttpResponse'), \
+                patch('kbot.views.HttpResponseBadRequest'):
+            youtube_omoide(TestViews.__create_request_mock(method))
+            if method == 'GET':
+                mock.assert_called_once()
+
+    def test_youtube_omoide_get(self):
+        TestViews.__youtube_omoide_sub('GET')
+
+    def test_youtube_omoide_other(self):
+        TestViews.__youtube_omoide_sub('OTHER')
+
+    def test_inner_youtube_omoide(self):
+        inner_youtube_omoide()
+
+    @classmethod
+    def __library_reserve_sub(cls, method):
+        with patch('kbot.views.__library_reserve') as mock, \
+                patch('kbot.views.HttpResponse'):
+            request_mock = TestViews.__create_request_mock(method)
+            request_mock.GET.get.return_value = 'book_id:1111'
+            library_reserve(request_mock)
+            if method == 'GET':
+                mock.assert_called_once()
+
+    def test_library_reserve_get(self):
+        TestViews.__library_reserve_sub('GET')
+
+    def test_inner_library_reserve_success(self):
+        with patch('kbot.views.Library.reserve') as mock, \
+                patch('kbot.views.HttpResponseRedirect'):
+            inner_library_reserve('book_id:1111')
+            mock.assert_called_once()
+
+    def test_inner_library_reserve_fail(self):
+        inner_library_reserve(None)
 
     def test_check_rental_books(self):
         filter_setting = RentalBookFilter(users='all')
