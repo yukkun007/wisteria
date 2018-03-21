@@ -16,10 +16,11 @@ class RentalBookFilter(BookFilter):
     _FILTER_RENTAL_PERIOD_EXPIRED = 'expired'
     _FILTER_RENTAL_PERIOD_EXPIRE = 'expire'
 
-    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL, xdays=-1):
+    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL):
         super(RentalBookFilter, self).__init__(users=users)
         self._rental_period = RentalBookFilter._FILTER_RENTAL_PERIOD_NONE
-        self._xdays = xdays
+        self._books_class_name = 'RentalBooks'
+        self._xdays = 2
 
     @property
     def xdays(self):
@@ -43,15 +44,30 @@ class RentalBookFilter(BookFilter):
 
 
 class RentalBookExpiredFilter(RentalBookFilter):
-    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL, xdays=-1):
-        super(RentalBookExpiredFilter, self).__init__(users=users, xdays=xdays)
+    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL):
+        super(RentalBookExpiredFilter, self).__init__(users=users)
         self._rental_period = RentalBookFilter._FILTER_RENTAL_PERIOD_EXPIRED
 
 
 class RentalBookExpireFilter(RentalBookFilter):
-    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL, xdays=-1):
-        super(RentalBookExpireFilter, self).__init__(users=users, xdays=xdays)
+    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL, xdays='2'):
+        super(RentalBookExpireFilter, self).__init__(users=users)
         self._rental_period = RentalBookFilter._FILTER_RENTAL_PERIOD_EXPIRE
+        self._xdays = self.__convert_xdays(xdays)
+
+    def __convert_xdays(self, target):
+        default = 2
+
+        try:
+            return int(target)
+        except ValueError:
+            try:
+                index = target.find('日で延滞')
+                num_str = target[index - 1:index + 4]
+                num_str = num_str.replace('日で延滞', '')
+                return int(num_str)
+            except ValueError:
+                return default
 
 
 class RentalBooks(Books):
@@ -68,27 +84,57 @@ class RentalBooks(Books):
 
     def get_message(self, format='text'):
         message = ''
-        date_keyed_books_dict = RentalBooks.__get_date_keyed_books_dict(self._books)
+        date_keyed_books_dict = RentalBooks.__get_date_keyed_books_dict(self._list)
         data = {'books': self,
                 'date_keyed_books_dict': date_keyed_books_dict}
         message += Message.create(os.path.join(format,
                                                RentalBooks.TEMPLATE_RENTAL_BOOKS), data)
         return message
 
-    @classmethod
-    def get_filtered_books(cls, books, filter_setting):
-        books_list = books._books
+    def apply_filter(self, filter_setting):
+        # books_list = books._list
+        self._filter_setting = filter_setting
         if filter_setting.is_type_none:
-            return RentalBooks(RentalBooks.__sort(books_list), filter_setting)
+            self._list = RentalBooks.__sort(self._list)
+            # return RentalBooks(RentalBooks.__sort(books_list), filter_setting)
         elif filter_setting.is_type_expired:
             filterd_books = filter(
-                lambda book: book.is_expired(), books_list)
-            return RentalBooks(RentalBooks.__sort(filterd_books), filter_setting)
+                lambda book: book.is_expired(), self._list)
+            self._list = RentalBooks.__sort(filterd_books)
+            # return RentalBooks(RentalBooks.__sort(filterd_books), filter_setting)
         elif filter_setting.is_type_expire:
             filterd_books = filter(
                 lambda book: book.is_expire_in_xdays(
-                    filter_setting.xdays), books_list)
-            return RentalBooks(RentalBooks.__sort(filterd_books), filter_setting)
+                    filter_setting.xdays), self._list)
+            self._list = RentalBooks.__sort(filterd_books)
+            # return RentalBooks(RentalBooks.__sort(filterd_books), filter_setting)
+
+    def create_and_append(self, data):
+        no = data[0].string.strip()
+        # タイトル
+        title = data[2].get_text().strip()
+        # 返却期限日
+        expire_date = data[7].get_text().strip()
+        # 貸出更新
+        can_extend_period = RentalBooks.__can_extend_period(
+            data[1].get_text().strip())
+        # 更新ボタンの名前
+        extend_period_button_name = 'L(' + no + ')'
+
+        rental_book = RentalBook(
+            title,
+            expire_date,
+            can_extend_period,
+            extend_period_button_name
+        )
+
+        self.append(rental_book)
+
+    @classmethod
+    def __can_extend_period(cls, text):
+        if '更新' in text:
+            return False
+        return True
 
     @classmethod
     def __sort(cls, books_list):

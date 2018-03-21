@@ -1,12 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import pytest
 from unittest.mock import patch, MagicMock
-from kbot.views import library_check, library_check_reserve, youtube_omoide, library_reserve
+from kbot.views import library_check, library_check_reserve, youtube_omoide, library_reserve, _handler_maps
 from kbot.views import __library_check as inner_library_check
 from kbot.views import __library_check_reserve as inner_library_check_reserve
 from kbot.views import __youtube_omoide as inner_youtube_omoide
 from kbot.views import __library_reserve as inner_library_reserve
+from kbot.views import __get_rental_book_filter_of_user_specify as inner_get_rental_book_filter_of_user_specify
+from kbot.views import __get_rental_book_expire_filter as inner_get_rental_book_expire_filter
+from kbot.views import __call_handler as inner_call_handler
+from kbot.views import __handle_text_event as inner_handle_text_event
 from kbot.views import __check_rental_books as check_rental_books
 from kbot.views import __reply_command_menu as reply_command_menu
 from kbot.views import __reply_response_string as reply_response_string
@@ -97,6 +102,70 @@ class TestViews:
 
     def test_inner_library_reserve_fail(self):
         inner_library_reserve(None)
+
+    def test_inner_get_rental_book_filter_of_user_specify(self):
+        filter = inner_get_rental_book_filter_of_user_specify('図書？test')
+        assert isinstance(filter, RentalBookFilter)
+
+    def test_inner_get_rental_book_expire_filter(self):
+        filter = inner_get_rental_book_expire_filter('hoge')
+        assert isinstance(filter, RentalBookExpireFilter)
+
+    @pytest.mark.parametrize('filter, filter_param, param', [
+        (MagicMock(), True, True),
+        (MagicMock(), False, True),
+        (MagicMock(), True, True),
+        (MagicMock(), True, False),
+    ])
+    def test_inner_call_handler(self, filter, filter_param, param):
+        event = MagicMock()
+        event.message.text = 'message'
+        handler = MagicMock()
+        filter_return = MagicMock()
+        filter.return_value = filter_return
+        handler_map = {
+            'handler': handler,
+            'filter': filter,
+            'filter_param': filter_param,
+            'param': param}
+        inner_call_handler(event, handler_map)
+        if filter is not None:
+            handler.assert_called_once_with(event, filter_return)
+        else:
+            if param:
+                handler.assert_called_once_with(event, param)
+            else:
+                handler.assert_called_once_with(event)
+
+    def test_inner_handle_text_event(self):
+        event = MagicMock()
+        event.message.text = 'message_test'
+        handler_map1 = {'keywords': ['hoge', 'message']}
+        handler_map2 = {'keywords': ['hoge', 'message']}
+        handler_maps = [handler_map1, handler_map2]
+        with patch('kbot.views.__call_handler') as mock:
+            inner_handle_text_event(event, handler_maps)
+            mock.assert_called_once()
+
+    @pytest.mark.parametrize('event_text', [
+        ('図書？'),
+        ('図書館'),
+        ('2日で延滞'),
+        ('延滞'),
+        ('予約'),
+        ('予約？'),
+        ('文字'),
+        ('本？'),
+        ('著？'),
+        ('ほ？'),
+        ('コマンド'),
+    ])
+    def test_inner_handle_text_event_all(self, event_text):
+        event = MagicMock()
+        event.message.text = event_text
+        with patch('kbot.views.__call_handler') as mock:
+            inner_handle_text_event(event, _handler_maps)
+            mock.assert_called_once()
 
     def test_check_rental_books(self):
         filter_setting = RentalBookFilter(users='all')

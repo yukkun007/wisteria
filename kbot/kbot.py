@@ -100,16 +100,6 @@ class KBot(object):
             return True
         return False
 
-    def get_xdays(self, text):
-        default = 2
-        index = text.find('日で延滞')
-        num_str = text[index - 1:index + 4]
-        num_str = num_str.replace('日で延滞', '')
-        try:
-            return int(num_str)
-        except ValueError:
-            return default
-
     def get_reply_string(self):
         message = '''次の言葉に反応します。
 

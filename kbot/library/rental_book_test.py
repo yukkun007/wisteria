@@ -3,16 +3,23 @@
 
 import pytest
 from datetime import date, timedelta
-from kbot.library.rental_book import RentalBookFilter, RentalBookExpireFilter, RentalBookExpiredFilter, \
+from kbot.library.rental_book import RentalBookExpireFilter, RentalBookExpiredFilter, \
     RentalBook, RentalBooks
 
 
-class TestRentalBookFilter:
+class TestRentalBookExpireFilter:
 
-    def test_xdays_setter(self):
-        book_filter = RentalBookFilter()
+    @pytest.fixture()
+    def filter1(request):
+        return RentalBookExpireFilter()
+
+    def test_xdays_setter(self, filter1):
         with pytest.raises(ValueError):
-            book_filter.xdays = 1
+            filter1.xdays = 1
+
+    def test_convert_xdays(self, filter1):
+        value = filter1._RentalBookExpireFilter__convert_xdays('2日')
+        assert value == 2
 
 
 class TestRentalBooks:
@@ -29,7 +36,7 @@ class TestRentalBooks:
         books.append(book)
         books.append(RentalBook('test2', '9999/01/02', True, 'hoge'))
         books.append(RentalBook('test3', '9999/01/07', True, 'hoge'))
-        books = RentalBooks.get_filtered_books(books, RentalBookExpiredFilter())
+        books.apply_filter(RentalBookExpiredFilter())
         assert books.len == 1
         assert books.get(0) == book  # メモリ比較
 
@@ -39,7 +46,7 @@ class TestRentalBooks:
         books.append(book)
         books.append(RentalBook('test2', '2017/01/03', True, 'hoge'))
         books.append(RentalBook('test3', '2017/01/05', True, 'hoge'))
-        books = RentalBooks.get_filtered_books(books, RentalBookExpireFilter(xdays=5))
+        books.apply_filter(RentalBookExpireFilter(xdays='5'))
         assert books.len == 3
         assert books.get(0) == book  # メモリ比較
 
@@ -49,7 +56,7 @@ class TestRentalBooks:
         books.append(RentalBook('test1', '2017/01/03', True, 'hoge'))
         book = RentalBook('test1', '2017/01/02', True, 'hoge')
         books.append(book)
-        books = RentalBooks.get_filtered_books(books, RentalBookExpireFilter(xdays=5))
+        books.apply_filter(RentalBookExpireFilter(xdays='5'))
         assert books.len == 3
         assert books.get(0) == book  # メモリ比較
 
