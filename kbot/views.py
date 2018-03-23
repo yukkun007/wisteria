@@ -146,21 +146,13 @@ def __get_rental_book_expire_filter(text):
 
 
 def __call_handler(event, handler_map):
-    param = handler_map.get('param')
-    filter = handler_map.get('filter')
-    filter_param = handler_map.get('filter_param')
     handler = handler_map.get('handler')
+    filter = handler_map.get('filter')
     text = event.message.text
     if filter is not None:
-        if filter_param:
-            handler(event, filter(text))
-        else:
-            handler(event, filter())
+        handler(event, filter(text))
     else:
-        if param:
-            handler(event, param)
-        else:
-            handler(event)
+        handler(event, text=text)
 
 
 def __handle_text_event(event, handler_maps):
@@ -171,16 +163,20 @@ def __handle_text_event(event, handler_maps):
     # if isinstance(event.source, SourceGroup):
     #     Log.info('groupId' + event.source.group_id)
 
-    try:
-        for handler_map in handler_maps:
-            keywords = handler_map.get('keywords')
-            for keyword in keywords:
-                text = event.message.text
-                if keyword in text:
-                    __call_handler(event, handler_map)
-                    return
-    except Exception as e:
-        Log.logging_exception(e)
+    text = event.message.text
+    maps = list(filter(lambda map: map['keyword'] in text, handler_maps))
+    __call_handler(event, maps[0])
+
+    # try:
+    #     for handler_map in handler_maps:
+    #         keywords = handler_map.get('keywords')
+    #         for keyword in keywords:
+    #             text = event.message.text
+    #             if keyword in text:
+    #                 __call_handler(event, handler_map)
+    #                 return
+    # except Exception as e:
+    #     Log.logging_exception(e)
 
     # TODO:
     # elif KBOT.is_user_reserve_check_command(text):
@@ -272,21 +268,21 @@ def __check_rental_and_reserved_books(event, rental_filter, reserved_filter):
             line.my_reply_message(message, event)
 
 
-def __search_book(event, text):
+def __search_book(event, text=None):
     query = BookSearchQuery.get_from(text)
     books = RakutenBooksService.search_books(query)
     message = books.slice(0, 5).get_books_select_line_carousel_mseeage()
     line.my_reply_message(message, event)
 
 
-def __search_library_book(event, text):
+def __search_library_book(event, text=None):
     query = BookSearchQuery.get_from(text)
     books = Library.search_books(query)
     message = books.slice(0, 50).get_message()
     line.my_reply_message(message, event)
 
 
-def __search_book_by_isbn(event, text):
+def __search_book_by_isbn(event, text=None):
     # calilで検索
     query = BookSearchQuery.get_from(text)
     calil_book = CalilService.get_one_book(query)
@@ -300,37 +296,35 @@ def __search_book_by_isbn(event, text):
 
 
 _handler_maps = [
-    {'keywords': ['図書？'],
+    {'keyword': '図書？',
      'filter': __get_rental_book_filter_of_user_specify,
      'filter_param': True,
      'handler': __check_rental_books},
-    {'keywords': ['図書館'],
+    {'keyword': '図書館',
      'filter': lambda: RentalBookFilter(users='all'),
      'handler': __check_rental_books},
-    {'keywords': ['日で延滞'],
+    {'keyword': '日で延滞',
      'filter': __get_rental_book_expire_filter,
      'filter_param': True,
      'handler': __check_rental_books},
-    {'keywords': ['延滞'],
+    {'keyword': '延滞',
      'filter': lambda: RentalBookExpiredFilter(),
      'handler': __check_rental_books},
 
-    {'keywords': ['予約'],
+    {'keyword': '予約',
      'filter': lambda: ReservedBookFilter(users='all'),
      'handler': __check_reserved_books},
-    {'keywords': ['予約？'],
+    {'keyword': '予約？',
      'param': lambda: ReservedBookFilter(users='all'),
      'handler': __check_rental_and_reserved_books},
 
-    {'keywords': ['本？', '著？'],
-     'param': True,
+    {'keyword': '本？',
      'handler': __search_book},
-    {'keywords': ['ほ？'],
-     'param': True,
+    {'keyword': 'ほ？',
      'handler': __search_library_book},
 
-    {'keywords': ['文字'],
+    {'keyword': '文字',
      'handler': __reply_response_string},
-    {'keywords': ['コマンド'],
+    {'keyword': 'コマンド',
      'handler': __reply_command_menu},
 ]

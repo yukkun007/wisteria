@@ -140,8 +140,8 @@ class TestViews:
     def test_inner_handle_text_event(self):
         event = MagicMock()
         event.message.text = 'message_test'
-        handler_map1 = {'keywords': ['hoge', 'message']}
-        handler_map2 = {'keywords': ['hoge', 'message']}
+        handler_map1 = {'keyword': 'message'}
+        handler_map2 = {'keyword': 'message'}
         handler_maps = [handler_map1, handler_map2]
         with patch('kbot.views.__call_handler') as mock:
             inner_handle_text_event(event, handler_maps)
@@ -154,10 +154,9 @@ class TestViews:
         ('延滞'),
         ('予約'),
         ('予約？'),
-        ('文字'),
         ('本？'),
-        ('著？'),
         ('ほ？'),
+        ('文字'),
         ('コマンド'),
     ])
     def test_inner_handle_text_event_all(self, event_text):
@@ -194,10 +193,10 @@ class TestViews:
         check_reserved_books(None, filter_setting)
 
     def test_search_book_title(self):
-        search_book(None, '本？坊っちゃん')
+        search_book(None, text='本？坊っちゃん')
 
     def test_search_book_author(self):
-        search_book(None, '著？夏目漱石')
+        search_book(None, text='著？夏目漱石')
 
     def test_search_book_by_isbn(self):
         search_book_by_isbn(None, 'isbn:9784532280208')
