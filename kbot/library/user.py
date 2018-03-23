@@ -111,12 +111,18 @@ class User(object):
         self.rental_books = None
         self.reserved_books = None
 
-    def set_rental_books(self, rental_books):
+    def set_books(self, books_class_name, books):
+        if books_class_name == 'RentalBooks':
+            self.__set_rental_books(books)
+        elif books_class_name == 'ReservedBooks':
+            self.__set_reserved_books(books)
+
+    def __set_rental_books(self, rental_books):
         rental_books.user = self
         self.rental_books = rental_books
         self.rental_books_count = rental_books.len
 
-    def set_reserved_books(self, reserved_books):
+    def __set_reserved_books(self, reserved_books):
         reserved_books.user = self
         self.reserved_books = reserved_books
         self.reserved_books_count = reserved_books.len

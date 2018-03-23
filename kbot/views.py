@@ -26,7 +26,6 @@ from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import ButtonsTemplate,\
     URITemplateAction,\
-    MessageEvent,\
     PostbackEvent
 
 
@@ -62,7 +61,7 @@ def library_check(request):
 def __library_check():
     Log.info('GET! library_check')
 
-    xdays = 2
+    xdays = '2'
     library = Library(users)
     filter_setting = RentalBookExpireFilter(xdays=xdays)
     target_users = library.check_rental_books(filter_setting)
@@ -142,27 +141,21 @@ def __get_rental_book_filter_of_user_specify(text):
     return RentalBookFilter(users=user_num)
 
 
-def __get_rental_book_filter(text):
-    return RentalBookFilter(users='all')
-
-
 def __get_rental_book_expire_filter(text):
-    xdays = KBOT.get_xdays(text)
-    return RentalBookExpireFilter(xdays=xdays)
+    return RentalBookExpireFilter(xdays=text)
 
 
-def __get_rental_book_expired_filter(text):
-    return RentalBookExpiredFilter()
+def __call_handler(event, handler_map):
+    handler = handler_map.get('handler')
+    filter = handler_map.get('filter')
+    text = event.message.text
+    if filter is not None:
+        handler(event, filter(text))
+    else:
+        handler(event, text=text)
 
 
-def __get_reserved_book_filter(text):
-    return ReservedBookFilter(users='all')
-
-
-def __handle_text_event(event):
-    if not isinstance(event, MessageEvent):
-        return
-
+def __handle_text_event(event, handler_maps):
     # for debug
     #
     # if isinstance(event.source, SourceUser):
@@ -170,87 +163,27 @@ def __handle_text_event(event):
     # if isinstance(event.source, SourceGroup):
     #     Log.info('groupId' + event.source.group_id)
 
-    handler_maps = [
-        {'keywords': ['図書？'],
-         'filter': __get_rental_book_filter_of_user_specify,
-         'handler': __check_rental_books},
-        {'keywords': ['図書館'],
-         'filter': __get_rental_book_filter,
-         'handler': __check_rental_books},
-        {'keywords': ['日で延滞'],
-         'filter': __get_rental_book_expire_filter,
-         'handler': __check_rental_books},
-        {'keywords': ['延滞'],
-         'filter': __get_rental_book_expired_filter,
-         'handler': __check_rental_books},
-
-        {'keywords': ['予約'],
-         'filter': __get_reserved_book_filter,
-         'handler': __check_reserved_books},
-        {'keywords': ['予約？'],
-         'filter': __get_reserved_book_filter,
-         'handler': __check_rental_and_reserved_books},
-
-        {'keywords': ['文字'],
-         'handler': __reply_response_string},
-        {'keywords': ['コマンド'],
-         'handler': __reply_command_menu},
-    ]
-
     text = event.message.text
+    maps = list(filter(lambda map: map['keyword'] in text, handler_maps))
+    __call_handler(event, maps[0])
 
-    for handler_map in handler_maps:
-        keywords = handler_map.keywords
+    # try:
+    #     for handler_map in handler_maps:
+    #         keywords = handler_map.get('keywords')
+    #         for keyword in keywords:
+    #             text = event.message.text
+    #             if keyword in text:
+    #                 __call_handler(event, handler_map)
+    #                 return
+    # except Exception as e:
+    #     Log.logging_exception(e)
 
-        for keyword in keywords:
-            if keyword in text:
-                filter = handler_map.filter
-                handler = handler_map.handler
-                if filter is not None:
-                    handler(event, filter(text))
-                else:
-                    handler(event)
-                break
-
-    if KBOT.is_search_book_command(text):
-        __search_book(event, text)
-
-    elif KBOT.is_search_library_book_command(text):
-        __search_library_book(event, text)
-
-    elif KBOT.is_user_reserve_check_command(text):
-        user_num = users.get_user_num(text)
-        rental_filter = RentalBookFilter(users=user_num)
-        reserved_filter = ReservedBookFilter(users=user_num)
-        __check_rental_and_reserved_books(event, rental_filter, reserved_filter)
-
-    # elif KBOT.is_reserve_check_command(text):
-    #     filter_setting = ReservedBookFilter(users='all')
-    #     __check_reserved_books(event, filter_setting)
-    #
-    # elif KBOT.is_user_rental_check_command(text):
+    # TODO:
+    # elif KBOT.is_user_reserve_check_command(text):
     #     user_num = users.get_user_num(text)
-    #     filter_setting = RentalBookFilter(users=user_num)
-    #     __check_rental_books(event, filter_setting)
-    #
-    # elif KBOT.is_rental_check_command(text):
-    #     filter_setting = RentalBookFilter(users='all')
-    #     __check_rental_books(event, filter_setting)
-    #
-    # elif KBOT.is_expire_check_command(text):
-    #     xdays = KBOT.get_xdays(text)
-    #     filter_setting = RentalBookExpireFilter(xdays=xdays)
-    #     __check_rental_books(event, filter_setting)
-    #
-    # elif KBOT.is_expired_check_command(text):
-    #     filter_setting = RentalBookExpiredFilter()
-    #     __check_rental_books(event, filter_setting)
-
-    # elif KBOT.is_reply_string_show_command(text):
-    #     __show_reply_string(event)
-    # else:
-    #     template = KBOT.get_kbot_command_menu()
-    #     line.my_reply_message(template, event)
+    #     rental_filter = RentalBookFilter(users=user_num)
+    #     reserved_filter = ReservedBookFilter(users=user_num)
+    #     __check_rental_and_reserved_books(event, rental_filter, reserved_filter)
 
 
 def __handle_postback_event(event):
@@ -267,10 +200,10 @@ def __handle_postback_event(event):
         __check_rental_and_reserved_books(event, rental_filter, reserved_filter)
 
 
-def __handle_events(events):
+def __handle_events(events, handler_maps):
     for event in events:
         __handle_postback_event(event)
-        __handle_text_event(event)
+        __handle_text_event(event, handler_maps)
 
 
 @csrf_exempt
@@ -283,7 +216,7 @@ def callback(request):
             body = request.body.decode('utf-8')
             events = parser.parse(body, signature)
 
-            __handle_events(events)
+            __handle_events(events, _handler_maps)
 
         except InvalidSignatureError as e:
             Log.logging_exception(e)
@@ -314,8 +247,8 @@ def __check_reserved_books(event, filter_setting):
 
 
 def __reply_command_menu(event):
-        template = KBOT.get_kbot_command_menu()
-        line.my_reply_message(template, event)
+    template = KBOT.get_kbot_command_menu()
+    line.my_reply_message(template, event)
 
 
 def __reply_response_string(event):
@@ -335,21 +268,21 @@ def __check_rental_and_reserved_books(event, rental_filter, reserved_filter):
             line.my_reply_message(message, event)
 
 
-def __search_book(event, text):
+def __search_book(event, text=None):
     query = BookSearchQuery.get_from(text)
     books = RakutenBooksService.search_books(query)
     message = books.slice(0, 5).get_books_select_line_carousel_mseeage()
     line.my_reply_message(message, event)
 
 
-def __search_library_book(event, text):
+def __search_library_book(event, text=None):
     query = BookSearchQuery.get_from(text)
     books = Library.search_books(query)
     message = books.slice(0, 50).get_message()
     line.my_reply_message(message, event)
 
 
-def __search_book_by_isbn(event, text):
+def __search_book_by_isbn(event, text=None):
     # calilで検索
     query = BookSearchQuery.get_from(text)
     calil_book = CalilService.get_one_book(query)
@@ -360,3 +293,38 @@ def __search_book_by_isbn(event, text):
     # メッセージ作成
     message = rakuten_book.get_text_message() + calil_book.get_text_message()
     line.my_reply_message(message, event)
+
+
+_handler_maps = [
+    {'keyword': '図書？',
+     'filter': __get_rental_book_filter_of_user_specify,
+     'filter_param': True,
+     'handler': __check_rental_books},
+    {'keyword': '図書館',
+     'filter': lambda: RentalBookFilter(users='all'),
+     'handler': __check_rental_books},
+    {'keyword': '日で延滞',
+     'filter': __get_rental_book_expire_filter,
+     'filter_param': True,
+     'handler': __check_rental_books},
+    {'keyword': '延滞',
+     'filter': lambda: RentalBookExpiredFilter(),
+     'handler': __check_rental_books},
+
+    {'keyword': '予約',
+     'filter': lambda: ReservedBookFilter(users='all'),
+     'handler': __check_reserved_books},
+    {'keyword': '予約？',
+     'param': lambda: ReservedBookFilter(users='all'),
+     'handler': __check_rental_and_reserved_books},
+
+    {'keyword': '本？',
+     'handler': __search_book},
+    {'keyword': 'ほ？',
+     'handler': __search_library_book},
+
+    {'keyword': '文字',
+     'handler': __reply_response_string},
+    {'keyword': 'コマンド',
+     'handler': __reply_command_menu},
+]

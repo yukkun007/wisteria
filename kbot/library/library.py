@@ -7,6 +7,7 @@ from kbot.library.html_parser import HtmlParser
 from kbot.log import Log
 from kbot.library.rental_book import RentalBooks
 from kbot.library.reserved_book import ReservedBooks
+from kbot.library.searched_book import SearchedBooks
 
 
 class Library(object):
@@ -29,73 +30,47 @@ class Library(object):
         print(Library.LIBRALY_SEARCH_URL + hoge)
         html = html_page.fetch_search_result_page(Library.LIBRALY_SEARCH_URL + hoge)
         print(html)
-        books = HtmlParser.get_searched_books(html)
+        books = HtmlParser.get_books(html, SearchedBooks([]))
         html_page.release_resource()
         return books
 
-    def check_rental_books(self, filter_setting):
+    @classmethod
+    def __create_empty_books(cls, books_class_name):
+        if books_class_name in {'RentalBooks'}:
+            return RentalBooks([])
+        elif books_class_name == 'ReservedBooks':
+            return ReservedBooks([])
+        elif books_class_name == 'SearchedBooks':
+            return SearchedBooks([])
+
+    def __check_books(self, book_filters):
         html_page = HtmlPage()
 
-        target_users = self.users.filter(filter_setting.users)
+        first_book_filter = book_filters[0]
+        target_users = self.users.filter(first_book_filter.users)
         for user in target_users.list:
             Log.info(user.name)
-            rental_books = self.__get_rental_books(html_page, user)
-            filterd_rental_books = RentalBooks.get_filtered_books(
-                rental_books,
-                filter_setting)
-            user.set_rental_books(filterd_rental_books)
+
+            html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
+
+            for book_filter in book_filters:
+                empty_books = Library.__create_empty_books(book_filter.books_class_name)
+                books = HtmlParser.get_books(html, empty_books)
+                books.apply_filter(book_filter)
+                user.set_books(book_filter.books_class_name, books)
 
         html_page.release_resource()
 
         return target_users
-
-    def __get_rental_books(self, html_page, user):
-        html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
-        books = HtmlParser.get_rental_books(html)
-        return books
-
-    def check_reserved_books(self, filter_setting):
-        html_page = HtmlPage()
-
-        target_users = self.users.filter(filter_setting.users)
-        for user in target_users.list:
-            Log.info(user.name)
-            reserved_books = self.__get_reserved_books(html_page, user)
-            filterd_reserved_books = ReservedBooks.get_filtered_books(
-                reserved_books,
-                filter_setting)
-            user.set_reserved_books(filterd_reserved_books)
-
-        html_page.release_resource()
-
-        return target_users
-
-    def __get_reserved_books(self, html_page, user):
-        html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
-        reserved_books = HtmlParser.get_reserved_books(html)
-        return reserved_books
 
     def check_rental_and_reserved_books(self, rental_filter, reserved_filter):
-        html_page = HtmlPage()
+        return self.__check_books([rental_filter, reserved_filter])
 
-        target_users = self.users.filter(rental_filter.users)
-        for user in target_users.list:
-            Log.info(user.name)
-            self.__set_rental_and_reserved_books(html_page, user)
-            user.set_rental_books(RentalBooks.get_filtered_books(
-                user.rental_books,
-                rental_filter))
-            user.set_reserved_books(ReservedBooks.get_filtered_books(
-                user.reserved_books,
-                reserved_filter))
+    def check_rental_books(self, filter_setting):
+        return self.__check_books([filter_setting])
 
-        html_page.release_resource()
-
-        return target_users
-
-    def __set_rental_and_reserved_books(self, html_page, user):
-        html = html_page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
-        HtmlParser.set_rental_and_reserved_books(html, user)
+    def check_reserved_books(self, filter_setting):
+        return self.__check_books([filter_setting])
 
     def reserve(self, user_num, book_id):
         html_page = HtmlPage()

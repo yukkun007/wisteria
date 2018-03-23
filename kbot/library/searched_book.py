@@ -22,6 +22,14 @@ class SearchedBooks(Books):
 
         return message
 
+    def create_and_append(self, data):
+        title = data[2].get_text().strip()
+        author = data[3].get_text().strip()
+        publisher = data[4].get_text().strip()
+        publish_date = data[5].get_text().strip()
+        searched_book = SearchedBook(title, author, publisher, publish_date)
+        self.append(searched_book)
+
 
 class SearchedBook(object):
 

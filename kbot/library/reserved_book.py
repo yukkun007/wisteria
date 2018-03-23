@@ -17,6 +17,7 @@ class ReservedBookFilter(BookFilter):
     def __init__(self, *, users=BookFilter.FILTER_USERS_ALL):
         super(ReservedBookFilter, self).__init__(users=users)
         self._prepared = ReservedBookFilter._FILTER_RESERVED_PREPARED_NONE
+        self._books_class_name = 'ReservedBooks'
 
     @property
     def almost_prepared(self):
@@ -37,6 +38,24 @@ class ReservedBooks(Books):
     def __init__(self, source):
         super(ReservedBooks, self).__init__(source)
 
+    def create_and_append(self, data):
+        status = data[1].get_text().strip()
+        order = data[2].get_text().strip()
+        title = data[3].get_text().strip()
+        kind = data[4].get_text().strip()
+        yoyaku_date = data[6].get_text().strip()
+        torioki_date = data[7].get_text().strip()
+
+        reserved_book = ReservedBook(
+            status,
+            order,
+            title,
+            kind,
+            yoyaku_date,
+            torioki_date)
+
+        self.append(reserved_book)
+
     def get_message(self, format='text'):
         message = ''
         data = {'books': self,
@@ -47,20 +66,21 @@ class ReservedBooks(Books):
         return message
 
     def is_prepared_reserved_book(self):
-        for book in self._books:
+        for book in self._list:
             if book.status == 'ご用意できました':
                 return True
         return False
 
-    @classmethod
-    def get_filtered_books(cls, books, filter_setting):
-        books_list = books._books
+    def apply_filter(self, filter_setting):
+        # books_list = books._list
         if filter_setting.almost_prepared:
             filterd_books = filter(
-                lambda book: book.is_prepared or book.is_dereverd, books_list)
-            return ReservedBooks(ReservedBooks.__sort(filterd_books))
+                lambda book: book.is_prepared or book.is_dereverd, self._list)
+            self._list = ReservedBooks.__sort(filterd_books)
+            # return ReservedBooks(ReservedBooks.__sort(filterd_books))
         else:
-            return ReservedBooks(ReservedBooks.__sort(books_list))
+            self._list = ReservedBooks.__sort(self._list)
+            # return ReservedBooks(ReservedBooks.__sort(books_list))
 
     @classmethod
     def __sort(cls, books_list):

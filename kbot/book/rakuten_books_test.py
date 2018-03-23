@@ -15,30 +15,26 @@ class TestRakutenBooksService:
     def setup(self):
         KBot('wisteria')
 
-    @patch('kbot.book.rakuten_books.RakutenBooksService._RakutenBooksService__request')
-    def test_get_one_book(self, mock_method):
-        json_str = '''
+    @pytest.mark.parametrize('json_str, title', [
+        (
+            '''
             { "Items": [
                     {"Item": {"title": "hoge"}},
                     {"Item": {"title": "hogehoge"}}]
             }
-        '''
-        mock_method.return_value = json.loads(json_str)
-
-        query = BookSearchQuery()
-        rakuten_book = RakutenBooksService.get_one_book(query)
-
-        assert mock_method.called
-        assert rakuten_book.title == 'hoge'
-
+            ''', 'hoge'
+        ),
+        (
+            '{ "Items": []}', ''
+        ),
+    ])
     @patch('kbot.book.rakuten_books.RakutenBooksService._RakutenBooksService__request')
-    def test_get_one_book_empty(self, mock_method):
-        json_str = '{ "Items": []}'
+    def test_get_one_book(self, mock_method, json_str, title):
         mock_method.return_value = json.loads(json_str)
         query = BookSearchQuery()
         rakuten_book = RakutenBooksService.get_one_book(query)
         assert mock_method.called
-        assert rakuten_book.author == ''
+        assert rakuten_book.title == title
 
     def test_search_books(self):
         query = BookSearchQuery()
@@ -108,13 +104,13 @@ class TestRakutenBooks:
         with pytest.raises(RuntimeError):
             RakutenBooks('hoge')
 
-    def test_slice(self, books1):
-        rakuten_book = books1.slice(0, 0)
-        assert rakuten_book.length() == 0
-
-    def test_slice_one(self, books1):
-        rakuten_book = books1.slice(0, 1)
-        assert rakuten_book.length() == 1
+    @pytest.mark.parametrize('index, length', [
+        (0, 0),
+        (1, 1),
+    ])
+    def test_slice(self, books1, index, length):
+        rakuten_book = books1.slice(0, index)
+        assert rakuten_book.length() == length
 
     def test_get(self, books1):
         book = books1.get(0)

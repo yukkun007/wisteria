@@ -24,10 +24,6 @@ class TestKBot:
     def test_kbot_commnad_menu(self, kbot1):
         kbot1.get_kbot_command_menu()
 
-    def test_get_xdays(self, kbot1):
-        value = kbot1.get_xdays('2日')
-        assert value == 2
-
     def test_is_user_reserve_check_command(self, kbot1):
         assert kbot1.is_user_reserve_check_command('予約？hoge') is True
 
