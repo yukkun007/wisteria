@@ -77,7 +77,7 @@ class RakutenBooks(object):
     def get(self, index):
         return self.rakuten_books[index]
 
-    def get_books_select_line_carousel_mseeage(self):
+    def get_message(self):
 
         if self.length() == 0:
             return '見つかりませんでした。。'

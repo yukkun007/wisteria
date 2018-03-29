@@ -52,34 +52,34 @@ gmail_tos = [os.environ['GMAIL_SEND_ADDRESS1'],
              os.environ['GMAIL_SEND_ADDRESS2']]
 
 
-def library_check(request):
+def check_rental_state(request):
     if request.method == 'GET':
-        __library_check()
-        return HttpResponse('done! library_check')
+        __check_rental_state()
+        return HttpResponse('done! check_rental_status')
 
 
-def __library_check():
+def __check_rental_state():
     Log.info('GET! library_check')
 
     xdays = '2'
     library = Library(users)
-    filter_setting = RentalBookExpireFilter(xdays=xdays)
-    target_users = library.check_rental_books(filter_setting)
+    config = RentalBookExpireFilter(xdays=xdays)
+    target_users = library.check_books(config)
     if target_users.is_rental_books_exist():
-        line.my_push_message(target_users.get_rental_books_text_message(), line_tos)
+        line.my_push_message(target_users.get_check_books_text_message(config.books_class_name), line_tos)
         gmail.send_message_multi(
             gmail_tos,
             '図書館の本返却お願いします！',
-            target_users.get_rental_books_html_message())
+            target_users.get_check_books_html_message(config.books_class_name))
 
 
-def library_check_reserve(request):
+def check_reserve_state(request):
     if request.method == 'GET':
-        __library_check_reserve()
-        return HttpResponse('done! library_check_reserve')
+        __check_reserve_state()
+        return HttpResponse('done! check_reserve_status')
 
 
-def __library_check_reserve():
+def __check_reserve_state():
     Log.info('GET! library_check_reserve')
     rental_filter = RentalBookFilter(users='all')
     reserved_filter = ReservedBookPreparedFilter(users='all')
@@ -136,6 +136,11 @@ def __youtube_omoide():
     line.my_push_message(buttons_template, line_tos)
 
 
+def __get_reserved_book_filter_of_user_specify(text):
+    user_num = users.get_user_num(text)
+    return ReservedBookFilter(users=user_num)
+
+
 def __get_rental_book_filter_of_user_specify(text):
     user_num = users.get_user_num(text)
     return RentalBookFilter(users=user_num)
@@ -148,11 +153,14 @@ def __get_rental_book_expire_filter(text):
 def __call_handler(event, handler_map):
     handler = handler_map.get('handler')
     filter = handler_map.get('filter')
+    filter2 = handler_map.get('filter2')
     text = event.message.text
-    if filter is not None:
-        handler(event, filter(text))
-    else:
+    if filter is None:
         handler(event, text=text)
+    elif filter is not None and filter2 is not None:
+        handler(event, filter(text), filter2(text))
+    else:
+        handler(event, filter(text))
 
 
 def __handle_text_event(event, handler_maps):
@@ -166,24 +174,6 @@ def __handle_text_event(event, handler_maps):
     text = event.message.text
     maps = list(filter(lambda map: map['keyword'] in text, handler_maps))
     __call_handler(event, maps[0])
-
-    # try:
-    #     for handler_map in handler_maps:
-    #         keywords = handler_map.get('keywords')
-    #         for keyword in keywords:
-    #             text = event.message.text
-    #             if keyword in text:
-    #                 __call_handler(event, handler_map)
-    #                 return
-    # except Exception as e:
-    #     Log.logging_exception(e)
-
-    # TODO:
-    # elif KBOT.is_user_reserve_check_command(text):
-    #     user_num = users.get_user_num(text)
-    #     rental_filter = RentalBookFilter(users=user_num)
-    #     reserved_filter = ReservedBookFilter(users=user_num)
-    #     __check_rental_and_reserved_books(event, rental_filter, reserved_filter)
 
 
 def __handle_postback_event(event):
@@ -208,42 +198,34 @@ def __handle_events(events, handler_maps):
 
 @csrf_exempt
 def callback(request):
-    if request.method == 'POST':
-        Log.info('POST! callback')
-
-        try:
-            signature = request.META['HTTP_X_LINE_SIGNATURE']
-            body = request.body.decode('utf-8')
-            events = parser.parse(body, signature)
-
-            __handle_events(events, _handler_maps)
-
-        except InvalidSignatureError as e:
-            Log.logging_exception(e)
-            return HttpResponseForbidden()
-        except LineBotApiError as e:
-            Log.logging_exception(e)
-            return HttpResponseBadRequest()
-        except Exception as e:
-            Log.logging_exception(e)
-
-        return HttpResponse('done! callback')
-    else:
+    if request.method != 'POST':
         Log.info('bad request. request method is not POST')
-
         return HttpResponseBadRequest()
 
+    Log.info('POST! callback')
+    try:
+        signature = request.META['HTTP_X_LINE_SIGNATURE']
+        body = request.body.decode('utf-8')
+        events = parser.parse(body, signature)
 
-def __check_rental_books(event, filter_setting):
+        __handle_events(events, _handler_maps)
+
+    except InvalidSignatureError as e:
+        Log.logging_exception(e)
+        return HttpResponseForbidden()
+    except LineBotApiError as e:
+        Log.logging_exception(e)
+        return HttpResponseBadRequest()
+    except Exception as e:
+        Log.logging_exception(e)
+
+    return HttpResponse('done! callback')
+
+
+def __check_books(event, config):
     library = Library(users)
-    target_users = library.check_rental_books(filter_setting)
-    line.my_reply_message(target_users.get_rental_books_text_message(), event)
-
-
-def __check_reserved_books(event, filter_setting):
-    library = Library(users)
-    target_users = library.check_reserved_books(filter_setting)
-    line.my_reply_message(target_users.get_reserved_books_text_message(), event)
+    target_users = library.check_books(config)
+    line.my_reply_message(target_users.get_check_books_text_message(config.books_class_name), event)
 
 
 def __reply_command_menu(event):
@@ -261,25 +243,30 @@ def __check_rental_and_reserved_books(event, rental_filter, reserved_filter):
     target_users = library.check_rental_and_reserved_books(rental_filter, reserved_filter)
     for user in target_users.list:
         message = user.get_rental_and_reserved_books_message()
-        if event is None:
-            if user.is_prepared_reserved_book():
-                line.my_push_message(message, line_tos)
-        else:
-            line.my_reply_message(message, event)
+        __send_line_message(event, message, user.is_prepared_reserved_book())
 
 
-def __search_book(event, text=None):
+def __send_line_message(event, message, is_push):
+    if event is None:
+        if is_push:
+            line.my_push_message(message, line_tos)
+    else:
+        line.my_reply_message(message, event)
+
+
+def __search_book(event, search_class, max_count, text=None):
     query = BookSearchQuery.get_from(text)
-    books = RakutenBooksService.search_books(query)
-    message = books.slice(0, 5).get_books_select_line_carousel_mseeage()
+    books = search_class.search_books(query)
+    message = books.slice(0, max_count).get_message()
     line.my_reply_message(message, event)
+
+
+def __search_rakuten_book(event, text=None):
+    __search_book(event, RakutenBooksService, 5, text)
 
 
 def __search_library_book(event, text=None):
-    query = BookSearchQuery.get_from(text)
-    books = Library.search_books(query)
-    message = books.slice(0, 50).get_message()
-    line.my_reply_message(message, event)
+    __search_book(event, Library, 50, text)
 
 
 def __search_book_by_isbn(event, text=None):
@@ -299,27 +286,28 @@ _handler_maps = [
     {'keyword': '図書？',
      'filter': __get_rental_book_filter_of_user_specify,
      'filter_param': True,
-     'handler': __check_rental_books},
+     'handler': __check_books},
     {'keyword': '図書館',
      'filter': lambda: RentalBookFilter(users='all'),
-     'handler': __check_rental_books},
+     'handler': __check_books},
     {'keyword': '日で延滞',
      'filter': __get_rental_book_expire_filter,
      'filter_param': True,
-     'handler': __check_rental_books},
+     'handler': __check_books},
     {'keyword': '延滞',
      'filter': lambda: RentalBookExpiredFilter(),
-     'handler': __check_rental_books},
+     'handler': __check_books},
 
     {'keyword': '予約',
      'filter': lambda: ReservedBookFilter(users='all'),
-     'handler': __check_reserved_books},
+     'handler': __check_books},
     {'keyword': '予約？',
-     'param': lambda: ReservedBookFilter(users='all'),
+     'filter': __get_rental_book_filter_of_user_specify,
+     'filter2': __get_reserved_book_filter_of_user_specify,
      'handler': __check_rental_and_reserved_books},
 
     {'keyword': '本？',
-     'handler': __search_book},
+     'handler': __search_rakuten_book},
     {'keyword': 'ほ？',
      'handler': __search_library_book},
 

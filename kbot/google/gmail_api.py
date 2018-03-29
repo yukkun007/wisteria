@@ -131,14 +131,14 @@ class GmailApi():
             reconnect()
 
     def getMailFrom(self, user, i):
-        try:
-            return self.expMailContents(user, i, 'From')
-        except errors.HttpError as error:
-            reconnect()
+        self.__getMail(user, i, 'From')
 
     def getMailSubject(self, user, i):
+        self.__getMail(user, i, 'Subject')
+
+    def __getMail(self, user, i, key):
         try:
-            return self.expMailContents(user, i, 'Subject')
+            return self.expMailContents(user, i, key)
         except errors.HttpError as error:
             reconnect()
 

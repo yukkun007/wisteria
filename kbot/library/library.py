@@ -66,10 +66,7 @@ class Library(object):
     def check_rental_and_reserved_books(self, rental_filter, reserved_filter):
         return self.__check_books([rental_filter, reserved_filter])
 
-    def check_rental_books(self, filter_setting):
-        return self.__check_books([filter_setting])
-
-    def check_reserved_books(self, filter_setting):
+    def check_books(self, filter_setting):
         return self.__check_books([filter_setting])
 
     def reserve(self, user_num, book_id):

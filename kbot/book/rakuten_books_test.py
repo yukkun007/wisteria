@@ -40,7 +40,7 @@ class TestRakutenBooksService:
         query = BookSearchQuery()
         query.set('title', 'カンブリア')
         rakuten_books = RakutenBooksService.search_books(query)
-        print(rakuten_books.slice(0, 5).get_books_select_line_carousel_mseeage())
+        print(rakuten_books.slice(0, 5).get_message())
 
     @patch('kbot.book.rakuten_books.requests')
     def test_request(self, mock_requests):
@@ -88,7 +88,7 @@ class TestRakutenBooks:
         rakuten_books = RakutenBooks(json.loads('{"Items": []}'))
         assert isinstance(rakuten_books, RakutenBooks)
         assert rakuten_books.length() == 0
-        assert rakuten_books.get_books_select_line_carousel_mseeage() == '見つかりませんでした。。'
+        assert rakuten_books.get_message() == '見つかりませんでした。。'
 
     def test_new_from_list(self):
         rakuten_book = RakutenBooks(['', ''])

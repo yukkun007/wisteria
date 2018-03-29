@@ -22,19 +22,22 @@ class TestLibrary:
         return Library(users)
 
     def test_check_rental_books(self, library1):
-        target_users = library1.check_rental_books(RentalBookFilter())
-        short_message = target_users.get_rental_books_text_message()
+        config = RentalBookFilter()
+        target_users = library1.check_books(config)
+        short_message = target_users.get_check_books_text_message(config.books_class_name)
         print(short_message)
 
-    def test_check_rental_books_expired(self, library1):
-        target_users = library1.check_rental_books(RentalBookExpiredFilter())
-        short_message = target_users.get_rental_books_text_message()
+    def test_check_books_expired(self, library1):
+        config = RentalBookExpiredFilter()
+        target_users = library1.check_books(config)
+        short_message = target_users.get_check_books_text_message(config.books_class_name)
         print(short_message)
 
-    def test_check_rental_books_expire(self, library1):
+    def test_check_books_expire(self, library1):
         xdays = 2
-        target_users = library1.check_rental_books(RentalBookExpireFilter(xdays=xdays))
-        short_message = target_users.get_rental_books_text_message()
+        config = RentalBookExpireFilter(xdays=xdays)
+        target_users = library1.check_books(config)
+        short_message = target_users.get_check_books_text_message(config.books_class_name)
         print(short_message)
 
     def test_reserve(self, library1):

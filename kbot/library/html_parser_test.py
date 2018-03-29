@@ -25,20 +25,16 @@ class TestHtmlParser:
         html = page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
         HtmlParser.get_books(html, RentalBooks([]))
 
-    def test_get_rental_books_no_table(self):
+    @pytest.mark.parametrize('books, books_class', [
+        (RentalBooks([]), RentalBooks),
+        (ReservedBooks([]), ReservedBooks),
+    ])
+    def test_get_books_no_table(self, books, books_class):
         with patch('kbot.library.html_parser.HtmlParser._HtmlParser__get_books_table') as method, \
                 patch('kbot.library.html_parser.HtmlParser._HtmlParser__get_soup'):
             method.return_value = None
-            books = HtmlParser.get_books(None, RentalBooks([]))
-            assert isinstance(books, RentalBooks)
-            assert books.len == 0
-
-    def test_get_reserved_books_no_table(self):
-        with patch('kbot.library.html_parser.HtmlParser._HtmlParser__get_books_table') as method, \
-                patch('kbot.library.html_parser.HtmlParser._HtmlParser__get_soup'):
-            method.return_value = None
-            books = HtmlParser.get_books(None, ReservedBooks([]))
-            assert isinstance(books, ReservedBooks)
+            books = HtmlParser.get_books(None, books)
+            assert isinstance(books, books_class)
             assert books.len == 0
 
     @pytest.mark.parametrize('target, table_name', [

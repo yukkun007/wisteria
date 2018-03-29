@@ -6,6 +6,8 @@ import pytest
 from unittest.mock import MagicMock
 from kbot.kbot import KBot
 from kbot.library.user import User, Users
+from kbot.library.rental_book import RentalBookFilter
+from kbot.library.reserved_book import ReservedBookFilter
 
 
 class TestUsers:
@@ -53,10 +55,12 @@ class TestUsers:
         assert users1.is_rental_books_exist() is False
 
     def test_get_rental_books_html_message(self, users2):
-        users2.get_rental_books_html_message()
+        config = RentalBookFilter()
+        users2.get_check_books_html_message(config.books_class_name)
 
     def test_get_reserved_books_html_message(self, users2):
-        users2.get_reserved_books_html_message()
+        config = ReservedBookFilter()
+        users2.get_check_books_html_message(config.books_class_name)
 
     def test_is_prepared_reserved_book_true(self, users2):
         assert users2._Users__is_prepared_reserved_book() is True
