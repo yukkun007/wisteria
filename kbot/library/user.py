@@ -51,11 +51,17 @@ class Users(object):
             return True
         return False
 
-    def get_rental_books_text_message(self):
-        return self.__get_rental_books_message(format='text')
+    def get_check_books_text_message(self, books_kind):
+        return self.__get_check_books_message(books_kind, format='text')
 
-    def get_rental_books_html_message(self):
-        return self.__get_rental_books_message(format='html')
+    def get_check_books_html_message(self, books_kind):
+        return self.__get_check_books_message(books_kind, format='html')
+
+    def __get_check_books_message(self, books_kind, format='text'):
+        if books_kind == 'RentalBooks':
+            return self.__get_rental_books_message(format=format)
+        elif books_kind == 'ReservedBooks':
+            return self.__get_reserved_books_message(format=format)
 
     def __get_rental_books_message(self, format='text'):
         sub_message = ''
@@ -68,12 +74,6 @@ class Users(object):
                                                Users.TEMPLATE_USER_RENTAL_BOOKS), data)
 
         return message
-
-    def get_reserved_books_text_message(self):
-        return self.__get_reserved_books_message(format='text')
-
-    def get_reserved_books_html_message(self):
-        return self.__get_reserved_books_message(format='html')
 
     def __get_reserved_books_message(self, format='text'):
         sub_message = ''

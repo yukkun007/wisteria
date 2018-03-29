@@ -3,20 +3,19 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
-from kbot.views import library_check, library_check_reserve, youtube_omoide, library_reserve, _handler_maps
-from kbot.views import __library_check as inner_library_check
-from kbot.views import __library_check_reserve as inner_library_check_reserve
+from kbot.views import check_rental_state, check_reserve_state, youtube_omoide, library_reserve, _handler_maps
+from kbot.views import __check_rental_state as inner_check_rental_state
+from kbot.views import __check_reserve_state as inner_check_reserve_state
 from kbot.views import __youtube_omoide as inner_youtube_omoide
 from kbot.views import __library_reserve as inner_library_reserve
 from kbot.views import __get_rental_book_filter_of_user_specify as inner_get_rental_book_filter_of_user_specify
 from kbot.views import __get_rental_book_expire_filter as inner_get_rental_book_expire_filter
 from kbot.views import __call_handler as inner_call_handler
 from kbot.views import __handle_text_event as inner_handle_text_event
-from kbot.views import __check_rental_books as check_rental_books
+from kbot.views import __check_books as check_books
 from kbot.views import __reply_command_menu as reply_command_menu
 from kbot.views import __reply_response_string as reply_response_string
-from kbot.views import __check_reserved_books as check_reserved_books
-from kbot.views import __search_book as search_book
+from kbot.views import __search_rakuten_book as search_rakuten_book
 from kbot.views import __search_library_book as search_library_book
 from kbot.views import __search_book_by_isbn as search_book_by_isbn
 from kbot.kbot import KBot
@@ -35,64 +34,49 @@ class TestViews:
         request_mock.method = method
         return request_mock
 
-    @classmethod
-    def __library_check_sub(cls, method):
-        with patch('kbot.views.__library_check') as mock, \
+    @pytest.mark.parametrize('http_method, mock_method, target_method', [
+        ('GET', 'kbot.views.__check_rental_state', check_rental_state),
+        ('GET', 'kbot.views.__check_reserve_state', check_reserve_state),
+    ])
+    def test_check_xxxxx_state(self, http_method, mock_method, target_method):
+        with patch(mock_method) as mock, \
                 patch('kbot.views.HttpResponse'):
-            library_check(TestViews.__create_request_mock(method))
-            if method == 'GET':
+            target_method(TestViews.__create_request_mock(http_method))
+            if http_method == 'GET':
                 mock.assert_called_once()
 
-    def test_library_check_get(self):
-        TestViews.__library_check_sub('GET')
+    def test_inner_check_rental_state(self):
+        inner_check_rental_state()
 
-    def test_inner_library_check(self):
-        inner_library_check()
+    def test_inner_check_reserve_state(self):
+        inner_check_reserve_state()
 
-    @classmethod
-    def __library_check_reserve_sub(cls, method):
-        with patch('kbot.views.__library_check_reserve') as mock, \
-                patch('kbot.views.HttpResponse'):
-            library_check_reserve(TestViews.__create_request_mock(method))
-            if method == 'GET':
-                mock.assert_called_once()
-
-    def test_library_check_reserve_get(self):
-        TestViews.__library_check_reserve_sub('GET')
-
-    def test_inner_library_check_reserve(self):
-        inner_library_check_reserve()
-
-    @classmethod
-    def __youtube_omoide_sub(cls, method):
+    @pytest.mark.parametrize('http_method', [
+        ('GET'),
+        ('OTHER'),
+    ])
+    def test_youtube_omoide(self, http_method):
         with patch('kbot.views.__youtube_omoide') as mock, \
                 patch('kbot.views.HttpResponse'), \
                 patch('kbot.views.HttpResponseBadRequest'):
-            youtube_omoide(TestViews.__create_request_mock(method))
-            if method == 'GET':
+            youtube_omoide(TestViews.__create_request_mock(http_method))
+            if http_method == 'GET':
                 mock.assert_called_once()
-
-    def test_youtube_omoide_get(self):
-        TestViews.__youtube_omoide_sub('GET')
-
-    def test_youtube_omoide_other(self):
-        TestViews.__youtube_omoide_sub('OTHER')
 
     def test_inner_youtube_omoide(self):
         inner_youtube_omoide()
 
-    @classmethod
-    def __library_reserve_sub(cls, method):
+    @pytest.mark.parametrize('http_method', [
+        ('GET'),
+    ])
+    def test_library_reserve(self, http_method):
         with patch('kbot.views.__library_reserve') as mock, \
                 patch('kbot.views.HttpResponse'):
-            request_mock = TestViews.__create_request_mock(method)
+            request_mock = TestViews.__create_request_mock(http_method)
             request_mock.GET.get.return_value = 'book_id:1111'
             library_reserve(request_mock)
-            if method == 'GET':
+            if http_method == 'GET':
                 mock.assert_called_once()
-
-    def test_library_reserve_get(self):
-        TestViews.__library_reserve_sub('GET')
 
     def test_inner_library_reserve_success(self):
         with patch('kbot.views.Library.reserve') as mock, \
@@ -166,17 +150,13 @@ class TestViews:
             inner_handle_text_event(event, _handler_maps)
             mock.assert_called_once()
 
-    def test_check_rental_books(self):
-        filter_setting = RentalBookFilter(users='all')
-        check_rental_books(None, filter_setting)
-
-    def test_check_rental_books_expire(self):
-        filter_setting = RentalBookExpireFilter(users='all', xdays=2)
-        check_rental_books(None, filter_setting)
-
-    def test_check_rental_books_expired(self):
-        filter_setting = RentalBookExpiredFilter(users='all')
-        check_rental_books(None, filter_setting)
+    @pytest.mark.parametrize('filter', [
+        (RentalBookFilter(users='all')),
+        (RentalBookExpireFilter(users='all', xdays=2)),
+        (RentalBookExpiredFilter(users='all')),
+    ])
+    def test_check_rental_books(self, filter):
+        check_books(None, filter)
 
     def test_reply_command_menu(self):
         reply_command_menu(None)
@@ -184,25 +164,27 @@ class TestViews:
     def test_reply_response_string(self):
         reply_response_string(None)
 
-    def test_check_reserved_books(self):
-        filter_setting = ReservedBookFilter(users='0,1,2,3')
-        check_reserved_books(None, filter_setting)
+    @pytest.mark.parametrize('user_nums', [
+        ('0,1,2,3'),
+        ('0,2'),
+    ])
+    def test_check_reserved_books(self, user_nums):
+        filter_setting = ReservedBookFilter(users=user_nums)
+        check_books(None, filter_setting)
 
-    def test_check_reserved_books2(self):
-        filter_setting = ReservedBookFilter(users='0,2')
-        check_reserved_books(None, filter_setting)
-
-    def test_search_book_title(self):
-        search_book(None, text='本？坊っちゃん')
-
-    def test_search_book_author(self):
-        search_book(None, text='著？夏目漱石')
+    @pytest.mark.parametrize('query', [
+        ('本？坊っちゃん'),
+        ('著？夏目漱石'),
+    ])
+    def test_search_rakuten_book(self, query):
+        search_rakuten_book(None, text=query)
 
     def test_search_book_by_isbn(self):
         search_book_by_isbn(None, 'isbn:9784532280208')
 
-    def test_search_library_book(self):
-        search_library_book(None, 'ほ？坊っちゃん')
-
-    def test_search_library_book_no_hit(self):
-        search_library_book(None, 'ほ？あ')
+    @pytest.mark.parametrize('query', [
+        ('ほ？坊っちゃん'),
+        ('ほ？あ'),
+    ])
+    def test_search_library_book(self, query):
+        search_library_book(None, query)
