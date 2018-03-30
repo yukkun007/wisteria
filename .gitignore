@@ -110,3 +110,5 @@ GTAGS
 
 ngrok
 
+.pytest_cache
+
