@@ -173,7 +173,8 @@ def __handle_text_event(event, handler_maps):
 
     text = event.message.text
     maps = list(filter(lambda map: map['keyword'] in text, handler_maps))
-    __call_handler(event, maps[0])
+    if len(maps) > 0:
+        __call_handler(event, maps[0])
 
 
 def __handle_postback_event(event):
@@ -228,12 +229,12 @@ def __check_books(event, config):
     line.my_reply_message(target_users.get_check_books_text_message(config.books_class_name), event)
 
 
-def __reply_command_menu(event):
+def __reply_command_menu(event, text=None):
     template = KBOT.get_kbot_command_menu()
     line.my_reply_message(template, event)
 
 
-def __reply_response_string(event):
+def __reply_response_string(event, text=None):
     message = KBOT.get_reply_string()
     line.my_reply_message(message, event)
 
@@ -285,21 +286,19 @@ def __search_book_by_isbn(event, text=None):
 _handler_maps = [
     {'keyword': '図書？',
      'filter': __get_rental_book_filter_of_user_specify,
-     'filter_param': True,
      'handler': __check_books},
     {'keyword': '図書館',
-     'filter': lambda: RentalBookFilter(users='all'),
+     'filter': lambda text: RentalBookFilter(users='all'),
      'handler': __check_books},
     {'keyword': '日で延滞',
      'filter': __get_rental_book_expire_filter,
-     'filter_param': True,
      'handler': __check_books},
     {'keyword': '延滞',
-     'filter': lambda: RentalBookExpiredFilter(),
+     'filter': lambda text: RentalBookExpiredFilter(),
      'handler': __check_books},
 
     {'keyword': '予約',
-     'filter': lambda: ReservedBookFilter(users='all'),
+     'filter': lambda text: ReservedBookFilter(users='all'),
      'handler': __check_books},
     {'keyword': '予約？',
      'filter': __get_rental_book_filter_of_user_specify,

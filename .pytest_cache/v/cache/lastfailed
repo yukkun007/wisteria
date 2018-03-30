@@ -1,0 +1,3 @@
+{
+  "kbot/views_test.py::TestViews::()::test_inner_handle_text_event_no_match[\\uff1f]": true
+}
