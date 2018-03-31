@@ -95,31 +95,33 @@ class TestViews:
         filter = inner_get_rental_book_expire_filter('hoge')
         assert isinstance(filter, RentalBookExpireFilter)
 
-    @pytest.mark.parametrize('filter, filter_param, param', [
-        (MagicMock(), True, True),
-        (MagicMock(), False, True),
-        (MagicMock(), True, True),
-        (MagicMock(), True, False),
+    @pytest.mark.parametrize('filter, filter2', [
+        (None, None),
+        (MagicMock(), None),
+        (MagicMock(), MagicMock()),
     ])
-    def test_inner_call_handler(self, filter, filter_param, param):
+    def test_inner_call_handler(self, filter, filter2):
         event = MagicMock()
         event.message.text = 'message'
         handler = MagicMock()
-        filter_return = MagicMock()
-        filter.return_value = filter_return
+        if filter is not None:
+            filter_return = MagicMock()
+            filter.return_value = filter_return
+        if filter2 is not None:
+            filter2_return = MagicMock()
+            filter2.return_value = filter2_return
         handler_map = {
             'handler': handler,
             'filter': filter,
-            'filter_param': filter_param,
-            'param': param}
+            'filter2': filter2
+        }
         inner_call_handler(event, handler_map)
-        if filter is not None:
-            handler.assert_called_once_with(event, filter_return)
+        if filter is None:
+            handler.assert_called_once_with(event, text=event.message.text)
+        elif filter is not None and filter2 is not None:
+            handler.assert_called_once_with(event, filter_return, filter2_return)
         else:
-            if param:
-                handler.assert_called_once_with(event, param)
-            else:
-                handler.assert_called_once_with(event)
+            handler.assert_called_once_with(event, filter_return)
 
     def test_inner_handle_text_event(self):
         event = MagicMock()
@@ -131,24 +133,28 @@ class TestViews:
             inner_handle_text_event(event, handler_maps)
             mock.assert_called_once()
 
-    @pytest.mark.parametrize('event_text', [
-        ('図書？'),
-        ('図書館'),
-        ('2日で延滞'),
-        ('延滞'),
-        ('予約'),
-        ('予約？'),
-        ('本？'),
-        ('ほ？'),
-        ('文字'),
-        ('コマンド'),
+    @pytest.mark.parametrize('event_text, is_called', [
+        ('図書？', True),
+        ('図書館', True),
+        ('2日で延滞', True),
+        ('延滞', True),
+        ('予約', True),
+        ('予約？', True),
+        ('本？', True),
+        ('ほ？', True),
+        ('文字', True),
+        ('コマンド', True),
+        ('？', False),
     ])
-    def test_inner_handle_text_event_all(self, event_text):
+    def test_inner_handle_text_event_all(self, event_text, is_called):
         event = MagicMock()
         event.message.text = event_text
         with patch('kbot.views.__call_handler') as mock:
             inner_handle_text_event(event, _handler_maps)
-            mock.assert_called_once()
+            if is_called:
+                mock.assert_called_once()
+            else:
+                mock.assert_not_called()
 
     @pytest.mark.parametrize('filter', [
         (RentalBookFilter(users='all')),
