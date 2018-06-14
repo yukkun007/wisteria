@@ -3,7 +3,7 @@ dateutils==0.6.6
 django-toolbelt==0.0.1
 google-api-python-client==1.7.3
 Jinja2==2.10
-line-bot-sdk==1.5.0
+line-bot-sdk==1.6.0
 python-dotenv==0.8.2
 requests==2.19.0
 selenium==3.12.0
