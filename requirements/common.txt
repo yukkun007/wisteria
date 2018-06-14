@@ -5,5 +5,5 @@ google-api-python-client==1.7.3
 Jinja2==2.10
 line-bot-sdk==1.6.0
 python-dotenv==0.8.2
-requests==2.19.0
+requests==2.19.1
 selenium==3.12.0
