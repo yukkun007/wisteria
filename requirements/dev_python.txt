@@ -4,5 +4,5 @@ flake8==3.5.0
 pytest==3.7.1
 pytest-cov==2.5.1
 pytest-xdist==1.22.5
-rope==0.10.7
+rope==0.11.0
 unify==0.4
