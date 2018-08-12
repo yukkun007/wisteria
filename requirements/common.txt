@@ -1,4 +1,4 @@
-beautifulsoup4==4.6.2
+beautifulsoup4==4.6.3
 dateutils==0.6.6
 django-toolbelt==0.0.1
 google-api-python-client==1.7.4
