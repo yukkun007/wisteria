@@ -1,9 +1,9 @@
-beautifulsoup4==4.6.0
+beautifulsoup4==4.6.3
 dateutils==0.6.6
 django-toolbelt==0.0.1
-google-api-python-client==1.6.6
+google-api-python-client==1.6.7
 Jinja2==2.10
-line-bot-sdk==1.5.0
-python-dotenv==0.8.2
-requests==2.18.4
-selenium==3.11.0
+line-bot-sdk==1.8.0
+python-dotenv==0.9.1
+requests==2.19.1
+selenium==3.14.0
