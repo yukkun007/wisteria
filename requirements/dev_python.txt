@@ -1,5 +1,5 @@
 autoflake==1.2
-autopep8==1.4
+autopep8==1.4.1
 flake8==3.5.0
 pytest==3.9.1
 pytest-cov==2.6.0
