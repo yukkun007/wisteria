@@ -16,8 +16,8 @@ selenium = "==3.14.0"
 
 [dev-packages]
 mypy = "*"
-"flake8" = "*"
-black = "*"
+"flake8" = "==3.5.0"
+black = "==18.9b0"
 pytest = "==3.8.0"
 pytest-cov = "==2.6.0"
 pytest-xdist = "==1.23.0"
