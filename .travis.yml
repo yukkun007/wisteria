@@ -7,11 +7,11 @@ install:
   - pip install pipenv
   - pipenv sync --dev
 addons:
-  apt:
-    sources:
-      - google-chrome
-    packages:
-      - google-chrome-stable
+  chrome: stable
+install:
+  - wget https://chromedriver.storage.googleapis.com/2.43/chromedriver_linux64.zip
+  - unzip chromedriver_linux64.zip
+  - npm install
 script:
   - py.test -v --capture=no --cov-config .coveragerc --cov=kbot .
 after_success:
