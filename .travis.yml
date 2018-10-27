@@ -9,9 +9,9 @@ install:
 addons:
   chrome: stable
 install:
-  - wget https://chromedriver.storage.googleapis.com/2.43/chromedriver_linux64.zip
-  - unzip chromedriver_linux64.zip
-  - npm install
+  - wget http://chromedriver.storage.googleapis.com/2.43/chromedriver_linux64.zip
+  - unzip chromedriver_linux64.zip -d /home/travis/virtualenv/python3.6.3/bin/
+  - export CHROME_BIN=chromium-browser
 script:
   - py.test -v --capture=no --cov-config .coveragerc --cov=kbot .
 after_success:
