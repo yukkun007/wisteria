@@ -6,6 +6,12 @@ before_install:
 install:
   - pip install pipenv
   - pipenv sync --dev
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
 script:
   - py.test -v --capture=no --cov-config .coveragerc --cov=kbot .
 after_success:
