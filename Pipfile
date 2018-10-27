@@ -1,0 +1,32 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+beautifulsoup4 = "==4.6.3"
+dateutils = "==0.6.6"
+django-toolbelt = "==0.0.1"
+google-api-python-client = "==1.7.4"
+line-bot-sdk = "==1.8.0"
+python-dotenv = "==0.9.1"
+requests = "==2.20.0"
+selenium = "==3.14.1"
+Jinja2 = "==2.10"
+
+[dev-packages]
+mypy = "*"
+flake8 = "==3.6.0"
+black = "==18.9b0"
+pytest = "==3.9.2"
+pytest-cov = "==2.6.0"
+pytest-xdist = "==1.23.2"
+unify = "==0.4"
+codecov = "==2.0.15"
+
+[requires]
+python_version = "3.6"
+
+[scripts]
+start = "python manage.py runserver"
+ut = "py.test -v --capture=no --cov-config .coveragerc --cov=kbot ."
