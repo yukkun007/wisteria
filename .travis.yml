@@ -3,9 +3,6 @@ python:
   - 3.6
 before_install:
   - openssl aes-256-cbc -K $encrypted_b6099d0e7402_key -iv $encrypted_b6099d0e7402_iv -in .env.enc -out wisteria/.env -d
-install:
-  - pip install pipenv
-  - pipenv sync --dev
 addons:
   chrome: stable
 install:
@@ -17,6 +14,9 @@ install:
   - sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
   - whereis google-chrome-stable
   - whereis chromedriver
+install:
+  - pip install pipenv
+  - pipenv sync --dev
 script:
   - py.test -v --capture=no --cov-config .coveragerc --cov=kbot .
 after_success:
