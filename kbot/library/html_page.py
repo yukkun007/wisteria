@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from selenium import webdriver
+from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.select import Select
@@ -12,7 +12,9 @@ from kbot.log import Log
 class HtmlPage(object):
     def __init__(self):
         Log.info("driver.create/start")
-        self.driver = webdriver.PhantomJS()
+        options = ChromeOptions()
+        options.add_argument("--headless")
+        self.driver = Chrome(options=options)
         Log.info("driver.create/end")
 
     def __wait(self):
