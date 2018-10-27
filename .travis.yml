@@ -6,7 +6,6 @@ before_install:
 install:
   - pip install pipenv
   - pipenv sync --dev
-  # - pip install -r requirements_dev.txt
 script:
   - py.test -v --capture=no --cov-config .coveragerc --cov=kbot .
 after_success:
