@@ -21,7 +21,6 @@ black = "==18.9b0"
 pytest = "==3.8.0"
 pytest-cov = "==2.6.0"
 pytest-xdist = "==1.23.0"
-unify = "==0.4"
 codecov = "==2.0.15"
 
 [requires]
