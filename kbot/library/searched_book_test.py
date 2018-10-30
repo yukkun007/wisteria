@@ -7,9 +7,8 @@ from kbot.library.searched_book import SearchedBooks, SearchedBook
 
 
 class TestSearchedBooks:
-
     def setup(self):
-        KBot('wisteria')
+        KBot("wisteria")
 
     @pytest.fixture()
     def books1(request):
@@ -21,13 +20,12 @@ class TestSearchedBooks:
 
 
 class TestSearchedBook:
-
     def setup(self):
-        KBot('wisteria')
+        KBot("wisteria")
 
     @pytest.fixture()
     def book1(request):
-        return SearchedBook('title', 'author', 'publisher', 'publish_date')
+        return SearchedBook("title", "author", "publisher", "publish_date")
 
     def test(self, book1):
         pass

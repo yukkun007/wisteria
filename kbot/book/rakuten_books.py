@@ -14,7 +14,7 @@ from kbot.image_magic import ImageMagic
 
 class RakutenBooksService(object):
 
-    RAKUTEN_BASE_URL = 'https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404'
+    RAKUTEN_BASE_URL = "https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404"
 
     @classmethod
     def get_one_book(cls, query):
@@ -32,23 +32,21 @@ class RakutenBooksService(object):
     @classmethod
     def __request(cls, query):
         response = requests.get(
-            RakutenBooksService.RAKUTEN_BASE_URL,
-            params=RakutenBooksQuery.adjust_query(query))
+            RakutenBooksService.RAKUTEN_BASE_URL, params=RakutenBooksQuery.adjust_query(query)
+        )
         json_data = response.json()  # TODO:nullチェック
         return json_data
 
 
 class RakutenBooksQuery(object):
-
     @classmethod
     def adjust_query(cls, query):
-        query.set('applicationId', os.environ['RAKUTEN_APP_ID'])
-        query.set('sort', 'sales')
+        query.set("applicationId", os.environ["RAKUTEN_APP_ID"])
+        query.set("sort", "sales")
         return query.dict()
 
 
 class RakutenBooks(object):
-
     def __init__(self, source):
         self.rakuten_books = []
         if isinstance(source, dict):
@@ -59,12 +57,11 @@ class RakutenBooks(object):
             self.__raise_exception(source)
 
     def __set_books_from_dict(self, source_dict):
-        for item in source_dict.get('Items'):
-            self.rakuten_books.append(RakutenBook(item.get('Item')))
+        for item in source_dict.get("Items"):
+            self.rakuten_books.append(RakutenBook(item.get("Item")))
 
     def __raise_exception(self, source):
-        message = 'new [' + str(type(self)) + \
-            '] illegal source: ' + str(type(source))
+        message = "new [" + str(type(self)) + "] illegal source: " + str(type(source))
         print(message)
         raise RuntimeError(message)
 
@@ -80,7 +77,7 @@ class RakutenBooks(object):
     def get_message(self):
 
         if self.length() == 0:
-            return '見つかりませんでした。。'
+            return "見つかりませんでした。。"
 
         columns = []
         for rakuten_book in self.rakuten_books:
@@ -92,19 +89,22 @@ class RakutenBooks(object):
             gyazo = Gyazo()
             gyazo_url = gyazo.upload(path)
 
-            text = '著:' + rakuten_book.author +\
-                   '\n￥' + str(rakuten_book.price) +\
-                   '\n発売日:' + rakuten_book.sales_date
+            text = (
+                "著:"
+                + rakuten_book.author
+                + "\n￥"
+                + str(rakuten_book.price)
+                + "\n発売日:"
+                + rakuten_book.sales_date
+            )
             text = text[:60]
             column = CarouselColumn(
                 thumbnail_image_url=gyazo_url,
                 title=rakuten_book.title[:40],
                 text=text,
                 actions=[
-                    PostbackTemplateAction(
-                        label='借りる / 買う',
-                        data='isbn:' + rakuten_book.isbn)
-                ]
+                    PostbackTemplateAction(label="借りる / 買う", data="isbn:" + rakuten_book.isbn)
+                ],
             )
             columns.append(column)
 
@@ -112,28 +112,27 @@ class RakutenBooks(object):
 
 
 class RakutenBook(object):
-
     def __init__(self, json):
-        self.isbn = json.get('isbn', '')
-        self.title = json.get('title', '')
-        self.author = json.get('author', '')
-        self.caption = json.get('itemCaption', '')
-        self.price = json.get('itemPrice', '')
-        self.url = json.get('itemUrl', '')
-        self.image_url = json.get('largeImageUrl', '')
-        self.sales_date = json.get('salesDate', '')
+        self.isbn = json.get("isbn", "")
+        self.title = json.get("title", "")
+        self.author = json.get("author", "")
+        self.caption = json.get("itemCaption", "")
+        self.price = json.get("itemPrice", "")
+        self.url = json.get("itemUrl", "")
+        self.image_url = json.get("largeImageUrl", "")
+        self.sales_date = json.get("salesDate", "")
 
         self.log()
 
     def log(self):
-        Log.info('isbn : ' + self.isbn)
-        Log.info('title : ' + self.title)
-        Log.info('author : ' + self.author)
-        Log.info('caption : ' + self.caption)
-        Log.info('price : ' + str(self.price))
-        Log.info('url : ' + self.url)
-        Log.info('image_url : ' + self.image_url)
-        Log.info('sales_date : ' + self.sales_date)
+        Log.info("isbn : " + self.isbn)
+        Log.info("title : " + self.title)
+        Log.info("author : " + self.author)
+        Log.info("caption : " + self.caption)
+        Log.info("price : " + str(self.price))
+        Log.info("url : " + self.url)
+        Log.info("image_url : " + self.image_url)
+        Log.info("sales_date : " + self.sales_date)
 
     def get_text_message(self):
         return Message.create_text_by_object(self)

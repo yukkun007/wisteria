@@ -7,12 +7,12 @@ from kbot.google.gmail_api import GmailApi
 
 class GMail(object):
     def __init__(self):
-        self.storage_path = '/tmp/st_test.txt'
-        self.secret_path = '/tmp/sc_test.txt'
+        self.storage_path = "/tmp/st_test.txt"
+        self.secret_path = "/tmp/sc_test.txt"
 
     def send_message(self, to, subject, message):
-        st = open(self.storage_path, 'w')
-        storage = os.environ['GMAIL_AUTH_STORAGE']
+        st = open(self.storage_path, "w")
+        storage = os.environ["GMAIL_AUTH_STORAGE"]
         st.write(storage)
         st.close()
 
@@ -21,12 +21,12 @@ class GMail(object):
         # sc.write(secret)
         # sc.close()
         # secret_file = open(self.secret_path)
-        auth_info = ''  # json.load(secret_file)
+        auth_info = ""  # json.load(secret_file)
 
         # 初回実行時は認証が求められます
         api = GmailApi(auth_info, self.storage_path)
 
-        user = 'me'
+        user = "me"
         message = api.createMessage(user, to, subject, message)
         api.sendMessage(user, message)
 

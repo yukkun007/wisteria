@@ -5,4 +5,4 @@ from django.apps import AppConfig
 
 
 class KBotConfig(AppConfig):
-    name = 'kbot'
+    name = "kbot"

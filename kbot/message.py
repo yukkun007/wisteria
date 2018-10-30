@@ -6,7 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 
 class Message(object):
 
-    TEMPLATE_ROOT_DIR = 'wisteria/templates/kbot'
+    TEMPLATE_ROOT_DIR = "wisteria/templates/kbot"
 
     @staticmethod
     def create(template_path, data):
@@ -17,6 +17,6 @@ class Message(object):
 
     @staticmethod
     def create_text_by_object(target):
-        data = {'object': target}
-        message = Message.create('text/' + target.__class__.__name__ + '.tpl', data)
+        data = {"object": target}
+        message = Message.create("text/" + target.__class__.__name__ + ".tpl", data)
         return message

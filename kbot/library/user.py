@@ -4,13 +4,14 @@
 import os
 import json
 from kbot.message import Message
+
 # from kbot.book.common import BookFilter
 
 
 class Users(object):
 
-    TEMPLATE_USER_RENTAL_BOOKS = 'user_rental_books.tpl'
-    TEMPLATE_USER_RESERVED_BOOKS = 'user_reserved_books.tpl'
+    TEMPLATE_USER_RENTAL_BOOKS = "user_rental_books.tpl"
+    TEMPLATE_USER_RESERVED_BOOKS = "user_reserved_books.tpl"
 
     def __init__(self, users):
         self._users = users
@@ -23,11 +24,11 @@ class Users(object):
         return self._users[index]
 
     def filter(self, user_filter):
-        if user_filter == 'all':  # BookFilter.FILTER_USERS_ALL:
+        if user_filter == "all":  # BookFilter.FILTER_USERS_ALL:
             return self
 
         new_users = []
-        nums = user_filter.split(',')
+        nums = user_filter.split(",")
         for num in nums:
             user_num = int(num)
             if 0 <= user_num < len(self._users):
@@ -41,7 +42,7 @@ class Users(object):
         if len(filterd_users) == 1:
             return filterd_users[0].num
         else:
-            return '0'
+            return "0"
 
     def is_rental_books_exist(self):
         all_rental_books_count = 0
@@ -52,39 +53,36 @@ class Users(object):
         return False
 
     def get_check_books_text_message(self, books_kind):
-        return self.__get_check_books_message(books_kind, format='text')
+        return self.__get_check_books_message(books_kind, format="text")
 
     def get_check_books_html_message(self, books_kind):
-        return self.__get_check_books_message(books_kind, format='html')
+        return self.__get_check_books_message(books_kind, format="html")
 
-    def __get_check_books_message(self, books_kind, format='text'):
-        if books_kind == 'RentalBooks':
+    def __get_check_books_message(self, books_kind, format="text"):
+        if books_kind == "RentalBooks":
             return self.__get_rental_books_message(format=format)
-        elif books_kind == 'ReservedBooks':
+        elif books_kind == "ReservedBooks":
             return self.__get_reserved_books_message(format=format)
 
-    def __get_rental_books_message(self, format='text'):
-        sub_message = ''
+    def __get_rental_books_message(self, format="text"):
+        sub_message = ""
         for user in self._users:
             sub_message += user.rental_books.get_message(format)
 
-        message = ''
-        data = {'sub_message': sub_message}
-        message += Message.create(os.path.join(format,
-                                               Users.TEMPLATE_USER_RENTAL_BOOKS), data)
+        message = ""
+        data = {"sub_message": sub_message}
+        message += Message.create(os.path.join(format, Users.TEMPLATE_USER_RENTAL_BOOKS), data)
 
         return message
 
-    def __get_reserved_books_message(self, format='text'):
-        sub_message = ''
+    def __get_reserved_books_message(self, format="text"):
+        sub_message = ""
         for user in self._users:
             sub_message += user.reserved_books.get_message(format)
 
-        message = ''
-        data = {'sub_message': sub_message,
-                'is_prepared': self.__is_prepared_reserved_book()}
-        message += Message.create(os.path.join(format,
-                                               Users.TEMPLATE_USER_RESERVED_BOOKS), data)
+        message = ""
+        data = {"sub_message": sub_message, "is_prepared": self.__is_prepared_reserved_book()}
+        message += Message.create(os.path.join(format, Users.TEMPLATE_USER_RESERVED_BOOKS), data)
 
         return message
 
@@ -97,24 +95,24 @@ class Users(object):
 
 class User(object):
 
-    TEMPLATE_ONE_USER_RESERVED_BOOKS = 'one_user_reserved_books.tpl'
+    TEMPLATE_ONE_USER_RESERVED_BOOKS = "one_user_reserved_books.tpl"
 
     def __init__(self, data_json):
         data = json.loads(data_json)
 
-        self.num = data.get('num')
-        self.name = data.get('name')
-        self.id = data.get('id')
-        self.password = data.get('password')
+        self.num = data.get("num")
+        self.name = data.get("name")
+        self.id = data.get("id")
+        self.password = data.get("password")
         self.rental_books_count = 0
         self.reserved_books_count = 0
         self.rental_books = None
         self.reserved_books = None
 
     def set_books(self, books_class_name, books):
-        if books_class_name == 'RentalBooks':
+        if books_class_name == "RentalBooks":
             self.__set_rental_books(books)
-        elif books_class_name == 'ReservedBooks':
+        elif books_class_name == "ReservedBooks":
             self.__set_reserved_books(books)
 
     def __set_rental_books(self, rental_books):
@@ -127,17 +125,15 @@ class User(object):
         self.reserved_books = reserved_books
         self.reserved_books_count = reserved_books.len
 
-    def get_rental_and_reserved_books_message(self, format='text'):
-        sub_message1 = ''
+    def get_rental_and_reserved_books_message(self, format="text"):
+        sub_message1 = ""
         sub_message1 += self.rental_books.get_message(format)
-        sub_message2 = ''
+        sub_message2 = ""
         sub_message2 += self.reserved_books.get_message(format)
 
-        message = ''
-        data = {'sub_message1': sub_message1,
-                'sub_message2': sub_message2}
-        message += Message.create(os.path.join(format,
-                                               User.TEMPLATE_ONE_USER_RESERVED_BOOKS), data)
+        message = ""
+        data = {"sub_message1": sub_message1, "sub_message2": sub_message2}
+        message += Message.create(os.path.join(format, User.TEMPLATE_ONE_USER_RESERVED_BOOKS), data)
 
         return message
 
