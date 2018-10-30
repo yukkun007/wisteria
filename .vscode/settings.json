@@ -4,6 +4,7 @@
     "python.formatting.provider": "black",
     "python.linting.pylintEnabled": false,
     "python.linting.mypyEnabled": true,
+    "python.linting.mypyPath": "${workspaceFolder}/.venv/bin/mypy",
     "python.linting.flake8Enabled": true,
     "python.linting.flake8Args": [
         "--max-line-length",
@@ -13,5 +14,5 @@
     "python.unitTest.pyTestPath": "${workspaceFolder}/.venv/bin/py.test",
     "python.unitTest.pyTestArgs": [
         "kbot"
-    ]
+    ],
 }
