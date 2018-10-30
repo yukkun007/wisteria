@@ -5,9 +5,8 @@ from kbot.library.user import User
 
 
 class Books(object):
-
     def __init__(self, source):
-        self._user = User('{}')
+        self._user = User("{}")
         if source is None:
             self._list = []
         else:
@@ -47,11 +46,11 @@ class Books(object):
 
 class BookFilter(object):
 
-    FILTER_USERS_ALL = 'all'
+    FILTER_USERS_ALL = "all"
 
     def __init__(self, *, users=FILTER_USERS_ALL):
         self._users = users
-        self._books_class_name = 'Books'
+        self._books_class_name = "Books"
 
     @property
     def users(self):
@@ -71,7 +70,6 @@ class BookFilter(object):
 
 
 class BookSearchQuery(object):
-
     def __init__(self):
         self.query = {}
 
@@ -87,16 +85,16 @@ class BookSearchQuery(object):
     @classmethod
     def get_from(cls, text):
         query = BookSearchQuery()
-        if '本？' in text:
+        if "本？" in text:
             book_name = text[2:]
-            query.set('title', book_name)
-        elif '著？' in text:
+            query.set("title", book_name)
+        elif "著？" in text:
             author = text[2:]
-            query.set('author', author)
-        elif 'ほ？' in text:
+            query.set("author", author)
+        elif "ほ？" in text:
             book_name = text[2:]
-            query.set('title', book_name)
-        elif 'isbn' in text:
+            query.set("title", book_name)
+        elif "isbn" in text:
             isbn = text[5:]
-            query.set('isbn', isbn)
+            query.set("isbn", isbn)
         return query

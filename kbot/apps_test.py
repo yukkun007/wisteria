@@ -5,6 +5,5 @@ from kbot.apps import KBotConfig
 
 
 class TestKBotConfig:
-
     def test(self):
         KBotConfig

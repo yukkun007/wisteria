@@ -5,6 +5,5 @@ from kbot.urls import urlpatterns
 
 
 class TestUrl:
-
     def test(self):
         urlpatterns

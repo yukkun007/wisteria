@@ -3,6 +3,5 @@
 
 
 class TestMovie:
-
     def test_1(self):
         pass

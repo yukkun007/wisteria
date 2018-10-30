@@ -12,13 +12,17 @@ from kbot.library.searched_book import SearchedBooks
 
 class Library(object):
 
-    LIBRALY_HOME_URL = 'https://www.lib.nerima.tokyo.jp/opw/OPW/OPWUSERCONF.CSP'
-    LIBRALY_BOOK_URL = ('https://www.lib.nerima.tokyo.jp/opw/OPW/OPWBOOK.CSP?DB='
-                        'LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB')
+    LIBRALY_HOME_URL = "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWUSERCONF.CSP"
+    LIBRALY_BOOK_URL = (
+        "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWBOOK.CSP?DB="
+        "LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB"
+    )
 
-    LIBRALY_SEARCH_URL = ('https://www.lib.nerima.tokyo.jp/opw/OPW/OPWSRCHLIST.CSP?'
-                          'DB=LIB&FLG=SEARCH&LOCAL("LIB","SK41",1)=on&MODE=1&'
-                          'PID2=OPWSRCH2&SORT=-3&opr(1)=OR&qual(1)=MZTI&WRTCOUNT=100&text(1)=')
+    LIBRALY_SEARCH_URL = (
+        "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWSRCHLIST.CSP?"
+        'DB=LIB&FLG=SEARCH&LOCAL("LIB","SK41",1)=on&MODE=1&'
+        "PID2=OPWSRCH2&SORT=-3&opr(1)=OR&qual(1)=MZTI&WRTCOUNT=100&text(1)="
+    )
 
     def __init__(self, users):
         self.users = users
@@ -26,7 +30,7 @@ class Library(object):
     @classmethod
     def search_books(cls, query):
         html_page = HtmlPage()
-        hoge = urllib.parse.quote(query.get('title'))
+        hoge = urllib.parse.quote(query.get("title"))
         print(Library.LIBRALY_SEARCH_URL + hoge)
         html = html_page.fetch_search_result_page(Library.LIBRALY_SEARCH_URL + hoge)
         print(html)
@@ -36,11 +40,11 @@ class Library(object):
 
     @classmethod
     def __create_empty_books(cls, books_class_name):
-        if books_class_name in {'RentalBooks'}:
+        if books_class_name in {"RentalBooks"}:
             return RentalBooks([])
-        elif books_class_name == 'ReservedBooks':
+        elif books_class_name == "ReservedBooks":
             return ReservedBooks([])
-        elif books_class_name == 'SearchedBooks':
+        elif books_class_name == "SearchedBooks":
             return SearchedBooks([])
 
     def __check_books(self, book_filters):
@@ -74,5 +78,5 @@ class Library(object):
         return html_page.reserve(
             Library.LIBRALY_HOME_URL,
             self.users.get(int(user_num)),
-            Library.LIBRALY_BOOK_URL.format(book_id)
+            Library.LIBRALY_BOOK_URL.format(book_id),
         )

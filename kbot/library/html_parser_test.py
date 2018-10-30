@@ -25,8 +25,7 @@ class TestHtmlParser:
         HtmlParser.get_books(html, RentalBooks([]))
 
     @pytest.mark.parametrize(
-        "books, books_class",
-        [(RentalBooks([]), RentalBooks), (ReservedBooks([]), ReservedBooks)],
+        "books, books_class", [(RentalBooks([]), RentalBooks), (ReservedBooks([]), ReservedBooks)]
     )
     def test_get_books_no_table(self, books, books_class):
         with patch(
@@ -38,13 +37,10 @@ class TestHtmlParser:
             assert books.len == 0
 
     @pytest.mark.parametrize(
-        "target, table_name",
-        [(RentalBooks([]), "FormLEND"), (ReservedBooks([]), "FormRSV")],
+        "target, table_name", [(RentalBooks([]), "FormLEND"), (ReservedBooks([]), "FormRSV")]
     )
     def test_get_books_table(self, target, table_name):
-        with patch(
-            "kbot.library.html_parser.HtmlParser._HtmlParser__get_table"
-        ) as mock:
+        with patch("kbot.library.html_parser.HtmlParser._HtmlParser__get_table") as mock:
             soup_mock = MagicMock()
             HtmlParser._HtmlParser__get_books_table(soup_mock, target)
             mock.assert_called_once_with(soup_mock, table_name)
@@ -64,7 +60,5 @@ class TestHtmlParser:
 
     def test_get_table_by_attribute_value_empty(self):
         soup = HtmlParser._HtmlParser__get_soup("<html></html>")
-        result = HtmlParser._HtmlParser__get_table_by_attribute_value(
-            soup, "empty", "empty"
-        )
+        result = HtmlParser._HtmlParser__get_table_by_attribute_value(soup, "empty", "empty")
         assert result is None

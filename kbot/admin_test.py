@@ -5,6 +5,5 @@ from kbot.admin import admin
 
 
 class TestAdmin:
-
     def test(self):
         admin
