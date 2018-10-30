@@ -13,7 +13,7 @@ class TestImage(object):
         KBot("wisteria")
 
     def test_image(self):
-        url = "https://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/7942/79421478.jpg?_ex=200x200"
+        url = "https://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/7942/79421478.jpg?_ex=200x200"  # noqa
         image = Image()
         path = image.download(url)
 
