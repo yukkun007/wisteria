@@ -16,6 +16,8 @@ install:
   - whereis chromedriver
   - pip install pipenv
   - pipenv sync --dev
+before_script:
+  - flake8 --max-line-length=100 --ignore=E203,W503 ./kbot
 script:
   - py.test -v --capture=no --cov-config .coveragerc --cov=kbot .
 after_success:
