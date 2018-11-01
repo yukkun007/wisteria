@@ -28,6 +28,7 @@ class GmailApi:
         try:
             self.service = GmailServiceFactory().createService(self.auth_info)
         except HttpError as error:
+            print("An error occurred:s" % error)
             pass
 
     def sendMessage(self, user, message):
@@ -69,6 +70,7 @@ class GmailApi:
         try:
             return self.service.users().messages().list(userId=user, q=qu).execute()
         except HttpError as error:
+            print("An error occurred:s" % error)
             self.reconnect()
 
     def getMailContent(self, user, i):
@@ -85,6 +87,7 @@ class GmailApi:
         try:
             return self.service.users().messages().get(userId=user, id=i).execute()
         except HttpError as error:
+            print("An error occurred:s" % error)
             self.reconnect()
 
     def doMailAsRead(self, user, i):
@@ -124,6 +127,7 @@ class GmailApi:
                 0
             ]["value"]
         except HttpError as error:
+            print("An error occurred:s" % error)
             self.reconnect()
 
     def getMailFrom(self, user, i):
@@ -136,6 +140,7 @@ class GmailApi:
         try:
             return self.expMailContents(user, i, key)
         except HttpError as error:
+            print("An error occurred:s" % error)
             self.reconnect()
 
     def __init__(self, auth_info, storage_path):
