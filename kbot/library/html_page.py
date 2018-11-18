@@ -15,6 +15,13 @@ class HtmlPage(object):
         Log.info("driver.create/start")
         options = ChromeOptions()
         options.add_argument("--headless")
+        # UA
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36"
+        options.add_argument("--user-agent=" + user_agent)
+        # 言語
+        options.add_argument("--lang=ja")
+        # 画像を読み込まないで軽くする
+        options.add_argument("--blink-settings=imagesEnabled=false")
         self.driver = Chrome(options=options)
         Log.info("driver.create/end")
 
@@ -49,8 +56,6 @@ class HtmlPage(object):
         Log.info("----------- 4: [end] button wait")
         button.click()
         Log.info("----------- 5: [end] button.click()")
-
-        # self.__wait()
 
         # ロードされたかを確認
         self.__wait_element((By.NAME, "FormLEND"))

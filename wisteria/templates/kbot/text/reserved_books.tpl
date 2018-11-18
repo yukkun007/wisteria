@@ -12,9 +12,7 @@
 {% for book in user.reserved_books.list %}
 􀁬{{ book.title }}
 {% if book.is_prepared == True %}􀁠{% elif book.is_dereverd == True %}􀁉{% else %}■{% endif %}状況：{{ book.status }}
-■順位：{{ book.order }}
-■区分：{{ book.kind }}
-■予約日：{{ book.yoyaku_date }}
+■順位：{% if book.is_prepared == True %}-{% elif book.is_dereverd == True %}-{% else %}{{ book.order }}{% endif %}
 ■取置期限日：{{ book.torioki_date }}
 
 {% endfor -%}

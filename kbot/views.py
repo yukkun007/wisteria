@@ -61,16 +61,17 @@ gmail_tos = [os.environ["GMAIL_SEND_ADDRESS1"], os.environ["GMAIL_SEND_ADDRESS2"
 
 def check_rental_state(request):
     if request.method == "GET":
-        __check_rental_state()
+        user_id = request.GET.get("user")
+        __check_rental_state(user_id)
         return HttpResponse("done! check_rental_status")
 
 
-def __check_rental_state():
+def __check_rental_state(user_id: str):
     Log.info("GET! library_check")
 
     xdays = "2"
     library = Library(users)
-    config = RentalBookExpireFilter(xdays=xdays)
+    config = RentalBookExpireFilter(xdays=xdays, users=user_id)
     target_users = library.check_books(config)
     if target_users.is_rental_books_exist():
         line.my_push_message(
@@ -85,14 +86,15 @@ def __check_rental_state():
 
 def check_reserve_state(request):
     if request.method == "GET":
-        __check_reserve_state()
+        user_id = request.GET.get("user")
+        __check_reserve_state(user_id)
         return HttpResponse("done! check_reserve_status")
 
 
-def __check_reserve_state():
+def __check_reserve_state(user_id: str):
     Log.info("GET! library_check_reserve")
-    rental_filter = RentalBookFilter(users="all")
-    reserved_filter = ReservedBookPreparedFilter(users="all")
+    rental_filter = RentalBookFilter(users=user_id)
+    reserved_filter = ReservedBookPreparedFilter(users=user_id)
     __check_rental_and_reserved_books(None, rental_filter, reserved_filter)
 
 

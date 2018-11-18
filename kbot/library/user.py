@@ -26,7 +26,7 @@ class User(object):
         self.rental_books: RentalBooks = RentalBooks()
         self.reserved_books: ReservedBooks = ReservedBooks()
 
-    def set_books(self, books_class_name: str, books: Union[RentalBooks, ReservedBooks]) -> None:
+    def set_books(self, books_class_name: str, books) -> None:
         if books_class_name == "RentalBooks":
             self.__set_rental_books(books)
         elif books_class_name == "ReservedBooks":
