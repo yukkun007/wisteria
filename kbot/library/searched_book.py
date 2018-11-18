@@ -3,16 +3,22 @@
 
 import os
 from kbot.log import Log
-from kbot.book.common import Books
+from kbot.library.common import Books, BookFilter
 from kbot.message import Message
+
+
+class SearchedBookFilter(BookFilter):
+    def __init__(self, *, users=BookFilter.FILTER_USERS_ALL):
+        super(SearchedBookFilter, self).__init__(users=users)
+        self._books_class_name = "SearchedBooks"
 
 
 class SearchedBooks(Books):
 
     TEMPLATE_SEARCHED_BOOKS = "searched_books.tpl"
 
-    def __init__(self, source):
-        super(SearchedBooks, self).__init__(source)
+    def __init__(self):
+        super(SearchedBooks, self).__init__()
 
     def get_message(self, format="text"):
         message = ""

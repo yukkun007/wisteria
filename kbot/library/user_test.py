@@ -36,9 +36,9 @@ class TestUsers:
     def users2(request):
         user1 = MagicMock()
         user1.reserved_books.is_prepared_reserved_book.return_value = True
-        user1.rental_books.get_message.return_value = "this is test."
         user1.rental_books_count = 5
-        user1.reserved_books.get_message.return_value = "this is test."
+        user1.rental_books.len = 5
+        user1.reserved_books.len = 7
         users = Users([user1])
         return users
 
@@ -47,6 +47,14 @@ class TestUsers:
 
     def test_is_rental_books_exist_false(self, users1):
         assert users1.is_rental_books_exist() is False
+
+    def test_get_rental_books_text_message(self, users2):
+        config = RentalBookFilter()
+        users2.get_check_books_text_message(config.books_class_name)
+
+    def test_get_reserved_books_text_message(self, users2):
+        config = ReservedBookFilter()
+        users2.get_check_books_text_message(config.books_class_name)
 
     def test_get_rental_books_html_message(self, users2):
         config = RentalBookFilter()

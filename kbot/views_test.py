@@ -27,7 +27,7 @@ from kbot.views import __search_rakuten_book as search_rakuten_book
 from kbot.views import __search_library_book as search_library_book
 from kbot.views import __search_book_by_isbn as search_book_by_isbn
 from kbot.kbot import KBot
-from kbot.library.rental_book import (
+from kbot.library.rental_book_filter import (
     RentalBookFilter,
     RentalBookExpireFilter,
     RentalBookExpiredFilter,
@@ -58,9 +58,11 @@ class TestViews:
             if http_method == "GET":
                 mock.assert_called_once()
 
+    @pytest.mark.slow
     def test_inner_check_rental_state(self):
         inner_check_rental_state()
 
+    @pytest.mark.slow
     def test_inner_check_reserve_state(self):
         inner_check_reserve_state()
 
@@ -73,6 +75,7 @@ class TestViews:
             if http_method == "GET":
                 mock.assert_called_once()
 
+    @pytest.mark.slow
     def test_inner_youtube_omoide(self):
         inner_youtube_omoide()
 
@@ -159,11 +162,12 @@ class TestViews:
             else:
                 mock.assert_not_called()
 
+    @pytest.mark.slow
     @pytest.mark.parametrize(
         "filter",
         [
             (RentalBookFilter(users="all")),
-            (RentalBookExpireFilter(users="all", xdays=2)),
+            (RentalBookExpireFilter(users="all", xdays="2")),
             (RentalBookExpiredFilter(users="all")),
         ],
     )
@@ -176,18 +180,22 @@ class TestViews:
     def test_reply_response_string(self):
         reply_response_string(None)
 
+    @pytest.mark.slow
     @pytest.mark.parametrize("user_nums", [("0,1,2,3"), ("0,2")])
     def test_check_reserved_books(self, user_nums):
         filter_setting = ReservedBookFilter(users=user_nums)
         check_books(None, filter_setting)
 
+    @pytest.mark.slow
     @pytest.mark.parametrize("query", [("本？坊っちゃん"), ("著？夏目漱石")])
     def test_search_rakuten_book(self, query):
         search_rakuten_book(None, text=query)
 
+    @pytest.mark.slow
     def test_search_book_by_isbn(self):
         search_book_by_isbn(None, "isbn:9784532280208")
 
+    @pytest.mark.slow
     @pytest.mark.parametrize("query", [("ほ？坊っちゃん"), ("ほ？あ")])
     def test_search_library_book(self, query):
         search_library_book(None, query)

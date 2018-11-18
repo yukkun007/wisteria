@@ -12,8 +12,7 @@ class TestSearchedBooks:
 
     @pytest.fixture()
     def books1(request):
-        source = None
-        return SearchedBooks(source)
+        return SearchedBooks()
 
     def test(self, books1):
         pass

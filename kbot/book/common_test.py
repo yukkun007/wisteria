@@ -1,22 +1,7 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
-import pytest
-from kbot.book.common import Books, BookFilter, BookSearchQuery
-
-
-class TestBooks:
-    def test_init(self):
-        source = None
-        books = Books(source)
-        assert books.list == []
-
-
-class TestBookFilter:
-    def test_users(self):
-        filter = BookFilter()
-        with pytest.raises(ValueError):
-            filter.users = "test"
+from kbot.book.common import BookSearchQuery, BookSearchQueryFactory
 
 
 class TestBookSearchQuery:
@@ -25,6 +10,20 @@ class TestBookSearchQuery:
         query.set("test", "hoge")
         assert query.dict().get("test") == "hoge"
 
-    def test_get_from(self):
-        query = BookSearchQuery.get_from("ほ？hoge")
-        assert query.get("title") == "hoge"
+
+class TestBookSearchQueryFactory:
+    def test_create_hon(self):
+        query = BookSearchQueryFactory.create("本？坊っちゃん")
+        assert query.get("title") == "坊っちゃん"
+
+    def test_create_cyo(self):
+        query = BookSearchQueryFactory.create("著？夏目漱石")
+        assert query.get("author") == "夏目漱石"
+
+    def test_create_ho(self):
+        query = BookSearchQueryFactory.create("ほ？坊っちゃん")
+        assert query.get("title") == "坊っちゃん"
+
+    def test_create_isbn(self):
+        query = BookSearchQueryFactory.create("isbn:11111111")
+        assert query.get("isbn") == "11111111"

@@ -18,14 +18,15 @@ class TestHtmlParser:
     def setup(self):
         KBot("wisteria")
 
+    @pytest.mark.slow
     def test_get_rental_books(self):
         page = HtmlPage()
         user = User(os.environ["USER1"])
         html = page.fetch_login_page(Library.LIBRALY_HOME_URL, user)
-        HtmlParser.get_books(html, RentalBooks([]))
+        HtmlParser.get_books(html, RentalBooks())
 
     @pytest.mark.parametrize(
-        "books, books_class", [(RentalBooks([]), RentalBooks), (ReservedBooks([]), ReservedBooks)]
+        "books, books_class", [(RentalBooks(), RentalBooks), (ReservedBooks(), ReservedBooks)]
     )
     def test_get_books_no_table(self, books, books_class):
         with patch(
@@ -37,7 +38,7 @@ class TestHtmlParser:
             assert books.len == 0
 
     @pytest.mark.parametrize(
-        "target, table_name", [(RentalBooks([]), "FormLEND"), (ReservedBooks([]), "FormRSV")]
+        "target, table_name", [(RentalBooks(), "FormLEND"), (ReservedBooks(), "FormRSV")]
     )
     def test_get_books_table(self, target, table_name):
         with patch("kbot.library.html_parser.HtmlParser._HtmlParser__get_table") as mock:
@@ -50,7 +51,7 @@ class TestHtmlParser:
             "kbot.library.html_parser.HtmlParser._HtmlParser__get_table_by_attribute_value"
         ) as mock:
             soup_mock = MagicMock()
-            HtmlParser._HtmlParser__get_books_table(soup_mock, SearchedBooks([]))
+            HtmlParser._HtmlParser__get_books_table(soup_mock, SearchedBooks())
             mock.assert_called_once_with(soup_mock, "rules", "none")
 
     def test_get_table_empty(self):

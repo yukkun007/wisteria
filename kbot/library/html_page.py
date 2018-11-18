@@ -7,17 +7,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.by import By
 from kbot.log import Log
+from kbot.library.user import User
 
 
 class HtmlPage(object):
-    def __init__(self):
+    def __init__(self) -> None:
         Log.info("driver.create/start")
         options = ChromeOptions()
         options.add_argument("--headless")
         self.driver = Chrome(options=options)
         Log.info("driver.create/end")
 
-    def __wait(self):
+    def __wait(self) -> None:
         WebDriverWait(self.driver, 10, poll_frequency=0.05).until(
             ec.presence_of_all_elements_located
         )
@@ -29,7 +30,7 @@ class HtmlPage(object):
 
         return element
 
-    def __login(self, login_url, user):
+    def __login(self, login_url: str, user: User) -> None:
         Log.info("login..... : user.name={0}, url={1}".format(user.name, login_url))
 
         self.driver.get(login_url)
@@ -55,7 +56,7 @@ class HtmlPage(object):
         self.__wait_element((By.NAME, "FormLEND"))
         Log.info("----------- 6: [end] wait")
 
-    def reserve(self, login_url, user, url):
+    def reserve(self, login_url: str, user: User, url: str) -> str:
         self.__login(login_url, user)
 
         self.driver.get(url)
@@ -74,24 +75,23 @@ class HtmlPage(object):
         submit.click()
 
         current_url = self.driver.current_url
-        HtmlPage.__end(self.driver)
 
         return current_url
 
-    def fetch_login_page(self, login_url, user):
+    def fetch_login_page(self, login_url: str, user: User) -> str:
         self.__login(login_url, user)
         Log.info("driver.page_source.encode/start")
         html = self.driver.page_source.encode("utf-8")
         Log.info("driver.page_source.encode/end")
         return html
 
-    def fetch_search_result_page(self, url):
+    def fetch_search_result_page(self, url: str) -> str:
         self.driver.get(url)
         self.__wait()
         html = self.driver.page_source.encode("utf-8")
         return html
 
-    def release_resource(self):
+    def release_resource(self) -> None:
         Log.info("driver.quit/start")
         self.driver.quit()
         Log.info("driver.quit/end")

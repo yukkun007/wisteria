@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
-import os
 from linebot.models import ButtonsTemplate, PostbackTemplateAction
-from kbot.message import Message
-from kbot.book.common import Books, BookFilter
+from kbot.library.common import Books, BookFilter
 from kbot.log import Log
 
 
@@ -33,8 +31,8 @@ class ReservedBooks(Books):
 
     TEMPLATE_RESERVED_BOOKS = "reserved_books.tpl"
 
-    def __init__(self, source):
-        super(ReservedBooks, self).__init__(source)
+    def __init__(self):
+        super(ReservedBooks, self).__init__()
 
     def create_and_append(self, data):
         status = data[1].get_text().strip()
@@ -48,13 +46,6 @@ class ReservedBooks(Books):
 
         self.append(reserved_book)
 
-    def get_message(self, format="text"):
-        message = ""
-        data = {"books": self, "is_prepared": self.is_prepared_reserved_book()}
-        message += Message.create(os.path.join(format, ReservedBooks.TEMPLATE_RESERVED_BOOKS), data)
-
-        return message
-
     def is_prepared_reserved_book(self):
         for book in self._list:
             if book.status == "ご用意できました":
@@ -62,14 +53,11 @@ class ReservedBooks(Books):
         return False
 
     def apply_filter(self, filter_setting):
-        # books_list = books._list
         if filter_setting.almost_prepared:
             filterd_books = filter(lambda book: book.is_prepared or book.is_dereverd, self._list)
             self._list = ReservedBooks.__sort(filterd_books)
-            # return ReservedBooks(ReservedBooks.__sort(filterd_books))
         else:
             self._list = ReservedBooks.__sort(self._list)
-            # return ReservedBooks(ReservedBooks.__sort(books_list))
 
     @classmethod
     def __sort(cls, books_list):
