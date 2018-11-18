@@ -1,24 +1,24 @@
 <hr></hr>
-{%- if books.len > 0 -%}
-<h3>{{ books.user.name }}(ID:{{ books.user.id }})</h3>
-{% if books.filter_setting.is_type_none -%}
-{{ books.user.name }}の借りてる本です。
-{%- elif books.filter_setting.is_type_expired -%}
-{{ books.user.name }}の借りた次の本は、期限が切れています！
-{%- elif books.filter_setting.is_type_expire -%}
-{{ books.user.name }}の借りた次の本は、返却期限まであと{{ books.filter_setting.xdays }}日を切りました。
+{%- if user.rental_books.len > 0 -%}
+<h3>{{ user.name }}(ID:{{ user.id }})</h3>
+{% if user.rental_books.filter_setting.is_type_none -%}
+{{ user.name }}の借りてる本です。
+{%- elif user.rental_books.filter_setting.is_type_expired -%}
+{{ user.name }}の借りた次の本は、期限が切れています！
+{%- elif user.rental_books.filter_setting.is_type_expire -%}
+{{ user.name }}の借りた次の本は、返却期限まであと{{ user.rental_books.filter_setting.xdays }}日を切りました。
 {% endif -%}
 {% else -%}
-{{ books.user.name }}(ID:{{ books.user.id }})
-{%- if books.filter_setting.is_type_none -%}
+{{ user.name }}(ID:{{ user.id }})
+{%- if user.rental_books.filter_setting.is_type_none -%}
 の借りてる本はありません。
-{%- elif books.filter_setting.is_type_expired -%}
+{%- elif user.rental_books.filter_setting.is_type_expired -%}
 の借りてる本で期限切れの本はありません。
-{%- elif books.filter_setting.is_type_expire -%}
-の借りてる本で返却期限まであと{{ books.filter_setting.xdays }}日を切った本はありません。
+{%- elif user.rental_books.filter_setting.is_type_expire -%}
+の借りてる本で返却期限まであと{{ user.rental_books.filter_setting.xdays }}日を切った本はありません。
 {% endif -%}
 {% endif -%}
-<p><b>{{ books.len }}冊</b></p>
+<p><b>{{ user.rental_books.len }}冊</b></p>
 
 <div>
 <table width="95%" border="1" align="center" cellspacing="0" cellpadding="2">

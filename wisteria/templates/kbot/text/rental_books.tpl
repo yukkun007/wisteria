@@ -1,25 +1,25 @@
-{%- if books.len > 0 %}
+{%- if user.rental_books.len > 0 %}
 ───────────
-{% if books.filter_setting.is_type_none -%}
-􀂏{{ books.user.name }}({{ books.user.id }})
-　　　貸出：{{ books.len }}冊
-{%- elif books.filter_setting.is_type_expired -%}
-􀁽{{ books.user.name }}({{ books.user.id }})
-　　　延滞：{{ books.len }}冊
-{%- elif books.filter_setting.is_type_expire -%}
-􀂏{{ books.user.name }}({{ books.user.id }})
-　{{ books.filter_setting.xdays }}日以内で延滞：{{ books.len }}冊
+{% if user.rental_books.filter_setting.is_type_none -%}
+􀂏{{ user.name }}({{ user.id }})
+　　　貸出：{{ user.rental_books.len }}冊
+{%- elif user.rental_books.filter_setting.is_type_expired -%}
+􀁽{{ user.name }}({{ user.id }})
+　　　延滞：{{ user.rental_books.len }}冊
+{%- elif user.rental_books.filter_setting.is_type_expire -%}
+􀂏{{ user.name }}({{ user.id }})
+　{{ user.rental_books.filter_setting.xdays }}日以内で延滞：{{ user.rental_books.len }}冊
 {%- endif %}
 ───────────
 {%- else %}
 ───────────
-􀂏{{ books.user.name }}({{ books.user.id }})
-{%- if books.filter_setting.is_type_none %}
+􀂏{{ user.name }}({{ user.id }})
+{%- if user.rental_books.filter_setting.is_type_none %}
 　　　貸出：0冊
-{%- elif books.filter_setting.is_type_expired %}
+{%- elif user.rental_books.filter_setting.is_type_expired %}
 　　　延滞：0冊
-{%- elif books.filter_setting.is_type_expire %}
-　{{ books.filter_setting.xdays }}日以内で延滞：0冊
+{%- elif user.rental_books.filter_setting.is_type_expire %}
+　{{ user.rental_books.filter_setting.xdays }}日以内で延滞：0冊
 {%- endif %}
 ───────────
 {% endif -%}

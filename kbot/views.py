@@ -15,10 +15,10 @@ from kbot.kbot import KBot
 from kbot.line import Line
 from kbot.library.library import Library
 from kbot.library.user import User, Users
-from kbot.library.rental_book import (
+from kbot.library.rental_book_filter import (
     RentalBookFilter,
     RentalBookExpireFilter,
-    RentalBookExpiredFilter,
+    RentalBookExpiredFilter
 )
 from kbot.library.reserved_book import ReservedBook, ReservedBookFilter, ReservedBookPreparedFilter
 from kbot.log import Log
@@ -26,7 +26,7 @@ from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
 from kbot.book.calil import CalilService
 from kbot.book.rakuten_books import RakutenBooksService
-from kbot.book.common import BookSearchQuery
+from kbot.book.common import BookSearchQueryFactory
 
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -266,9 +266,10 @@ def __send_line_message(event, message, is_push):
 
 
 def __search_book(event, search_class, max_count, text=None):
-    query = BookSearchQuery.get_from(text)
+    query = BookSearchQueryFactory.create(text)
     books = search_class.search_books(query)
-    message = books.slice(0, max_count).get_message()
+    books.slice(0, max_count)
+    message = books.get_message()
     line.my_reply_message(message, event)
 
 
@@ -282,11 +283,11 @@ def __search_library_book(event, text=None):
 
 def __search_book_by_isbn(event, text=None):
     # calilで検索
-    query = BookSearchQuery.get_from(text)
+    query = BookSearchQueryFactory.create(text)
     calil_book = CalilService.get_one_book(query)
     # amazonで検索
     # book.merge(amazon.get_book(isbn))
-    query = BookSearchQuery.get_from(text)
+    query = BookSearchQueryFactory.create(text)
     rakuten_book = RakutenBooksService.get_one_book(query)
     # メッセージ作成
     message = rakuten_book.get_text_message() + calil_book.get_text_message()

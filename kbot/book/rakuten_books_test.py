@@ -42,6 +42,7 @@ class TestRakutenBooksService:
         assert mock_method.called
         assert rakuten_book.title == title
 
+    @pytest.mark.slow
     def test_search_books(self):
         query = BookSearchQuery()
         query.set("title", "カンブリア")

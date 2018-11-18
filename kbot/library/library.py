@@ -7,7 +7,7 @@ from kbot.library.html_parser import HtmlParser
 from kbot.log import Log
 from kbot.library.rental_book import RentalBooks
 from kbot.library.reserved_book import ReservedBooks
-from kbot.library.searched_book import SearchedBooks
+from kbot.library.searched_book import SearchedBooks, SearchedBookFilter
 
 
 class Library(object):
@@ -34,18 +34,20 @@ class Library(object):
         print(Library.LIBRALY_SEARCH_URL + hoge)
         html = html_page.fetch_search_result_page(Library.LIBRALY_SEARCH_URL + hoge)
         print(html)
-        books = HtmlParser.get_books(html, SearchedBooks([]))
+        book_filter = SearchedBookFilter()
+        empty_books = Library.__create_empty_books(book_filter.books_class_name)
+        books = HtmlParser.get_books(html, empty_books)
         html_page.release_resource()
         return books
 
     @classmethod
     def __create_empty_books(cls, books_class_name):
         if books_class_name in {"RentalBooks"}:
-            return RentalBooks([])
+            return RentalBooks()
         elif books_class_name == "ReservedBooks":
-            return ReservedBooks([])
+            return ReservedBooks()
         elif books_class_name == "SearchedBooks":
-            return SearchedBooks([])
+            return SearchedBooks()
 
     def __check_books(self, book_filters):
         html_page = HtmlPage()
@@ -75,8 +77,10 @@ class Library(object):
 
     def reserve(self, user_num, book_id):
         html_page = HtmlPage()
-        return html_page.reserve(
+        return_url = html_page.reserve(
             Library.LIBRALY_HOME_URL,
             self.users.get(int(user_num)),
             Library.LIBRALY_BOOK_URL.format(book_id),
         )
+        html_page.release_resource()
+        return return_url

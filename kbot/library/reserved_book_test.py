@@ -10,7 +10,7 @@ class TestReservedBooks:
     @pytest.fixture()
     def books1(request):
         KBot("wisteria")
-        return ReservedBooks(None)
+        return ReservedBooks()
 
     def test_is_prepared_reserved_book_true(self, books1):
         book = ReservedBook("ご用意できました", "", "title", "kind", "yoyaku_date", "torioki_date")

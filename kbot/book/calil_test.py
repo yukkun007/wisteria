@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
+import pytest
 import json
 from unittest.mock import patch, MagicMock
 from kbot.kbot import KBot
@@ -12,6 +13,7 @@ class TestCalilService(object):
     def setup(self):
         KBot("wisteria")
 
+    @pytest.mark.slow
     def test_calil_service(self):
         query = BookSearchQuery()
         query.set("isbn", "9784532280208")
@@ -23,6 +25,7 @@ class TestCalilService(object):
         book = CalilService._CalilService__get_one_book_from_json(json_data, "1111", "system1")
         assert book.isbn == "1111"
 
+    @pytest.mark.slow
     def test_polling(self):
         with patch("kbot.book.calil.CalilService._CalilService__polling_request") as mock:
             json_data = json.loads('{"continue": 1, "session": "hoge"}')
