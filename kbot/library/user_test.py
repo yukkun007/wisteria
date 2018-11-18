@@ -24,7 +24,19 @@ class TestUsers:
         for user in new_users.list:
             assert user.name == "test2"
 
-    def test_get_user_num(self, users1):
+    def test_filter(self, users1):
+        users: Users = users1.filter("0")
+        assert users.list[0].name == "test"
+
+    def test_filter2(self, users1):
+        users: Users = users1.filter("1")
+        assert users.list[0].name == "test2"
+
+    def test_get_user_num1(self, users1):
+        num = users1.get_user_num("図書？test")
+        assert num == "0"
+
+    def test_get_user_num2(self, users1):
         num = users1.get_user_num("図書？test2")
         assert num == "1"
 

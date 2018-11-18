@@ -60,11 +60,11 @@ class TestViews:
 
     @pytest.mark.slow
     def test_inner_check_rental_state(self):
-        inner_check_rental_state()
+        inner_check_rental_state("0")
 
     @pytest.mark.slow
     def test_inner_check_reserve_state(self):
-        inner_check_reserve_state()
+        inner_check_reserve_state("0")
 
     @pytest.mark.parametrize("http_method", [("GET"), ("OTHER")])
     def test_youtube_omoide(self, http_method):
