@@ -132,12 +132,19 @@ def youtube_omoide(request):
 def __youtube_omoide():
     Log.info("GET! youtube_omoide")
 
-    movie = youtube.get_youtube_movie()
+    description = ""
+    movie = youtube.get_youtube_movie_match_date()
+    if movie is None:
+        movie = youtube.get_youtube_movie()
+        description = "投稿日: " + movie.published_at
+    else:
+        description = "★　 " + movie.past_years + " 年前の今日　★"
+
     Log.info(movie.to_string())
 
     buttons_template = ButtonsTemplate(
         title=movie.title,
-        text="投稿日: " + movie.published_at,
+        text=description,
         thumbnail_image_url=movie.url,
         actions=[
             URITemplateAction(
