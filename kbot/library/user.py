@@ -4,7 +4,7 @@
 import os
 import json
 
-from typing import List, Union
+from typing import List
 from kbot.message import Message
 from kbot.library.rental_book import RentalBooks
 from kbot.library.reserved_book import ReservedBooks

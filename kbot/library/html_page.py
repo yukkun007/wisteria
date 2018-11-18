@@ -16,7 +16,7 @@ class HtmlPage(object):
         options = ChromeOptions()
         options.add_argument("--headless")
         # UA
-        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36"
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36"  # noqa
         options.add_argument("--user-agent=" + user_agent)
         # 言語
         options.add_argument("--lang=ja")
