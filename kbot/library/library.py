@@ -53,6 +53,7 @@ class Library(object):
         html_page = HtmlPage()
 
         first_book_filter = book_filters[0]
+        print("-------------> first_book_filter.users:" + first_book_filter.users)
         target_users = self.users.filter(first_book_filter.users)
         for user in target_users.list:
             Log.info(user.name)
