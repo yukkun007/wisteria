@@ -138,7 +138,7 @@ def __youtube_omoide():
         movie = youtube.get_youtube_movie()
         description = "投稿日: " + movie.published_at
     else:
-        description = "★　 " + movie.past_years + " 年前の今日　★"
+        description = "★　 " + str(movie.past_years) + " 年前の今日　★"
 
     Log.info(movie.to_string())
 
