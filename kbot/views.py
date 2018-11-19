@@ -317,15 +317,15 @@ _handler_maps = [
     {"keyword": "日で延滞", "filter": __get_rental_book_expire_filter, "handler": __check_books},
     {"keyword": "延滞", "filter": lambda text: RentalBookExpiredFilter(), "handler": __check_books},
     {
-        "keyword": "予約",
-        "filter": lambda text: ReservedBookFilter(users="all"),
-        "handler": __check_books,
-    },
-    {
         "keyword": "予約？",
         "filter": __get_rental_book_filter_of_user_specify,
         "filter2": __get_reserved_book_filter_of_user_specify,
         "handler": __check_rental_and_reserved_books,
+    },
+    {
+        "keyword": "予約",
+        "filter": lambda text: ReservedBookFilter(users="all"),
+        "handler": __check_books,
     },
     {"keyword": "本？", "handler": __search_rakuten_book},
     {"keyword": "ほ？", "handler": __search_library_book},
