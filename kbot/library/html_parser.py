@@ -32,25 +32,11 @@ class HtmlParser(object):
             table = HtmlParser.__get_table(soup, "FormLEND")
         elif type_string == "ReservedBooks":
             table = HtmlParser.__get_table(soup, "FormRSV")
-        elif type_string == "SearchedBooks":
-            table = HtmlParser.__get_table_by_attribute_value(soup, "rules", "none")
         return table
 
     @classmethod
     def __get_table(cls, soup, id_string):
         table = soup.select("form[name='" + id_string + "'] > table[border]")
-
-        if len(table) <= 0:
-            Log.info("table not found.")
-            return None
-
-        return table
-
-    @classmethod
-    def __get_table_by_attribute_value(cls, soup, attribute, value):
-        css_selector = "table[" + attribute + '="' + value + '"]'
-        print(css_selector)
-        table = soup.select(css_selector)
 
         if len(table) <= 0:
             Log.info("table not found.")

@@ -1,13 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import urllib
 from kbot.library.html_page import HtmlPage
 from kbot.library.html_parser import HtmlParser
 from kbot.log import Log
 from kbot.library.rental_book import RentalBooks
 from kbot.library.reserved_book import ReservedBooks
-from kbot.library.searched_book import SearchedBooks, SearchedBookFilter
 
 
 class Library(object):
@@ -18,27 +16,8 @@ class Library(object):
         "LIB&MODE=1&PID2=OPWSRCH1&SRCID=1&WRTCOUNT=10&LID=1&GBID={0}&DispDB=LIB"
     )
 
-    LIBRALY_SEARCH_URL = (
-        "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWSRCHLIST.CSP?"
-        'DB=LIB&FLG=SEARCH&LOCAL("LIB","SK41",1)=on&MODE=1&'
-        "PID2=OPWSRCH2&SORT=-3&opr(1)=OR&qual(1)=MZTI&WRTCOUNT=100&text(1)="
-    )
-
     def __init__(self, users):
         self.users = users
-
-    @classmethod
-    def search_books(cls, query):
-        html_page = HtmlPage()
-        hoge = urllib.parse.quote(query.get("title"))
-        print(Library.LIBRALY_SEARCH_URL + hoge)
-        html = html_page.fetch_search_result_page(Library.LIBRALY_SEARCH_URL + hoge)
-        print(html)
-        book_filter = SearchedBookFilter()
-        empty_books = Library.__create_empty_books(book_filter.books_class_name)
-        books = HtmlParser.get_books(html, empty_books)
-        html_page.release_resource()
-        return books
 
     @classmethod
     def __create_empty_books(cls, books_class_name):
@@ -46,8 +25,6 @@ class Library(object):
             return RentalBooks()
         elif books_class_name == "ReservedBooks":
             return ReservedBooks()
-        elif books_class_name == "SearchedBooks":
-            return SearchedBooks()
 
     def __check_books(self, book_filters):
         html_page = HtmlPage()

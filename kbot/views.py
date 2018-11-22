@@ -2,6 +2,7 @@
 # from __future__ import unicode_literals
 
 import os
+import urllib
 
 from django.http import (
     HttpResponse,
@@ -10,6 +11,7 @@ from django.http import (
     HttpResponseForbidden,
 )
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import redirect
 
 from kbot.kbot import KBot
 from kbot.line import Line
@@ -287,8 +289,25 @@ def __search_rakuten_book(event, text=None):
     __search_book(event, RakutenBooksService, 5, text)
 
 
+LIBRALY_SEARCH_URL = (
+    "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWSRCHLIST.CSP?"
+    'DB=LIB&FLG=SEARCH&LOCAL("LIB","SK41",1)=on&MODE=1&'
+    "PID2=OPWSRCH2&SORT=-3&opr(1)=OR&qual(1)=MZTI&WRTCOUNT=100&text(1)="
+)
+
+
+def library_search(request):
+    if request.method == "GET":
+        title = request.GET.get("title")
+        return __search_library_book(None, text="ほ？" + title)
+
+
 def __search_library_book(event, text=None):
-    __search_book(event, Library, 50, text)
+    if text is None:
+        return HttpResponse("done! library_search")
+    query = BookSearchQueryFactory.create(text)
+    title = urllib.parse.quote(query.get("title"))
+    return redirect(LIBRALY_SEARCH_URL + title)
 
 
 def __search_book_by_isbn(event, text=None):

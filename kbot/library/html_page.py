@@ -90,12 +90,6 @@ class HtmlPage(object):
         Log.info("driver.page_source.encode/end")
         return html
 
-    def fetch_search_result_page(self, url: str) -> str:
-        self.driver.get(url)
-        self.__wait()
-        html = self.driver.page_source.encode("utf-8")
-        return html
-
     def release_resource(self) -> None:
         Log.info("driver.quit/start")
         self.driver.quit()

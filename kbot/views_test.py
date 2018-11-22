@@ -198,4 +198,6 @@ class TestViews:
     @pytest.mark.slow
     @pytest.mark.parametrize("query", [("ほ？坊っちゃん"), ("ほ？あ")])
     def test_search_library_book(self, query):
-        search_library_book(None, query)
+        with patch("kbot.views.redirect") as mock:
+            search_library_book(None, query)
+            mock.assert_called_once()
