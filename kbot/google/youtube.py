@@ -126,6 +126,8 @@ class YouTube(object):
                 index = random.randint(0, len(match_items) - 1)
                 print("----------- match item found ! len=%d, index=%d" % (len(match_items), index))
                 all_match_items.append(match_items[index])
+            else:
+                print("no match items.....")
 
             playlistitems_list_request = self.youtube.playlistItems().list_next(
                 playlistitems_list_request, playlistitems_list_response

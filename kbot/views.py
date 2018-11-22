@@ -47,7 +47,6 @@ else:
     line_tos = [os.environ["LINE_SEND_GROUP_ID"]]
 line = Line(line_bot_api)
 gmail = GMail()
-youtube = YouTube()
 users = Users(
     [
         User(os.environ["USER1"]),
@@ -133,8 +132,10 @@ def __youtube_omoide():
     Log.info("GET! youtube_omoide")
 
     description = ""
+    youtube = YouTube()
     movie = youtube.get_youtube_movie_match_date()
     if movie is None:
+        youtube = YouTube()
         movie = youtube.get_youtube_movie()
         description = "投稿日: " + movie.published_at
     else:

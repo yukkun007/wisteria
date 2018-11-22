@@ -13,19 +13,21 @@ class TestReservedBooks:
         return ReservedBooks()
 
     def test_is_prepared_reserved_book_true(self, books1):
-        book = ReservedBook("ご用意できました", "", "title", "kind", "yoyaku_date", "torioki_date")
+        book = ReservedBook(
+            "ご用意できました", "", "title", "kind", "yoyaku_date", "torioki_date", "receive"
+        )
         books1.append(book)
         assert books1.is_prepared_reserved_book() is True
 
     def test_is_prepared_reserved_book_false(self, books1):
-        book = ReservedBook("status", "", "title", "kind", "yoyaku_date", "torioki_date")
+        book = ReservedBook("status", "", "title", "kind", "yoyaku_date", "torioki_date", "receive")
         books1.append(book)
         assert books1.is_prepared_reserved_book() is False
 
 
 class TestReservedBook:
     def test_basic(self):
-        book = ReservedBook("status", "", "title", "kind", "yoyaku_date", "torioki_date")
+        book = ReservedBook("status", "", "title", "kind", "yoyaku_date", "torioki_date", "receive")
         num = book._ReservedBook__get_order_num(" 1 / 10")
         assert num == 1
 
