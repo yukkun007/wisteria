@@ -291,8 +291,8 @@ def __search_rakuten_book(event, text=None):
 
 LIBRALY_SEARCH_URL = (
     "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWSRCHLIST.CSP?"
-    'DB=LIB&FLG=SEARCH&LOCAL("LIB","SK41",1)=on&MODE=1&'
-    "PID2=OPWSRCH2&SORT=-3&opr(1)=OR&qual(1)=MZTI&WRTCOUNT=100&text(1)="
+    'DB=LIB&FLG=SEARCH&LOCAL%28"LIB","SK41",1%29=on&MODE=1&'
+    "PID2=OPWSRCH2&SORT=-3&opr%281%29=OR&qual%281%29=MZTI&WRTCOUNT=100&text%281%29="
 )
 
 
