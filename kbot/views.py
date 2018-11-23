@@ -296,13 +296,6 @@ LIBRALY_SEARCH_URL = (
 )
 
 
-def library_search(request):
-    pass
-    # if request.method == "GET":
-    #     title = request.GET.get("title")
-    #     return __search_library_book(None, text="ほ？" + title)
-
-
 def __search_library_book_title(event, text=None):
     query = BookSearchQueryFactory.create(text)
     url = LIBRALY_SEARCH_URL.format("MZTI") + urllib.parse.quote(query.get("title"))
