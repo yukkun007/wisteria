@@ -31,6 +31,9 @@ class BookSearchQueryFactory(object):
         elif "ほ？" in text:
             book_name = text[2:]
             query.set("title", book_name)
+        elif "ちょ？" in text:
+            author = text[3:]
+            query.set("author", author)
         elif "isbn" in text:
             isbn = text[5:]
             query.set("isbn", isbn)

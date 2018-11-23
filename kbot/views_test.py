@@ -24,7 +24,8 @@ from kbot.views import __check_books as check_books
 from kbot.views import __reply_command_menu as reply_command_menu
 from kbot.views import __reply_response_string as reply_response_string
 from kbot.views import __search_rakuten_book as search_rakuten_book
-from kbot.views import __search_library_book as search_library_book
+from kbot.views import __search_library_book_title as search_library_book_title
+from kbot.views import __search_library_book_author as search_library_book_author
 from kbot.views import __search_book_by_isbn as search_book_by_isbn
 from kbot.kbot import KBot
 from kbot.library.rental_book_filter import (
@@ -187,7 +188,7 @@ class TestViews:
         check_books(None, filter_setting)
 
     @pytest.mark.slow
-    @pytest.mark.parametrize("query", [("本？坊っちゃん"), ("著？夏目漱石")])
+    @pytest.mark.parametrize("query", [("ほ？坊っちゃん"), ("ちょ？夏目漱石")])
     def test_search_rakuten_book(self, query):
         search_rakuten_book(None, text=query)
 
@@ -196,8 +197,11 @@ class TestViews:
         search_book_by_isbn(None, "isbn:9784532280208")
 
     @pytest.mark.slow
-    @pytest.mark.parametrize("query", [("ほ？坊っちゃん"), ("ほ？あ")])
-    def test_search_library_book(self, query):
-        with patch("kbot.views.redirect") as mock:
-            search_library_book(None, query)
-            mock.assert_called_once()
+    @pytest.mark.parametrize("query", [("本？坊っちゃん"), ("本？あ")])
+    def test_search_library_book_title(self, query):
+        search_library_book_title(None, query)
+
+    @pytest.mark.slow
+    @pytest.mark.parametrize("query", [("著？夏目漱石"), ("著？あ")])
+    def test_search_library_book_author(self, query):
+        search_library_book_author(None, query)
