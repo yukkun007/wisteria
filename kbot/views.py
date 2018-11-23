@@ -292,22 +292,27 @@ def __search_rakuten_book(event, text=None):
 LIBRALY_SEARCH_URL = (
     "https://www.lib.nerima.tokyo.jp/opw/OPW/OPWSRCHLIST.CSP?"
     "DB=LIB&FLG=SEARCH&LOCAL%28%22LIB%22%2c%22SK41%22%2c1%29=on&MODE=1&"
-    "PID2=OPWSRCH2&SORT=-3&opr%281%29=OR&qual%281%29=MZTI&WRTCOUNT=100&text%281%29="
+    "PID2=OPWSRCH2&SORT=-3&opr%281%29=OR&qual%281%29={0}&WRTCOUNT=100&text%281%29="
 )
 
 
 def library_search(request):
-    if request.method == "GET":
-        title = request.GET.get("title")
-        return __search_library_book(None, text="ほ？" + title)
+    pass
+    # if request.method == "GET":
+    #     title = request.GET.get("title")
+    #     return __search_library_book(None, text="ほ？" + title)
 
 
-def __search_library_book(event, text=None):
-    # if text is None:
-    #     return HttpResponse("done! library_search")
+def __search_library_book_title(event, text=None):
     query = BookSearchQueryFactory.create(text)
-    # return redirect(LIBRALY_SEARCH_URL + title)
-    url = LIBRALY_SEARCH_URL + urllib.parse.quote(query.get("title"))
+    url = LIBRALY_SEARCH_URL.format("MZTI") + urllib.parse.quote(query.get("title"))
+    message = "URLをクリック: " + url
+    line.my_reply_message(message, event)
+
+
+def __search_library_book_author(event, text=None):
+    query = BookSearchQueryFactory.create(text)
+    url = LIBRALY_SEARCH_URL.format("MZAU") + urllib.parse.quote(query.get("author"))
     message = "URLをクリック: " + url
     line.my_reply_message(message, event)
 
@@ -349,8 +354,9 @@ _handler_maps = [
         "filter": lambda text: ReservedBookFilter(users="all"),
         "handler": __check_books,
     },
-    {"keyword": "本？", "handler": __search_rakuten_book},
-    {"keyword": "ほ？", "handler": __search_library_book},
+    {"keyword": "ほ？", "handler": __search_rakuten_book},
+    {"keyword": "本？", "handler": __search_library_book_title},
+    {"keyword": "著？", "handler": __search_library_book_author},
     {"keyword": "文字", "handler": __reply_response_string},
     {"keyword": "コマンド", "handler": __reply_command_menu},
 ]
