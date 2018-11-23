@@ -306,9 +306,10 @@ def __search_library_book(event, text=None):
     # if text is None:
     #     return HttpResponse("done! library_search")
     query = BookSearchQueryFactory.create(text)
-    title = urllib.parse.quote(query.get("title"))
     # return redirect(LIBRALY_SEARCH_URL + title)
-    message = "URLをクリック: " + LIBRALY_SEARCH_URL + title
+    url = LIBRALY_SEARCH_URL + query.get("title")
+    quoted_url = urllib.parse.quote(url)
+    message = "URLをクリック: " + quoted_url
     line.my_reply_message(message, event)
 
 
