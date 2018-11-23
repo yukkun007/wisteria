@@ -11,7 +11,7 @@ from django.http import (
     HttpResponseForbidden,
 )
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import redirect
+# from django.shortcuts import redirect
 
 from kbot.kbot import KBot
 from kbot.line import Line
@@ -303,11 +303,13 @@ def library_search(request):
 
 
 def __search_library_book(event, text=None):
-    if text is None:
-        return HttpResponse("done! library_search")
+    # if text is None:
+    #     return HttpResponse("done! library_search")
     query = BookSearchQueryFactory.create(text)
     title = urllib.parse.quote(query.get("title"))
-    return redirect(LIBRALY_SEARCH_URL + title)
+    # return redirect(LIBRALY_SEARCH_URL + title)
+    message = "URLをクリック: " + LIBRALY_SEARCH_URL + title
+    line.my_reply_message(message, event)
 
 
 def __search_book_by_isbn(event, text=None):
