@@ -6,5 +6,6 @@ urlpatterns = [
     url("^library/check/", views.check_rental_state),
     url("^library/checkreserve/", views.check_reserve_state),
     url("^library/reserve/", views.library_reserve),
+    url("^library/search/", views.library_search),
     url("^callback/", views.callback),
 ]

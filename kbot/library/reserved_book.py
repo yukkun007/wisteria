@@ -41,8 +41,11 @@ class ReservedBooks(Books):
         kind = data[4].get_text().strip()
         yoyaku_date = data[6].get_text().strip()
         torioki_date = data[7].get_text().strip()
+        receive_lib = data[8].get_text().strip()
 
-        reserved_book = ReservedBook(status, order, title, kind, yoyaku_date, torioki_date)
+        reserved_book = ReservedBook(
+            status, order, title, kind, yoyaku_date, torioki_date, receive_lib
+        )
 
         self.append(reserved_book)
 
@@ -65,7 +68,7 @@ class ReservedBooks(Books):
 
 
 class ReservedBook(object):
-    def __init__(self, status, order, title, kind, yoyaku_date, torioki_date):
+    def __init__(self, status, order, title, kind, yoyaku_date, torioki_date, receive_lib):
         self.status = status
         self.order = order
         self.order_num = self.__get_order_num(order)
@@ -73,15 +76,16 @@ class ReservedBook(object):
         self.kind = kind
         self.yoyaku_date = yoyaku_date
         self.torioki_date = torioki_date
+        self.receive_lib = receive_lib
         self.is_prepared = ReservedBook.__is_prepared(status)
         self.is_dereverd = ReservedBook.__is_dereverd(status)
 
         Log.info(self.to_string())
 
     def to_string(self):
-        string = ("status:{0} order:{1} title:{2} " "kind:{3} yoyaku_date:{4}").format(
-            self.status, self.order, self.title, self.kind, self.yoyaku_date
-        )
+        string = (
+            "status:{0} order:{1} title:{2} " "kind:{3} yoyaku_date:{4} receive_lib:{5}"
+        ).format(self.status, self.order, self.title, self.kind, self.yoyaku_date, self.receive_lib)
         return string
 
     @classmethod
