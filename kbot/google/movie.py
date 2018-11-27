@@ -20,7 +20,7 @@ class Movie(object):
             return 0
 
     def to_string(self):
-        string = "title:{0} video_id:{1} url:{2}, published_at:{3}".format(
-            self.title, self.video_id, self.url, self.published_at
+        string = "title:{0}, video_id:{1}, past_years:{2}, url:{3}, published_at:{4}".format(
+            self.title, self.video_id, str(self.past_years), self.url, self.published_at
         )
         return string

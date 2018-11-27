@@ -14,7 +14,13 @@ class TestYouTube:
         youtube.get_youtube_movie()
 
     @pytest.mark.slow
-    def test_youtube_match_date(self):
+    def test_youtube_match_today(self):
         KBot("wisteria")
         youtube = YouTube()
-        youtube.get_youtube_movie_match_date()
+        youtube.get_youtube_movie_match_today()
+
+    @pytest.mark.slow
+    def test_youtube_movies_recent(self):
+        KBot("wisteria")
+        youtube = YouTube()
+        youtube.get_youtube_movies_recent()
