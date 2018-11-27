@@ -32,3 +32,4 @@ ut = "py.test -v --duration=20 --capture=no --cov-config .coveragerc --cov=kbot 
 ut_fast = "py.test -v --duration=20 -m 'not slow' --capture=no --cov-config .coveragerc --cov=kbot ."
 lint = "flake8 --max-line-length=100 --ignore=E203,W503 ./kbot"
 mypy = "mypy --strict-optional --disallow-untyped-defs --disallow-untyped-calls ./kbot"
+
