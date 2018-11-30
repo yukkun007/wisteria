@@ -5,7 +5,8 @@ import re
 import httplib2
 import os
 import random
-from datetime import datetime
+from typing import List, Union, Optional
+from datetime import datetime, timedelta
 from apiclient.discovery import build
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
@@ -50,43 +51,17 @@ class YouTube(object):
             http=credentials.authorize(httplib2.Http()),
         )
 
-    def get_youtube_movie(self):
-        channels_response = self.youtube.channels().list(mine=True, part="contentDetails").execute()
+    def __create_movie(self, playlist_item) -> Union[None, Movie]:
+        if playlist_item is None:
+            return None
 
-        for channel in channels_response["items"]:
-            uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
-            print("Videos in list %s" % uploads_list_id)
-
-        playlistitems_list_request = self.youtube.playlistItems().list(
-            playlistId=uploads_list_id, part="snippet", maxResults=50
-        )
-
-        item_list = []
-        while playlistitems_list_request:
-            playlistitems_list_response = playlistitems_list_request.execute()
-
-            length = len(playlistitems_list_response["items"])
-            print("!!!!!!!!!!!!!! len=%d" % length)
-            index = random.randint(0, length - 1)
-            playlist_item = playlistitems_list_response["items"][index]
-            item_list.append(playlist_item)
-
-            playlistitems_list_request = self.youtube.playlistItems().list_next(
-                playlistitems_list_request, playlistitems_list_response
-            )
-
-        index2 = random.randint(0, len(item_list) - 1)
-        print("----------- len(items)=%d" % len(item_list))
-        print("----------- index2=%d" % index2)
-        fix_playlist_item = item_list[index2]
-
-        title = fix_playlist_item["snippet"]["title"]
-        video_id = fix_playlist_item["snippet"]["resourceId"]["videoId"]
-        url = fix_playlist_item["snippet"]["thumbnails"]["high"]["url"]
-        published_at = fix_playlist_item["snippet"]["publishedAt"]
-        print("%s (%s) %s %s" % (title, video_id, url, published_at))
+        title = playlist_item["snippet"]["title"]
+        video_id = playlist_item["snippet"]["resourceId"]["videoId"]
+        url = playlist_item["snippet"]["thumbnails"]["high"]["url"]
+        published_at = playlist_item["snippet"]["publishedAt"]
 
         movie = Movie(title, video_id, url, published_at)
+        print("create movie: " + movie.to_string())
 
         return movie
 
@@ -102,7 +77,37 @@ class YouTube(object):
         else:
             return False
 
-    def get_youtube_movie_match_date(self):
+    def __is_within_one_week(self, date_str: str) -> bool:
+        date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.000Z")
+        now = datetime.now()
+        one_week_ago = now - timedelta(weeks=1)
+        if one_week_ago < date:
+            # １週間以内ならtrue
+            return True
+        else:
+            return False
+
+    def get_youtube_movie(self) -> Union[None, Movie]:
+        return self.__get_youtube_movie(self.__filter_non)
+
+    def __filter_non(self, items: List) -> List:
+        return items
+
+    def get_youtube_movie_match_today(self) -> Union[None, Movie]:
+        return self.__get_youtube_movie(self.__filter_match_today)
+
+    def __filter_match_today(self, items: List) -> List:
+        return list(filter(lambda item: self.__match(item["snippet"]["title"]), items))
+
+    def get_youtube_movies_recent(self) -> List[Optional[Movie]]:
+        return self.__get_youtube_movies(self.__filter_recent)
+
+    def __filter_recent(self, items: List) -> List:
+        return list(
+            filter(lambda item: self.__is_within_one_week(item["snippet"]["publishedAt"]), items)
+        )
+
+    def __get_playlistitems_list_request(self):
         channels_response = self.youtube.channels().list(mine=True, part="contentDetails").execute()
 
         for channel in channels_response["items"]:
@@ -113,42 +118,55 @@ class YouTube(object):
             playlistId=uploads_list_id, part="snippet", maxResults=50
         )
 
-        all_match_items = []
+        return playlistitems_list_request
+
+    def __get_youtube_movie(self, filter_method) -> Union[None, Movie]:
+        playlistitems_list_request = self.__get_playlistitems_list_request()
+
+        all_items = []
         while playlistitems_list_request:
             playlistitems_list_response = playlistitems_list_request.execute()
 
-            list_items = playlistitems_list_response["items"]
-
-            match_items = list(
-                filter(lambda item: self.__match(item["snippet"]["title"]), list_items)
-            )
-            if len(match_items) > 0:
-                index = random.randint(0, len(match_items) - 1)
-                print("----------- match item found ! len=%d, index=%d" % (len(match_items), index))
-                all_match_items.append(match_items[index])
-            else:
-                print("no match items.....")
+            items = playlistitems_list_response["items"]
+            filterd_items = filter_method(items)
+            select_item = self.__select_movie_item(filterd_items)
+            all_items.append(select_item)
 
             playlistitems_list_request = self.youtube.playlistItems().list_next(
                 playlistitems_list_request, playlistitems_list_response
             )
 
-        if len(all_match_items) > 0:
-            index = random.randint(0, len(all_match_items) - 1)
-            print(
-                "----------- [fix] match item found ! len=%d, index=%d"
-                % (len(all_match_items), index)
+        return self.__create_movie(self.__select_movie_item(all_items))
+
+    def __get_youtube_movies(self, filter_method) -> List[Optional[Movie]]:
+        playlistitems_list_request = self.__get_playlistitems_list_request()
+
+        all_items: List[Movie] = []
+        while playlistitems_list_request:
+            playlistitems_list_response = playlistitems_list_request.execute()
+
+            items = playlistitems_list_response["items"]
+            filterd_items = filter_method(items)
+            all_items.extend(filterd_items)
+
+            playlistitems_list_request = self.youtube.playlistItems().list_next(
+                playlistitems_list_request, playlistitems_list_response
             )
-            fix_playlist_item = all_match_items[index]
 
-            title = fix_playlist_item["snippet"]["title"]
-            video_id = fix_playlist_item["snippet"]["resourceId"]["videoId"]
-            url = fix_playlist_item["snippet"]["thumbnails"]["high"]["url"]
-            published_at = fix_playlist_item["snippet"]["publishedAt"]
-            print("%s (%s) %s %s" % (title, video_id, url, published_at))
+        print("----------- recent movie items ! length=%d" % (len(all_items)))
+        all_movies = []
+        for item in all_items:
+            all_movies.append(self.__create_movie(item))
 
-            movie = Movie(title, video_id, url, published_at)
-            return movie
+        # 最大でも１０個まで
+        return all_movies[:10]
+
+    def __select_movie_item(self, playlist_items: List) -> Union[None, Movie]:
+        items_number = len(playlist_items)
+        if items_number > 0:
+            index = random.randint(0, items_number - 1)
+            print("----------- select movie item ! number=%d, index=%d" % (items_number, index))
+            return playlist_items[index]
         else:
-            print("not found video.")
+            print("empty playlist.")
             return None

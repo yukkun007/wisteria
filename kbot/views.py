@@ -26,6 +26,7 @@ from kbot.library.reserved_book import ReservedBook, ReservedBookFilter, Reserve
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
+from kbot.google.movie import Movie
 from kbot.book.calil import CalilService
 from kbot.book.rakuten_books import RakutenBooksService
 from kbot.book.common import BookSearchQueryFactory
@@ -130,19 +131,7 @@ def youtube_omoide(request):
         return HttpResponseBadRequest()
 
 
-def __youtube_omoide():
-    Log.info("GET! youtube_omoide")
-
-    description = ""
-    youtube = YouTube()
-    movie = youtube.get_youtube_movie_match_date()
-    if movie is None:
-        youtube = YouTube()
-        movie = youtube.get_youtube_movie()
-        description = "投稿日: " + movie.published_at
-    else:
-        description = "★　 " + str(movie.past_years) + " 年前の今日　★"
-
+def __send_youtube_movie_message(movie: Movie, description: str) -> None:
     Log.info(movie.to_string())
 
     buttons_template = ButtonsTemplate(
@@ -156,6 +145,44 @@ def __youtube_omoide():
         ],
     )
     line.my_push_message(buttons_template, line_tos)
+
+
+def __youtube_omoide():
+    Log.info("GET! youtube_omoide")
+
+    description = ""
+    youtube = YouTube()
+    movie = youtube.get_youtube_movie_match_today()
+    if movie is None:
+        youtube = YouTube()
+        movie = youtube.get_youtube_movie()
+        description = "投稿日: " + movie.published_at
+    else:
+        description = "★　 " + str(movie.past_years) + " 年前の今日　★"
+
+    __send_youtube_movie_message(movie, description)
+
+
+def youtube_recent(request):
+    if request.method == "GET":
+        __youtube_recent()
+        return HttpResponse("done! youtube_recent")
+    else:
+        return HttpResponseBadRequest()
+
+
+def __youtube_recent():
+    Log.info("GET! youtube_recent")
+
+    youtube = YouTube()
+    movies = youtube.get_youtube_movies_recent()
+    for movie in movies:
+        if movie is None:
+            # 何もしない
+            pass
+        else:
+            description = "投稿日: " + movie.published_at
+            __send_youtube_movie_message(movie, description)
 
 
 def __get_reserved_book_filter_of_user_specify(text):
