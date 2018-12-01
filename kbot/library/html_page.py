@@ -14,14 +14,23 @@ class HtmlPage(object):
     def __init__(self) -> None:
         Log.info("driver.create/start")
         options = ChromeOptions()
-        options.add_argument("--headless")
+        # 必須
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
+        # エラーの許容
+        options.add_argument('--ignore-certificate-errors')
+        options.add_argument('--allow-running-insecure-content')
+        options.add_argument('--disable-web-security')
+        # headlessでは不要そうな機能
+        options.add_argument('--disable-desktop-notifications')
+        options.add_argument("--disable-extensions")
         # UA
-        # user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36"  # noqa
-        # options.add_argument("--user-agent=" + user_agent)
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36"  # noqa
+        options.add_argument("--user-agent=" + user_agent)
         # 言語
-        # options.add_argument("--lang=ja")
+        options.add_argument('--lang=ja')
         # 画像を読み込まないで軽くする
-        # options.add_argument("--blink-settings=imagesEnabled=false")
+        options.add_argument('--blink-settings=imagesEnabled=false')
         self.driver = Chrome(options=options)
         Log.info("driver.create/end")
 
