@@ -253,6 +253,7 @@ def callback(request):
         return HttpResponseBadRequest()
 
     Log.info("POST! callback")
+    events = None
     try:
         signature = request.META["HTTP_X_LINE_SIGNATURE"]
         body = request.body.decode("utf-8")
@@ -262,14 +263,23 @@ def callback(request):
 
     except InvalidSignatureError as e:
         Log.logging_exception(e)
+        __reply_line_error_message(events)
         return HttpResponseForbidden()
     except LineBotApiError as e:
         Log.logging_exception(e)
+        __reply_line_error_message(events)
         return HttpResponseBadRequest()
     except Exception as e:
         Log.logging_exception(e)
+        __reply_line_error_message(events)
 
     return HttpResponse("done! callback")
+
+
+def __reply_line_error_message(events):
+    if events is not None:
+        for event in events:
+            line.my_reply_message("エラー発生。。すみません、もう一度送ってください。", event)
 
 
 def __check_books(event, config):
