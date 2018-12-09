@@ -62,10 +62,14 @@ gmail_tos = [os.environ["GMAIL_SEND_ADDRESS1"], os.environ["GMAIL_SEND_ADDRESS2"
 
 
 def check_rental_state(request):
-    if request.method == "GET":
-        user_id = request.GET.get("user")
-        __check_rental_state(user_id)
-        return HttpResponse("done! check_rental_status")
+    try:
+        if request.method == "GET":
+            user_id = request.GET.get("user")
+            __check_rental_state(user_id)
+            return HttpResponse("done! check_rental_status")
+    except Exception as e:
+        Log.info("library_check_rental_state: failed.")
+        Log.logging_exception(e)
 
 
 def __check_rental_state(user_id: str):
@@ -87,10 +91,14 @@ def __check_rental_state(user_id: str):
 
 
 def check_reserve_state(request):
-    if request.method == "GET":
-        user_id = request.GET.get("user")
-        __check_reserve_state(user_id)
-        return HttpResponse("done! check_reserve_status")
+    try:
+        if request.method == "GET":
+            user_id = request.GET.get("user")
+            __check_reserve_state(user_id)
+            return HttpResponse("done! check_reserve_status")
+    except Exception as e:
+        Log.info("library_check_reserve: failed.")
+        Log.logging_exception(e)
 
 
 def __check_reserve_state(user_id: str):
@@ -101,10 +109,14 @@ def __check_reserve_state(user_id: str):
 
 
 def library_reserve(request):
-    if request.method == "GET":
-        book_id = request.GET.get("book_id")
-        __library_reserve(book_id)
-        return HttpResponse("done! library_reserve")
+    try:
+        if request.method == "GET":
+            book_id = request.GET.get("book_id")
+            __library_reserve(book_id)
+            return HttpResponse("done! library_reserve")
+    except Exception as e:
+        Log.info("library_reserve: failed.")
+        Log.logging_exception(e)
 
 
 def __library_reserve(book_id):
@@ -123,12 +135,37 @@ def __library_reserve(book_id):
         line.my_push_message("予約失敗。。", line_tos)
 
 
+def gmail_check(request):
+    try:
+        if request.method == "GET":
+            query = "from:info@keishicho.metro.tokyo.jp is:unread"
+            _gmail_check(query)
+            return HttpResponse("done! gmail_check")
+        else:
+            return HttpResponseBadRequest()
+    except Exception as e:
+        Log.info("gmail_check: failed.")
+        Log.logging_exception(e)
+
+
+def _gmail_check(query):
+    Log.info("GET! gmail_check")
+
+    messages = gmail.get_messages(query)
+    for message in messages:
+        line.my_push_message(message, line_tos)
+
+
 def youtube_omoide(request):
-    if request.method == "GET":
-        __youtube_omoide()
-        return HttpResponse("done! youtube_omoide")
-    else:
-        return HttpResponseBadRequest()
+    try:
+        if request.method == "GET":
+            __youtube_omoide()
+            return HttpResponse("done! youtube_omoide")
+        else:
+            return HttpResponseBadRequest()
+    except Exception as e:
+        Log.info("youtube_omoide: failed.")
+        Log.logging_exception(e)
 
 
 def __send_youtube_movie_message(movie: Movie, description: str) -> None:
@@ -164,21 +201,27 @@ def __youtube_omoide():
 
 
 def youtube_recent(request):
-    if request.method == "GET":
-        __youtube_recent()
-        return HttpResponse("done! youtube_recent")
-    else:
-        return HttpResponseBadRequest()
+    try:
+        if request.method == "GET":
+            _youtube_recent()
+            return HttpResponse("done! youtube_recent")
+        else:
+            return HttpResponseBadRequest()
+    except Exception as e:
+        Log.info("youtube_recent: failed.")
+        Log.logging_exception(e)
 
 
-def __youtube_recent():
+def _youtube_recent():
     Log.info("GET! youtube_recent")
 
     youtube = YouTube()
     movies = youtube.get_youtube_movies_recent()
+    Log.info("youtube_recent: len of movie=" + str(len(movies)))
     for movie in movies:
         if movie is None:
             # 何もしない
+            Log.info("youtube_recent: movie is none.")
             pass
         else:
             description = "投稿日: " + movie.published_at

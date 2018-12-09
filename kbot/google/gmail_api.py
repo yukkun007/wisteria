@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from apiclient.discovery import build
+import base64
+import email
 import webbrowser
+from apiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
 from googleapiclient.errors import HttpError
@@ -11,7 +13,6 @@ from googleapiclient.errors import HttpError
 import httplib2
 
 
-import base64
 from email.mime.text import MIMEText
 
 auth_url = "https://accounts.google.com/o/oauth2/auth?"
@@ -73,7 +74,7 @@ class GmailApi:
             print("An error occurred:s" % error)
             self.reconnect()
 
-    def getMailContent(self, user, i):
+    def getMailMessage(self, user, i):
         """指定したメールのIDからメールの内容を取得します。
 
                 Keyword arguments:
@@ -85,10 +86,33 @@ class GmailApi:
                 http://developers.google.com/apis-explorer/#p/gmail/v1/gmail.users.messages.get
         """
         try:
-            return self.service.users().messages().get(userId=user, id=i).execute()
+            message = self.service.users().messages().get(userId=user, id=i, format="raw").execute()
+            msg_str = base64.urlsafe_b64decode(message["raw"]).decode("utf-8")
+            return email.message_from_string(msg_str)
         except HttpError as error:
             print("An error occurred:s" % error)
             self.reconnect()
+
+    def getSubject(self, message):
+        subjects = email.header.decode_header(message.get("Subject"))
+        for subject in subjects:
+            if isinstance(subject[0], bytes) and subject[1] is not None:
+                return subject[0].decode(subject[1])
+            else:
+                return subject[0].decode()
+
+    def getBody(self, message):
+        if message.is_multipart():
+            for payload in message.get_payload():
+                if payload.get_content_type() == "text/plain":
+                    charset = message.get_param("charset")
+                    if charset is None:
+                        return payload.get_payload(decode=True).decode("iso-2022-jp")
+                    else:
+                        return payload.get_payload(decode=True).decode(charset)
+        else:
+            charset = message.get_param("charset")
+            return message.get_payload(decode=True).decode(charset)
 
     def doMailAsRead(self, user, i):
         """指定したメールのIDを既読にします

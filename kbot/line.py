@@ -18,7 +18,8 @@ class Line(object):
             add_string = ""
             if len(input_parameter) > 1900:
                 add_string = "....."
-            return TextSendMessage(text=input_parameter[:1900] + add_string)
+            message = input_parameter[:1900] + add_string
+            return TextSendMessage(text=message)
         else:
             return TemplateSendMessage(alt_text=".....", template=input_parameter)
 
