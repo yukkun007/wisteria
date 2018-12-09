@@ -6,7 +6,11 @@ from unittest.mock import patch, MagicMock
 from kbot.views import (
     check_rental_state,
     check_reserve_state,
+    gmail_check,
+    _gmail_check,
     youtube_omoide,
+    youtube_recent,
+    _youtube_recent,
     library_reserve,
     _handler_maps,
 )
@@ -66,6 +70,33 @@ class TestViews:
     @pytest.mark.slow
     def test_inner_check_reserve_state(self):
         inner_check_reserve_state("0")
+
+    @pytest.mark.parametrize("http_method", [("GET"), ("OTHER")])
+    def test_gmail_check(self, http_method):
+        with patch("kbot.views._gmail_check") as mock, patch("kbot.views.HttpResponse"), patch(
+            "kbot.views.HttpResponseBadRequest"
+        ):
+            gmail_check(TestViews.__create_request_mock(http_method))
+            if http_method == "GET":
+                mock.assert_called_once()
+
+    @pytest.mark.slow
+    def test_inner_gmail_check(self):
+        query = "from:info@keishicho.metro.tokyo.jp is:unread"
+        _gmail_check(query)
+
+    @pytest.mark.parametrize("http_method", [("GET"), ("OTHER")])
+    def test_youtube_recent(self, http_method):
+        with patch("kbot.views._youtube_recent") as mock, patch("kbot.views.HttpResponse"), patch(
+            "kbot.views.HttpResponseBadRequest"
+        ):
+            youtube_recent(TestViews.__create_request_mock(http_method))
+            if http_method == "GET":
+                mock.assert_called_once()
+
+    @pytest.mark.slow
+    def test_inner_youtube_recent(self):
+        _youtube_recent()
 
     @pytest.mark.parametrize("http_method", [("GET"), ("OTHER")])
     def test_youtube_omoide(self, http_method):
