@@ -10,7 +10,7 @@ django-toolbelt = "==0.0.1"
 google-api-python-client = "==1.7.6"
 line-bot-sdk = "==1.8.0"
 python-dotenv = "==0.10.0"
-requests = "==2.20.1"
+requests = "==2.21.0"
 selenium = "==3.141.0"
 Jinja2 = "==2.10"
 
