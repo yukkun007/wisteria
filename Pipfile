@@ -20,7 +20,7 @@ flake8 = "==3.6.0"
 black = "==18.9b0"
 pytest = "==4.1.1"
 pytest-cov = "==2.6.1"
-pytest-xdist = "==1.26.0"
+pytest-xdist = "==1.26.1"
 codecov = "==2.0.15"
 
 [requires]
