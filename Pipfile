@@ -16,7 +16,7 @@ Jinja2 = "==2.10"
 
 [dev-packages]
 mypy = "==0.660"
-flake8 = "==3.7.3"
+flake8 = "==3.7.4"
 black = "==18.9b0"
 pytest = "==4.2.0"
 pytest-cov = "==2.6.1"
