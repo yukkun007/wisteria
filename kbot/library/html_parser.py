@@ -36,7 +36,7 @@ class HtmlParser(object):
 
     @classmethod
     def __get_table(cls, soup, id_string):
-        table = soup.select("form[name='" + id_string + "'] > table[border]")
+        table = soup.select("form[name='" + id_string + "'] > div > table[border]")
 
         if len(table) <= 0:
             Log.info("table not found.")
