@@ -52,13 +52,3 @@ class Library(object):
 
     def check_books(self, filter_setting):
         return self.__check_books([filter_setting])
-
-    def reserve(self, user_num, book_id):
-        html_page = HtmlPage()
-        return_url = html_page.reserve(
-            Library.LIBRALY_HOME_URL,
-            self.users.get(int(user_num)),
-            Library.LIBRALY_BOOK_URL.format(book_id),
-        )
-        html_page.release_resource()
-        return return_url

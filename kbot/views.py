@@ -7,7 +7,6 @@ import urllib
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseRedirect,
     HttpResponseForbidden,
 )
 from django.views.decorators.csrf import csrf_exempt
@@ -22,7 +21,7 @@ from kbot.library.rental_book_filter import (
     RentalBookExpireFilter,
     RentalBookExpiredFilter
 )
-from kbot.library.reserved_book import ReservedBook, ReservedBookFilter, ReservedBookPreparedFilter
+from kbot.library.reserved_book import ReservedBookFilter, ReservedBookPreparedFilter
 from kbot.log import Log
 from kbot.google.gmail import GMail
 from kbot.google.youtube import YouTube
@@ -106,33 +105,6 @@ def __check_reserve_state(user_id: str):
     rental_filter = RentalBookFilter(users=user_id)
     reserved_filter = ReservedBookPreparedFilter(users=user_id)
     __check_rental_and_reserved_books(None, rental_filter, reserved_filter)
-
-
-def library_reserve(request):
-    try:
-        if request.method == "GET":
-            book_id = request.GET.get("book_id")
-            __library_reserve(book_id)
-            return HttpResponse("done! library_reserve")
-    except Exception as e:
-        Log.info("library_reserve: failed.")
-        Log.logging_exception(e)
-
-
-def __library_reserve(book_id):
-    Log.info("GET! library_reserve")
-
-    if book_id is not None:
-        user_num = "0"
-        library = Library(users)
-        url = library.reserve(user_num, book_id)
-
-        template = ReservedBook.make_finish_reserve_message_template(user_num)
-        line.my_push_message(template, line_tos)
-
-        return HttpResponseRedirect(url)
-    else:
-        line.my_push_message("予約失敗。。", line_tos)
 
 
 def gmail_check(request):
@@ -391,13 +363,12 @@ def __search_library_book_author(event, text=None):
 
 
 def __search_book_by_isbn(event, text=None):
+    # 楽天ブックスで検索
+    query = BookSearchQueryFactory.create(text)
+    rakuten_book = RakutenBooksService.get_one_book(query)
     # calilで検索
     query = BookSearchQueryFactory.create(text)
     calil_book = CalilService.get_one_book(query)
-    # amazonで検索
-    # book.merge(amazon.get_book(isbn))
-    query = BookSearchQueryFactory.create(text)
-    rakuten_book = RakutenBooksService.get_one_book(query)
     # メッセージ作成
     message = rakuten_book.get_text_message() + calil_book.get_text_message()
     line.my_reply_message(message, event)
