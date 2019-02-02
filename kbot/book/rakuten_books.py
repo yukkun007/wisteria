@@ -34,7 +34,7 @@ class RakutenBooksService(object):
         response = requests.get(
             RakutenBooksService.RAKUTEN_BASE_URL, params=RakutenBooksQuery.adjust_query(query)
         )
-        json_data = response.json()  # TODO:nullチェック
+        json_data = response.json()  # TODO: nullチェック
         return json_data
 
 
