@@ -4,7 +4,6 @@
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.by import By
 from kbot.log import Log
 from kbot.library.user import User
@@ -15,22 +14,22 @@ class HtmlPage(object):
         Log.info("driver.create/start")
         options = ChromeOptions()
         # 必須
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
         # エラーの許容
-        options.add_argument('--ignore-certificate-errors')
-        options.add_argument('--allow-running-insecure-content')
-        options.add_argument('--disable-web-security')
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--allow-running-insecure-content")
+        options.add_argument("--disable-web-security")
         # headlessでは不要そうな機能
-        options.add_argument('--disable-desktop-notifications')
+        options.add_argument("--disable-desktop-notifications")
         options.add_argument("--disable-extensions")
         # UA
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36"  # noqa
         options.add_argument("--user-agent=" + user_agent)
         # 言語
-        options.add_argument('--lang=ja')
+        options.add_argument("--lang=ja")
         # 画像を読み込まないで軽くする
-        options.add_argument('--blink-settings=imagesEnabled=false')
+        options.add_argument("--blink-settings=imagesEnabled=false")
         self.driver = Chrome(options=options)
         Log.info("driver.create/end")
 
@@ -69,28 +68,6 @@ class HtmlPage(object):
         # ロードされたかを確認
         self.__wait_element((By.NAME, "FormLEND"))
         Log.info("----------- 6: [end] wait")
-
-    def reserve(self, login_url: str, user: User, url: str) -> str:
-        self.__login(login_url, user)
-
-        self.driver.get(url)
-        self.__wait()
-
-        element = self.__wait_element((By.ID, "library"))
-        select = Select(element)
-        select.select_by_index(10)
-
-        submit = self.__wait_element((By.NAME, "reg"))
-        submit.click()
-
-        self.__wait()
-
-        submit = self.__wait_element((By.NAME, "chkRb"))
-        submit.click()
-
-        current_url = self.driver.current_url
-
-        return current_url
 
     def fetch_login_page(self, login_url: str, user: User) -> str:
         self.__login(login_url, user)

@@ -11,13 +11,11 @@ from kbot.views import (
     youtube_omoide,
     youtube_recent,
     _youtube_recent,
-    library_reserve,
     _handler_maps,
 )
 from kbot.views import __check_rental_state as inner_check_rental_state
 from kbot.views import __check_reserve_state as inner_check_reserve_state
 from kbot.views import __youtube_omoide as inner_youtube_omoide
-from kbot.views import __library_reserve as inner_library_reserve
 from kbot.views import (
     __get_rental_book_filter_of_user_specify as inner_get_rental_book_filter_of_user_specify,
 )
@@ -110,23 +108,6 @@ class TestViews:
     @pytest.mark.slow
     def test_inner_youtube_omoide(self):
         inner_youtube_omoide()
-
-    @pytest.mark.parametrize("http_method", [("GET")])
-    def test_library_reserve(self, http_method):
-        with patch("kbot.views.__library_reserve") as mock, patch("kbot.views.HttpResponse"):
-            request_mock = TestViews.__create_request_mock(http_method)
-            request_mock.GET.get.return_value = "book_id:1111"
-            library_reserve(request_mock)
-            if http_method == "GET":
-                mock.assert_called_once()
-
-    def test_inner_library_reserve_success(self):
-        with patch("kbot.views.Library.reserve") as mock, patch("kbot.views.HttpResponseRedirect"):
-            inner_library_reserve("book_id:1111")
-            mock.assert_called_once()
-
-    def test_inner_library_reserve_fail(self):
-        inner_library_reserve(None)
 
     def test_inner_get_rental_book_filter_of_user_specify(self):
         filter = inner_get_rental_book_filter_of_user_specify("図書？test")

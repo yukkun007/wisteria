@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 
-from linebot.models import ButtonsTemplate, PostbackTemplateAction
 from kbot.library.common import Books, BookFilter
 from kbot.log import Log
 
@@ -105,15 +104,3 @@ class ReservedBook(object):
             return int(order.split("/")[0])
         except ValueError:
             return 0
-
-    @staticmethod
-    def make_finish_reserve_message_template(user_num):
-        buttons_template = ButtonsTemplate(
-            title="予約完了",
-            text="予約できました。",
-            actions=[
-                PostbackTemplateAction(label="予約状況確認", data="check_reserve:" + user_num),
-                PostbackTemplateAction(label="予約状況確認(全員分)", data="check_reserve:all"),
-            ],
-        )
-        return buttons_template

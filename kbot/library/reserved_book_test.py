@@ -42,6 +42,3 @@ class TestReservedBook:
 
     def test_is_dereverd_false(self):
         assert ReservedBook._ReservedBook__is_dereverd("status") is False
-
-    def test_make_finish_reserve_message_template(self):
-        ReservedBook.make_finish_reserve_message_template("1")
