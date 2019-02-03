@@ -16,7 +16,7 @@ class TestGMail:
         return GMail()
 
     @pytest.mark.slow
-    def test_gmail(self, gmail1):
+    def test_gmail_send_message(self, gmail1):
         gmail1.send_message_multi([os.environ["GMAIL_SEND_ADDRESS1"]], "this is test.", "test")
 
     @pytest.mark.slow
