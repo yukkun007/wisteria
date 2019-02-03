@@ -2,7 +2,7 @@ language: python
 python:
   - 3.6
 before_install:
-  - openssl aes-256-cbc -K $encrypted_b6099d0e7402_key -iv $encrypted_b6099d0e7402_iv -in .env.enc -out wisteria/.env -d
+  - openssl aes-256-cbc -K $encrypted_e2b37024b6e1_key -iv $encrypted_e2b37024b6e1_iv -in .env.enc -out wisteria/.env -d
 addons:
   chrome: stable
 install:
