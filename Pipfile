@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-beautifulsoup4 = "==4.7.1"
+beautifulsoup4 = "==4.8.0"
 dateutils = "==0.6.6"
 django-toolbelt = "==0.0.1"
 google-api-python-client = "==1.7.9"
