@@ -109,7 +109,7 @@ class RentalBooks(Books):
 
     @classmethod
     def __can_extend_period(cls, text: str) -> bool:
-        if "更新" in text:
+        if "延長できません" in text:
             return False
         return True
 

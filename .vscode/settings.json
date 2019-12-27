@@ -15,9 +15,9 @@
         "--ignore=E203,W503",
         "--verbose"
     ],
-    "python.unitTest.pyTestEnabled": true,
-    "python.unitTest.pyTestPath": "${workspaceFolder}/.venv/bin/py.test",
-    "python.unitTest.pyTestArgs": [
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestPath": "${workspaceFolder}/.venv/bin/py.test",
+    "python.testing.pytestArgs": [
         "kbot"
     ],
 }

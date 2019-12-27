@@ -8,6 +8,7 @@ class Log(object):
     def info(message):
         logger = logging.getLogger("command")
         logger.info(message)
+        # print(message)
 
     def logging_exception(e):
         Log.info("type:" + str(type(e)))
