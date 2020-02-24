@@ -22,7 +22,7 @@ black = "==19.10b0"
 pytest = "==5.3.5"
 pytest-cov = "==2.8.1"
 pytest-xdist = "==1.31.0"
-codecov = "==2.0.15"
+codecov = "==2.0.16"
 
 [requires]
 python_version = "3.6"
